@@ -65,4 +65,4 @@ PHP=/path/to/php85 bin/test
 Rscript tests/r/reference.R     # regenerate the dplyr reference outputs
 ```
 
-During development phibble comes from a Composer path repository pointing at a local checkout (see `repositories` in composer.json).
+phibble is installed from GitHub (`dev-main`) through a VCS repository in composer.json.

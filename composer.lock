@@ -4,15 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ab2bc8ecd351a4cbe3b386ae704037e",
+    "content-hash": "d18fd8444e285df5fd0d5b62ed8482e9",
     "packages": [
         {
             "name": "erikwestlund/phibble",
-            "version": "dev-topaz-duck",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/erikwestlund/phibble.git",
+                "reference": "82d8cc3100c0e02463b330c12e2d2a064975fa35"
+            },
             "dist": {
-                "type": "path",
-                "url": "/Users/erik/.polyscope/clones/4fdf7c2b/topaz-duck",
-                "reference": "34cc7f9a4adf7dce5bacdf49086b7f4cbe23fb9e"
+                "type": "zip",
+                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/82d8cc3100c0e02463b330c12e2d2a064975fa35",
+                "reference": "82d8cc3100c0e02463b330c12e2d2a064975fa35",
+                "shasum": ""
             },
             "require": {
                 "ext-pdo": "*",
@@ -24,6 +30,7 @@
             "suggest": {
                 "ext-pdo_sqlite": "Used by the test suite for the PDO source"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -39,10 +46,11 @@
                 "MIT"
             ],
             "description": "A typed, immutable in-memory data frame for PHP.",
-            "transport-options": {
-                "symlink": true,
-                "relative": false
-            }
+            "support": {
+                "source": "https://github.com/erikwestlund/phibble/tree/main",
+                "issues": "https://github.com/erikwestlund/phibble/issues"
+            },
+            "time": "2026-10-16T02:49:02+00:00"
         }
     ],
     "packages-dev": [
