@@ -66,8 +66,6 @@ convention, so phplyr decides what a function receives:
 - **`mutate(.keep = "used")` and `.keep = "unused"` with closures.** These work
   with expression arguments such as `col('x')->mul(2)`, whose columns can be
   read. A PHP closure does not expose the columns it reads.
-- **Inequality, rolling, and overlap joins** need a phibble release with their
-  support. `join_by()` builds them already; equality `join_by()` works now.
 - **`group_by(.drop = FALSE)`**, which keeps empty factor-level groups.
 - **`cur_group()`, `cur_column()`, and `cur_data()`.** `cur_group_id()` and
   `cur_group_rows()` are supported in `mutate()`, `summarise()`, and `reframe()`.

@@ -56,8 +56,8 @@ join_by(overlaps('lo', 'hi', 'start', 'end'))
 
 For inequality, rolling, and overlap joins, `keep` defaults to dplyr's
 behavior: equality keys are merged and the columns in other conditions are
-kept from both tables. `keep: false` is an error for these joins. They need a
-phibble release with inequality-join support.
+kept from both tables. `keep: false` is an error for these joins. Database tables
+run them in SQL, except right and full rolling joins, which load the rows.
 
 ## Binding
 
