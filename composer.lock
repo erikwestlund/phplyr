@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwestlund/phibble.git",
-                "reference": "e1afdf8cc85a1f0d88af8635e4de72441383c772"
+                "reference": "ee41ea4c68c497c63e6f2af1c405a6ec37ee27fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/e1afdf8cc85a1f0d88af8635e4de72441383c772",
-                "reference": "e1afdf8cc85a1f0d88af8635e4de72441383c772",
+                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/ee41ea4c68c497c63e6f2af1c405a6ec37ee27fb",
+                "reference": "ee41ea4c68c497c63e6f2af1c405a6ec37ee27fb",
                 "shasum": ""
             },
             "require": {
@@ -25,13 +25,22 @@
                 "php": "^8.5"
             },
             "require-dev": {
+                "illuminate/database": "^12.0",
                 "pestphp/pest": "^4.0"
             },
             "suggest": {
-                "ext-pdo_sqlite": "Used by the test suite for the PDO source"
+                "ext-pdo_sqlite": "Used by the test suite for the PDO source",
+                "illuminate/database": "Laravel integration: Collection::toFrame() and query builder ->phibble() / ->toFrame() macros (auto-discovered)"
             },
             "default-branch": true,
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Phibble\\Laravel\\PhibbleServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Phibble\\": "src/"
@@ -54,7 +63,7 @@
                 "source": "https://github.com/erikwestlund/phibble/tree/main",
                 "issues": "https://github.com/erikwestlund/phibble/issues"
             },
-            "time": "2026-10-16T03:29:58+00:00"
+            "time": "2026-10-16T03:37:16+00:00"
         }
     ],
     "packages-dev": [

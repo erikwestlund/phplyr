@@ -316,6 +316,14 @@ ul.task-list li input[type="checkbox"] {
 <td><code>left_join($y, by: 'a')</code></td>
 </tr>
 <tr class="even">
+<td><code>join_by(id, t &gt;= start)</code></td>
+<td><code>join_by('id', col('t')-&gt;ge(col('start')))</code></td>
+</tr>
+<tr class="odd">
+<td><code>join_by(closest(t &gt;= start))</code></td>
+<td><code>join_by(closest(col('t')-&gt;ge(col('start'))))</code></td>
+</tr>
+<tr class="even">
 <td><code>pivot_longer(-id)</code></td>
 <td><code>pivot_longer(except('id'))</code></td>
 </tr>
@@ -354,9 +362,9 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li><strong>Bare column names and tidy evaluation.</strong> Columns are strings, and expressions are closures or phplyr helpers.</li>
 <li><strong><code>mutate(.keep = "used")</code> and <code>.keep = "unused"</code> with closures.</strong> These work with expression arguments such as <code>col('x')-&gt;mul(2)</code>, whose columns can be read. A PHP closure does not expose the columns it reads.</li>
-<li><strong>Inequality and rolling joins</strong> (<code>join_by(a &gt;= b)</code>, <code>closest()</code>).</li>
+<li><strong>Inequality, rolling, and overlap joins</strong> need a phibble release with their support. <code>join_by()</code> builds them already; equality <code>join_by()</code> works now.</li>
 <li><strong><code>group_by(.drop = FALSE)</code></strong>, which keeps empty factor-level groups.</li>
-<li><strong><code>cur_group_id()</code> and the other <code>cur_*()</code> functions.</strong> Use <code>group_indices()</code> or the group table passed to closures.</li>
+<li><strong><code>cur_group()</code>, <code>cur_column()</code>, and <code>cur_data()</code>.</strong> <code>cur_group_id()</code> and <code>cur_group_rows()</code> are supported in <code>mutate()</code>, <code>summarise()</code>, and <code>reframe()</code>.</li>
 <li><strong>Data frame columns</strong>, <code>across(.unpack)</code>, and <code>nest_join()</code>.</li>
 <li><strong>Superseded functions</strong> such as <code>top_n()</code>, <code>sample_n()</code>, the scoped <code>_at</code>, <code>_if</code>, and <code>_all</code> variants, and <code>recode()</code>. Use <code>slice_max()</code>, <code>slice_sample()</code>, <code>across()</code>, and <code>recode_values()</code>.</li>
 </ul>

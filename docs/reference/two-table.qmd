@@ -39,6 +39,26 @@ The options follow dplyr 1.1:
 
 Joins keep x's grouping, except for a grouping column that the join renames.
 
+## join_by()
+
+`join_by()` builds dplyr's join specifications. A string is an equality on
+the same column name, `['a' => 'b']` maps names, and a comparison of two
+`col()` expressions compares x's column (left) with y's (right). Every
+condition must hold.
+
+```php
+join_by('id', col('t')->ge(col('start')), col('t')->lt(col('end')))
+join_by('id', between('t', 'start', 'end'))        // start and end are y's columns
+join_by('id', closest(col('t')->ge(col('start'))))  // the latest start at or before t
+join_by(within('lo', 'hi', 'start', 'end'))         // x's interval inside y's
+join_by(overlaps('lo', 'hi', 'start', 'end'))
+```
+
+For inequality, rolling, and overlap joins, `keep` defaults to dplyr's
+behavior: equality keys are merged and the columns in other conditions are
+kept from both tables. `keep: false` is an error for these joins. They need a
+phibble release with inequality-join support.
+
 ## Binding
 
 `bind_rows()` stacks tables under the piped one, matching columns by name and

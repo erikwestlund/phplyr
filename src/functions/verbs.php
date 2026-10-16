@@ -207,11 +207,12 @@ function desc(mixed $x): Desc
 /**
  * Group by columns (names or selectors). Named arguments group by a computed
  * column: group_by(decade: fn ($r) => intdiv($r->year, 10) * 10).
- * Option: _add (add to the existing groups).
+ * Options: _add (add to the existing groups), _drop (false keeps empty
+ * factor-level groups; needs backend support).
  */
 function group_by(mixed ...$columns): Closure
 {
-    [$columns, $o] = Internal::options($columns, ['_add' => false], 'group_by');
+    [$columns, $o] = Internal::options($columns, ['_add' => false, '_drop' => true], 'group_by');
 
     return function (Table $t) use ($columns, $o) {
         $computed = array_filter($columns, fn ($k) => \is_string($k), ARRAY_FILTER_USE_KEY);
@@ -224,7 +225,16 @@ function group_by(mixed ...$columns): Closure
             $names = [...$t->groups(), ...$names];
         }
 
-        return $t->groupBy(array_values(array_unique($names)));
+        $names = array_values(array_unique($names));
+        if ($o['_drop'] === false) {
+            if (\count((new \ReflectionMethod($t, 'groupBy'))->getParameters()) < 2) {
+                throw new \LogicException('group_by(_drop: false) needs a table that keeps empty groups (phibble groupBy($names, drop: false)).');
+            }
+
+            return $t->groupBy($names, false);
+        }
+
+        return $t->groupBy($names);
     };
 }
 

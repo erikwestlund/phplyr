@@ -27,6 +27,8 @@ below shows single calls.
 | `case_when(x < 0 ~ "neg", .default = "pos")` | `case_when([fn ($r) => $r->x < 0, 'neg'], default: 'pos')` |
 | `left_join(y, by = c("a" = "b"))` | `left_join($y, by: ['a' => 'b'])` |
 | `left_join(y, by = join_by(a))` | `left_join($y, by: 'a')` |
+| `join_by(id, t >= start)` | `join_by('id', col('t')->ge(col('start')))` |
+| `join_by(closest(t >= start))` | `join_by(closest(col('t')->ge(col('start'))))` |
 | `pivot_longer(-id)` | `pivot_longer(except('id'))` |
 | `var(x)` | `variance('x')` |
 | `NA` | `null` |
@@ -64,10 +66,11 @@ convention, so phplyr decides what a function receives:
 - **`mutate(.keep = "used")` and `.keep = "unused"` with closures.** These work
   with expression arguments such as `col('x')->mul(2)`, whose columns can be
   read. A PHP closure does not expose the columns it reads.
-- **Inequality and rolling joins** (`join_by(a >= b)`, `closest()`).
+- **Inequality, rolling, and overlap joins** need a phibble release with their
+  support. `join_by()` builds them already; equality `join_by()` works now.
 - **`group_by(.drop = FALSE)`**, which keeps empty factor-level groups.
-- **`cur_group_id()` and the other `cur_*()` functions.** Use `group_indices()`
-  or the group table passed to closures.
+- **`cur_group()`, `cur_column()`, and `cur_data()`.** `cur_group_id()` and
+  `cur_group_rows()` are supported in `mutate()`, `summarise()`, and `reframe()`.
 - **Data frame columns**, `across(.unpack)`, and `nest_join()`.
 - **Superseded functions** such as `top_n()`, `sample_n()`, the scoped `_at`,
   `_if`, and `_all` variants, and `recode()`. Use `slice_max()`,

@@ -93,3 +93,14 @@ it('rejects unknown options', function () {
     expect(fn () => mutate(x: 1, _nope: true))->toThrow(InvalidArgumentException::class, '_nope');
     expect(fn () => small() |> ungroup())->not->toThrow(Exception::class);
 });
+
+it('matches dplyr cur_group_id() and cur_group_rows()', function () {
+    $ref = json_decode(file_get_contents(fixturePath('cur-group-reference.json')), true);
+    $mut = panel() |> group_by('label') |> mutate(gid: Phplyr\cur_group_id(), row: Phplyr\cur_group_rows()) |> ungroup() |> Phplyr\select('id', 'gid', 'row');
+    expectRowsClose($mut->toRows(), $ref['mut']);
+    $summ = panel() |> group_by('g', 'label') |> summarise(gid: Phplyr\cur_group_id(), n: n(), _groups: 'drop');
+    expectRowsClose($summ->toRows(), $ref['summ']);
+    $refr = panel() |> group_by('g') |> Phplyr\reframe(rows: Phplyr\cur_group_rows());
+    expectRowsClose($refr->toRows(), $ref['refr']);
+    expect(fn () => panel() |> group_by('g') |> summarise(r: Phplyr\cur_group_rows()))->toThrow(LengthException::class, 'reframe');
+});

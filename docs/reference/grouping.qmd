@@ -26,6 +26,8 @@ within groups. `_by:` groups for a single call and returns an ungrouped table.
 | `group_modify(fn ($table, $key))` | A grouped table built from the returned tables |
 | `group_walk(fn ($table, $key))` | The table, after calling the function per group |
 | `group_cols()` | A selector for the grouping columns |
+| `cur_group_id()` | The current group's number, in `mutate()`, `summarise()`, and `reframe()` |
+| `cur_group_rows()` | The current group's row numbers, in `mutate()` and `reframe()` |
 
 ## Row-wise operations
 

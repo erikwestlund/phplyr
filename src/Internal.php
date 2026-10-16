@@ -305,6 +305,9 @@ final class Internal
                 throw new \InvalidArgumentException("{$verb}() needs named arguments, for example {$verb}(total: ...), or across(...).");
             }
             $out[$key] = match (true) {
+                $def instanceof CurGroup => $def->kind === 'id'
+                    ? $def->perGroup($t)
+                    : throw new \LengthException("{$verb}(): cur_group_rows() gives several values per group. Use reframe()."),
                 $def instanceof Vec && $def->expr !== null => $def->expr,
                 $def instanceof Expr\Expr => $def,
                 $def instanceof Vec, $def instanceof Closure => self::single($def, $key, $verb),
@@ -335,6 +338,7 @@ final class Internal
     {
         $groups = $t->groups();
         $parts = [];
+        $perGroup = [];
         foreach (Ops::groupRows($t) as ['table' => $g]) {
             $values = [];
             foreach ($aggregates as $key => $def) {
@@ -348,7 +352,11 @@ final class Internal
                 if (\is_int($key)) {
                     throw new \InvalidArgumentException('reframe() needs named arguments, or across(...).');
                 }
-                $values[$key] = $def instanceof Vec || $def instanceof Closure ? $def($g) : $def;
+                $values[$key] = match (true) {
+                    $def instanceof CurGroup => ($perGroup[$key] ??= $def->perGroup($t))($g),
+                    $def instanceof Vec, $def instanceof Closure => $def($g),
+                    default => $def,
+                };
                 $values[$key] = \is_array($values[$key]) ? array_values($values[$key]) : [$values[$key]];
             }
             $lengths = array_unique(array_map('count', $values));

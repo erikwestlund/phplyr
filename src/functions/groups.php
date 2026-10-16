@@ -243,3 +243,18 @@ function collect(): Closure
 {
     return fn (Table $t) => $t->collect();
 }
+
+/** The current group's 1-based number, inside mutate(), summarise() or reframe(). */
+function cur_group_id(): CurGroup
+{
+    return new CurGroup('id');
+}
+
+/**
+ * The current group's 1-based row numbers in the table. In mutate() each row
+ * gets its own row number; in reframe() each group gets the list.
+ */
+function cur_group_rows(): CurGroup
+{
+    return new CurGroup('rows');
+}

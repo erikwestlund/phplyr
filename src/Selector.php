@@ -109,7 +109,7 @@ final readonly class Selector
     /** True when an argument is something select() understands. */
     public static function isSelection(mixed $arg): bool
     {
-        return \is_string($arg) || $arg instanceof self || (\is_array($arg) && array_is_list($arg) && array_all($arg, 'is_string'));
+        return \is_string($arg) || $arg instanceof self || (\is_array($arg) && array_is_list($arg) && array_all($arg, fn ($c) => \is_string($c)));
     }
 
     /** @return list<string> */

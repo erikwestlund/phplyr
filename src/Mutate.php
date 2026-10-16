@@ -77,6 +77,9 @@ final class Mutate
                 ? $t->select(array_values(array_diff($t->columns(), [$name])))
                 : $t;
         }
+        if ($def instanceof CurGroup) {
+            return $t->mutate([$name => $def->perRow($t)]);
+        }
         if ($def instanceof Vec) {
             return $def->expr !== null
                 ? $t->mutate([$name => $def->expr])
@@ -110,7 +113,7 @@ final class Mutate
         if ($expr !== null) {
             return $expr->columns();
         }
-        if ($def === null || \is_scalar($def) || (\is_array($def) && array_is_list($def))) {
+        if ($def === null || $def instanceof CurGroup || \is_scalar($def) || (\is_array($def) && array_is_list($def))) {
             return [];
         }
 

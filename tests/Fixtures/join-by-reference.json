@@ -1,0 +1,670 @@
+{
+  "eq": [
+    {
+      "id": 1,
+      "k.x": "a",
+      "v": 10,
+      "k.y": "a",
+      "w": 100
+    },
+    {
+      "id": 2,
+      "k.x": "b",
+      "v": 20,
+      "k.y": "b",
+      "w": 200
+    },
+    {
+      "id": 2,
+      "k.x": "b",
+      "v": 20,
+      "k.y": "z",
+      "w": 201
+    },
+    {
+      "id": null,
+      "k.x": "c",
+      "v": 30,
+      "k.y": "c",
+      "w": 300
+    },
+    {
+      "id": 3,
+      "k.x": "d",
+      "v": 40,
+      "k.y": null,
+      "w": null
+    },
+    {
+      "id": 2,
+      "k.x": "e",
+      "v": 50,
+      "k.y": "b",
+      "w": 200
+    },
+    {
+      "id": 2,
+      "k.x": "e",
+      "v": 50,
+      "k.y": "z",
+      "w": 201
+    }
+  ],
+  "ineq": [
+    {
+      "id": 1,
+      "t": 3,
+      "amount": 10,
+      "start": 1,
+      "end": 4,
+      "label": "p1"
+    },
+    {
+      "id": 1,
+      "t": 7,
+      "amount": 20,
+      "start": 1,
+      "end": 4,
+      "label": "p1"
+    },
+    {
+      "id": 1,
+      "t": 7,
+      "amount": 20,
+      "start": 4,
+      "end": 9,
+      "label": "p2"
+    },
+    {
+      "id": 2,
+      "t": 5,
+      "amount": 30,
+      "start": 2,
+      "end": 6,
+      "label": "p3"
+    }
+  ],
+  "ineq_left": [
+    {
+      "id": 1,
+      "t": 3,
+      "amount": 10,
+      "start": 1,
+      "end": 4,
+      "label": "p1"
+    },
+    {
+      "id": 1,
+      "t": 7,
+      "amount": 20,
+      "start": 4,
+      "end": 9,
+      "label": "p2"
+    },
+    {
+      "id": 2,
+      "t": 5,
+      "amount": 30,
+      "start": 2,
+      "end": 6,
+      "label": "p3"
+    },
+    {
+      "id": 2,
+      "t": null,
+      "amount": 40,
+      "start": null,
+      "end": null,
+      "label": null
+    },
+    {
+      "id": 3,
+      "t": 1,
+      "amount": 50,
+      "start": null,
+      "end": null,
+      "label": null
+    }
+  ],
+  "between": [
+    {
+      "id": 1,
+      "t": 3,
+      "amount": 10,
+      "start": 1,
+      "end": 4,
+      "label": "p1"
+    },
+    {
+      "id": 1,
+      "t": 7,
+      "amount": 20,
+      "start": 4,
+      "end": 9,
+      "label": "p2"
+    },
+    {
+      "id": 2,
+      "t": 5,
+      "amount": 30,
+      "start": 2,
+      "end": 6,
+      "label": "p3"
+    },
+    {
+      "id": 2,
+      "t": null,
+      "amount": 40,
+      "start": null,
+      "end": null,
+      "label": null
+    },
+    {
+      "id": 3,
+      "t": 1,
+      "amount": 50,
+      "start": null,
+      "end": null,
+      "label": null
+    }
+  ],
+  "closest": [
+    {
+      "id": 1,
+      "t": 3,
+      "amount": 10,
+      "start": 1,
+      "end": 4,
+      "label": "p1"
+    },
+    {
+      "id": 1,
+      "t": 7,
+      "amount": 20,
+      "start": 4,
+      "end": 9,
+      "label": "p2"
+    },
+    {
+      "id": 2,
+      "t": 5,
+      "amount": 30,
+      "start": 2,
+      "end": 6,
+      "label": "p3"
+    },
+    {
+      "id": 2,
+      "t": null,
+      "amount": 40,
+      "start": null,
+      "end": null,
+      "label": null
+    },
+    {
+      "id": 3,
+      "t": 1,
+      "amount": 50,
+      "start": null,
+      "end": null,
+      "label": null
+    }
+  ],
+  "closest_lt": [
+    {
+      "id.x": 1,
+      "t": 3,
+      "amount": 10,
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label": "p2"
+    },
+    {
+      "id.x": 1,
+      "t": 7,
+      "amount": 20,
+      "id.y": null,
+      "start": null,
+      "end": null,
+      "label": null
+    },
+    {
+      "id.x": 2,
+      "t": 5,
+      "amount": 30,
+      "id.y": 2,
+      "start": 6,
+      "end": 8,
+      "label": "p4"
+    },
+    {
+      "id.x": 2,
+      "t": null,
+      "amount": 40,
+      "id.y": null,
+      "start": null,
+      "end": null,
+      "label": null
+    },
+    {
+      "id.x": 3,
+      "t": 1,
+      "amount": 50,
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label": "p3"
+    }
+  ],
+  "within": [
+    {
+      "id.x": 1,
+      "s2": 1,
+      "e2": 4,
+      "label.x": "p1",
+      "id.y": 1,
+      "start": 1,
+      "end": 4,
+      "label.y": "p1"
+    },
+    {
+      "id.x": 1,
+      "s2": 1,
+      "e2": 4,
+      "label.x": "p1",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 1,
+      "s2": 4,
+      "e2": 9,
+      "label.x": "p2",
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label.y": "p2"
+    },
+    {
+      "id.x": 1,
+      "s2": 4,
+      "e2": 9,
+      "label.x": "p2",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 2,
+      "s2": 2,
+      "e2": 6,
+      "label.x": "p3",
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label.y": "p3"
+    },
+    {
+      "id.x": 2,
+      "s2": 2,
+      "e2": 6,
+      "label.x": "p3",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 2,
+      "s2": 6,
+      "e2": 8,
+      "label.x": "p4",
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label.y": "p2"
+    },
+    {
+      "id.x": 2,
+      "s2": 6,
+      "e2": 8,
+      "label.x": "p4",
+      "id.y": 2,
+      "start": 6,
+      "end": 8,
+      "label.y": "p4"
+    },
+    {
+      "id.x": 2,
+      "s2": 6,
+      "e2": 8,
+      "label.x": "p4",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 4,
+      "s2": 0,
+      "e2": 10,
+      "label.x": "p5",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    }
+  ],
+  "overlaps": [
+    {
+      "id.x": 1,
+      "s2": 1,
+      "e2": 4,
+      "label.x": "p1",
+      "id.y": 1,
+      "start": 1,
+      "end": 4,
+      "label.y": "p1"
+    },
+    {
+      "id.x": 1,
+      "s2": 1,
+      "e2": 4,
+      "label.x": "p1",
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label.y": "p2"
+    },
+    {
+      "id.x": 1,
+      "s2": 1,
+      "e2": 4,
+      "label.x": "p1",
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label.y": "p3"
+    },
+    {
+      "id.x": 1,
+      "s2": 1,
+      "e2": 4,
+      "label.x": "p1",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 1,
+      "s2": 4,
+      "e2": 9,
+      "label.x": "p2",
+      "id.y": 1,
+      "start": 1,
+      "end": 4,
+      "label.y": "p1"
+    },
+    {
+      "id.x": 1,
+      "s2": 4,
+      "e2": 9,
+      "label.x": "p2",
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label.y": "p2"
+    },
+    {
+      "id.x": 1,
+      "s2": 4,
+      "e2": 9,
+      "label.x": "p2",
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label.y": "p3"
+    },
+    {
+      "id.x": 1,
+      "s2": 4,
+      "e2": 9,
+      "label.x": "p2",
+      "id.y": 2,
+      "start": 6,
+      "end": 8,
+      "label.y": "p4"
+    },
+    {
+      "id.x": 1,
+      "s2": 4,
+      "e2": 9,
+      "label.x": "p2",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 2,
+      "s2": 2,
+      "e2": 6,
+      "label.x": "p3",
+      "id.y": 1,
+      "start": 1,
+      "end": 4,
+      "label.y": "p1"
+    },
+    {
+      "id.x": 2,
+      "s2": 2,
+      "e2": 6,
+      "label.x": "p3",
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label.y": "p2"
+    },
+    {
+      "id.x": 2,
+      "s2": 2,
+      "e2": 6,
+      "label.x": "p3",
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label.y": "p3"
+    },
+    {
+      "id.x": 2,
+      "s2": 2,
+      "e2": 6,
+      "label.x": "p3",
+      "id.y": 2,
+      "start": 6,
+      "end": 8,
+      "label.y": "p4"
+    },
+    {
+      "id.x": 2,
+      "s2": 2,
+      "e2": 6,
+      "label.x": "p3",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 2,
+      "s2": 6,
+      "e2": 8,
+      "label.x": "p4",
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label.y": "p2"
+    },
+    {
+      "id.x": 2,
+      "s2": 6,
+      "e2": 8,
+      "label.x": "p4",
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label.y": "p3"
+    },
+    {
+      "id.x": 2,
+      "s2": 6,
+      "e2": 8,
+      "label.x": "p4",
+      "id.y": 2,
+      "start": 6,
+      "end": 8,
+      "label.y": "p4"
+    },
+    {
+      "id.x": 2,
+      "s2": 6,
+      "e2": 8,
+      "label.x": "p4",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    },
+    {
+      "id.x": 4,
+      "s2": 0,
+      "e2": 10,
+      "label.x": "p5",
+      "id.y": 1,
+      "start": 1,
+      "end": 4,
+      "label.y": "p1"
+    },
+    {
+      "id.x": 4,
+      "s2": 0,
+      "e2": 10,
+      "label.x": "p5",
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label.y": "p2"
+    },
+    {
+      "id.x": 4,
+      "s2": 0,
+      "e2": 10,
+      "label.x": "p5",
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label.y": "p3"
+    },
+    {
+      "id.x": 4,
+      "s2": 0,
+      "e2": 10,
+      "label.x": "p5",
+      "id.y": 2,
+      "start": 6,
+      "end": 8,
+      "label.y": "p4"
+    },
+    {
+      "id.x": 4,
+      "s2": 0,
+      "e2": 10,
+      "label.x": "p5",
+      "id.y": 4,
+      "start": 0,
+      "end": 10,
+      "label.y": "p5"
+    }
+  ],
+  "semi": [
+    {
+      "id": 1,
+      "t": 3,
+      "amount": 10
+    },
+    {
+      "id": 1,
+      "t": 7,
+      "amount": 20
+    },
+    {
+      "id": 2,
+      "t": 5,
+      "amount": 30
+    }
+  ],
+  "anti": [
+    {
+      "id": 2,
+      "t": null,
+      "amount": 40
+    },
+    {
+      "id": 3,
+      "t": 1,
+      "amount": 50
+    }
+  ],
+  "keep_true": [
+    {
+      "id.x": 1,
+      "t": 3,
+      "amount": 10,
+      "id.y": 1,
+      "start": 1,
+      "end": 4,
+      "label": "p1"
+    },
+    {
+      "id.x": 1,
+      "t": 7,
+      "amount": 20,
+      "id.y": 1,
+      "start": 4,
+      "end": 9,
+      "label": "p2"
+    },
+    {
+      "id.x": 2,
+      "t": 5,
+      "amount": 30,
+      "id.y": 2,
+      "start": 2,
+      "end": 6,
+      "label": "p3"
+    },
+    {
+      "id.x": 2,
+      "t": null,
+      "amount": 40,
+      "id.y": null,
+      "start": null,
+      "end": null,
+      "label": null
+    },
+    {
+      "id.x": 3,
+      "t": 1,
+      "amount": 50,
+      "id.y": null,
+      "start": null,
+      "end": null,
+      "label": null
+    }
+  ]
+}
