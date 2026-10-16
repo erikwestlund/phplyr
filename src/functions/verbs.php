@@ -131,10 +131,18 @@ function mutate(mixed ...$columns): Closure
     return fn (Table $t) => Internal::withBy($t, $o['_by'], fn (Table $t) => Mutate::run($t, $columns, $o));
 }
 
-/** Like mutate(), keeping only the grouping columns and the new columns. */
+/**
+ * Like mutate(), keeping only the grouping columns and the new columns. A
+ * bare column name keeps that column: transmute('id', half: ...).
+ */
 function transmute(mixed ...$columns): Closure
 {
     [$columns, $o] = Internal::options($columns, ['_by' => null], 'transmute');
+    $named = [];
+    foreach ($columns as $key => $def) {
+        \is_int($key) && \is_string($def) ? $named[$def] = col($def) : $named[$key] = $def;
+    }
+    $columns = $named;
     Internal::assertNamed($columns, 'transmute');
 
     return fn (Table $t) => Internal::withBy($t, $o['_by'], function (Table $t) use ($columns) {
@@ -301,7 +309,7 @@ function reframe(mixed ...$aggregates): Closure
     [$aggregates, $o] = Internal::options($aggregates, ['_by' => null], 'reframe');
     Internal::assertNamed($aggregates, 'reframe');
 
-    return fn (Table $t) => Internal::withBy($t, $o['_by'], fn (Table $t) => Internal::reframe($t, $aggregates));
+    return fn (Table $t) => Internal::sameBackend(Internal::withBy($t, $o['_by'], fn (Table $t) => Internal::reframe($t, $aggregates)), $t);
 }
 
 /**
@@ -448,6 +456,34 @@ function slice_max(mixed $order_by, ?int $n = null, ?float $prop = null, bool $w
 function slice_sample(?int $n = null, ?float $prop = null, bool $replace = false, mixed $weight_by = null, mixed $_by = null): Closure
 {
     return fn (Table $t) => Internal::withBy($t, $_by, fn (Table $t) => Slice::sample($t, $n, $prop, $replace, $weight_by));
+}
+
+/**
+ * The n rows with the largest wt in each group, ties included, in their
+ * original order (superseded by slice_max()). A negative n takes the
+ * smallest. Without wt, the last column.
+ */
+function top_n(int $n, mixed $wt = null): Closure
+{
+    return fn (Table $t) => Slice::top($t, $wt, $n, null);
+}
+
+/** top_n() with a proportion of each group's rows (superseded by slice_max(prop:)). */
+function top_frac(float $n, mixed $wt = null): Closure
+{
+    return fn (Table $t) => Slice::top($t, $wt, null, $n);
+}
+
+/** n random rows from each group (superseded by slice_sample()). */
+function sample_n(int $size, bool $replace = false, mixed $weight = null): Closure
+{
+    return slice_sample(n: $size, replace: $replace, weight_by: $weight);
+}
+
+/** A proportion of random rows from each group (superseded by slice_sample(prop:)). */
+function sample_frac(float $size = 1.0, bool $replace = false, mixed $weight = null): Closure
+{
+    return slice_sample(prop: $size, replace: $replace, weight_by: $weight);
 }
 
 /**

@@ -2,6 +2,30 @@
 
 All notable changes to phplyr are recorded here. Versions follow semantic versioning; before 1.0, minor versions may change behavior.
 
+## Unreleased
+
+The remaining dplyr 1.1 and tidyr 1.3 exports, and phibble's Polars backend. Requires phibble's main branch until phibble 0.2.0 is tagged.
+
+### Added
+
+- dplyr: `cur_column()`, `cur_group()`, `c_across()`, `group_rows()`, `group_data()`, `group_trim()`, `group_nest()`, `nest_by()`, `with_groups()`, `nest_join()`, `order_by()`, `add_row()`, and the superseded `top_n()`, `top_frac()`, `sample_n()`, `sample_frac()`, and `recode()`.
+- tidyr list-columns: `unnest_longer()`, `unnest_wider()`, `hoist()`, `chop()`, `unchop()`, `pack()`, and `unpack()`.
+- tidyr pivoting: `names_transform`, `values_transform`, and `cols_vary` for `pivot_longer()`; `names_vary`, `names_expand`, `id_expand`, and `unused_fn` for `pivot_wider()`; `build_longer_spec()`, `build_wider_spec()`, `pivot_longer_spec()`, and `pivot_wider_spec()`; the superseded `gather()` and `spread()`.
+- tidyr: `full_seq()` and the superseded `extract()` and `separate_rows()`.
+- `transmute()` keeps a column given by bare name, as in dplyr.
+- A parity suite (`tests/PolarsTest.php`) runs about 120 pipelines on Frame and on phibble's `Phibble\Polars\PolarsTable` and checks that columns, types, groups, and rows match. CI runs it with the phpolars release binary.
+
+### Changed
+
+- Verbs that build their result in memory (`reframe()`, `complete()`, `expand()`, `bind_rows()`, `bind_cols()`, the set operations, `rows_insert()`, `rows_append()`, `group_modify()`, `unnest()`, `add_row()`, and `pivot_wider()` with `values_fn`, `id_expand`, or `unused_fn`) return a table on the input's backend when that backend can load tables, as PolarsTable can. Results with list-columns of tables, such as `nest()`, stay Frames.
+- A closure in `across()` may return a helper's result, as in `fn ($v) => mean($v, na_rm: true)`; it is evaluated on the group.
+- Helper arguments that evaluate to some other length than the group, such as `c_across()` in a rowwise table, are evaluated on their own.
+- The benchmarks use phibble's `Phibble\Polars\PolarsTable`; `PHPOLARS_DIR` is now optional.
+
+### Known issues
+
+- PolarsTable stores named lists as structs, so every element gets every name. `unnest_longer()` on named lists with different names then returns extra rows on PolarsTable.
+
 ## 0.1.0 - 2026-10-16
 
 The first release: a port of dplyr 1.2 and tidyr 1.3 to PHP 8.5, working on phibble 0.1 tables through the `|>` pipe operator. Results are checked against R; the reference scripts are in `tests/r/`.

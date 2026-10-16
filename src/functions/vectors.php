@@ -359,3 +359,58 @@ function case_match(mixed $x, mixed ...$cases): Vec
 {
     return Internal::recode($x, $cases, replace: false);
 }
+
+/**
+ * Replace values by name (superseded in dplyr by recode_values()):
+ * recode('grade', a: 'A', b: 'B', _default: 'other'), or with a map for keys
+ * that aren't valid names: recode('code', [1 => 'one', 2 => 'two']).
+ * The first argument is dplyr's .x. Values match by their string form. Unmatched values stay as they are
+ * unless _default is given; NA becomes _missing.
+ */
+function recode(mixed $_x, mixed ...$replacements): Vec
+{
+    $hasDefault = \array_key_exists('_default', $replacements);
+    [$replacements, $o] = Internal::options($replacements, ['_default' => null, '_missing' => null], 'recode');
+    $map = [];
+    foreach ($replacements as $key => $value) {
+        if (\is_int($key) && \is_array($value)) {
+            foreach ($value as $from => $to) {
+                $map[(string) $from] = $to;
+            }
+        } else {
+            $map[(string) $key] = $value;
+        }
+    }
+
+    return new Vec(fn (Table $g) => array_map(
+        fn ($v) => match (true) {
+            $v === null || (\is_float($v) && is_nan($v)) => $o['_missing'],
+            \array_key_exists(Tidyr::str($v), $map) => $map[Tidyr::str($v)],
+            $hasDefault => $o['_default'],
+            default => $v,
+        },
+        Vec::values($_x, $g, true),
+    ));
+}
+
+/**
+ * Evaluate a window function with the rows in another order, then put the
+ * results back: order_by('year', cumsum('score')). Wrap the order in desc()
+ * to reverse it; NA sorts last.
+ */
+function order_by(mixed $order_by, Vec $call): Vec
+{
+    return new Vec(function (Table $g) use ($order_by, $call) {
+        [$by, $desc] = Internal::direction($order_by);
+        $values = Vec::values($by, $g, true);
+        $idx = Window::order($values, $desc);
+        $idx = [...$idx, ...array_values(array_diff(array_keys($values), $idx))];
+        $results = Vec::values($call, Ops::take($g->ungroup(), $idx));
+        $out = array_fill(0, \count($values), null);
+        foreach ($idx as $j => $i) {
+            $out[$i] = $results[$j];
+        }
+
+        return $out;
+    });
+}

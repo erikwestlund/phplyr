@@ -159,6 +159,29 @@ function across(mixed $cols = null, Closure|array|null $fns = null, ?string $nam
 }
 
 /**
+ * The name of the column across() is working on, inside one of its
+ * functions: across(['a', 'b'], fn ($v) => cur_column().': '.$v).
+ */
+function cur_column(): string
+{
+    return Across::$current ?? throw new \LogicException('cur_column() must only be used inside across().');
+}
+
+/**
+ * The values of the selected columns in the current row, for rowwise()
+ * tables: rowwise() |> mutate(total: sum(c_across(starts_with('x')))).
+ * In a group of several rows the values run column by column.
+ */
+function c_across(mixed $cols = null): Vec
+{
+    return new Vec(function (Table $g) use ($cols) {
+        $names = array_values(array_diff(Selector::select([$cols ?? everything()], $g), $g->groups()));
+
+        return array_merge(...array_map(fn ($c) => $g->column($c), $names));
+    });
+}
+
+/**
  * Per-row test that a predicate holds for any of the columns, for filter():
  * filter(if_any(starts_with('x'), fn ($v) => $v > 0)).
  */

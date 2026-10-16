@@ -55,6 +55,90 @@ function group_keys(): Closure
     };
 }
 
+/** Each group's 1-based row numbers, in group order. */
+function group_rows(): Closure
+{
+    return fn (Table $t) => array_map(fn ($g) => array_map(fn ($r) => $r + 1, $g['rows']), Ops::groupIndex($t));
+}
+
+/** group_keys() with a .rows list-column of each group's 1-based row numbers. */
+function group_data(): Closure
+{
+    return fn (Table $t) => Internal::sameBackend(group_keys()($t)->collect()->mutate(['.rows' => group_rows()($t)]), $t);
+}
+
+/**
+ * Drop unused factor levels from the grouping columns, and with them the
+ * empty groups that _drop: false kept.
+ */
+function group_trim(): Closure
+{
+    return function (Table $t) {
+        $groups = $t->groups();
+        $frame = $t->collect();
+        foreach ($groups as $g) {
+            if ($frame->types()[$g] === \Phibble\Type::Factor) {
+                $frame = $frame->fctDrop($g);
+            }
+        }
+
+        return Internal::sameBackend(Internal::regroup($frame, $groups, $t), $t);
+    };
+}
+
+/**
+ * One row per group: the key columns and a list-column of each group's
+ * other columns as a table. Options: _key (the list-column, 'data'), _keep
+ * (also keep the key columns in the nested tables).
+ */
+function group_nest(mixed ...$options): Closure
+{
+    [$cols, $o] = Internal::options($options, ['_key' => 'data', '_keep' => false], 'group_nest');
+
+    return function (Table $t) use ($cols, $o) {
+        if ($cols !== []) {
+            $t = $t->groupBy(Selector::select($cols, $t));
+        }
+        $groups = $t->groups();
+        $data = array_map(
+            fn ($g) => $o['_keep'] ? $g['table']->collect() : $g['table']->select(array_values(array_diff($g['table']->columns(), $groups)))->collect(),
+            Ops::groupRows($t),
+        );
+
+        return group_keys()($t)->collect()->mutate([$o['_key'] => $data]);
+    };
+}
+
+/**
+ * Nest by the given columns into a rowwise table: one row per group, with a
+ * list-column of tables. Options: _key ('data'), _keep (keep the grouping
+ * columns in the nested tables).
+ */
+function nest_by(mixed ...$cols): Closure
+{
+    [$cols, $o] = Internal::options($cols, ['_key' => 'data', '_keep' => false], 'nest_by');
+
+    return function (Table $t) use ($cols, $o) {
+        $groups = $cols === [] ? $t->groups() : Selector::select($cols, $t);
+
+        return group_nest(_key: $o['_key'], _keep: $o['_keep'])($t->groupBy($groups))->rowwise($groups);
+    };
+}
+
+/**
+ * Run a verb on the table grouped by _groups, then restore the original
+ * grouping (superseded in dplyr by _by): with_groups('g', mutate(m: mean('x'))).
+ * A null _groups runs it ungrouped.
+ */
+function with_groups(mixed $_groups, Closure $verb): Closure
+{
+    return function (Table $t) use ($_groups, $verb) {
+        $grouped = $_groups === null ? $t->ungroup() : $t->groupBy(Selector::select([$_groups], $t));
+
+        return Ops::regroupLike($verb($grouped), $t);
+    };
+}
+
 /**
  * Split into a list of ungrouped tables, one per group. With _keep: false
  * the grouping columns are dropped. Option _by groups first.
@@ -111,7 +195,7 @@ function group_modify(Closure $fn): Closure
             $parts[] = bind_cols($result)($keys);
         }
 
-        return $parts === [] ? $t : Frame::concat($parts)->groupBy($groups);
+        return $parts === [] ? $t : Internal::sameBackend(Frame::concat($parts)->groupBy($groups), $t);
     };
 }
 
@@ -144,7 +228,7 @@ function bind_rows(mixed ...$tables): Closure
             );
         }
 
-        return Frame::concat($all);
+        return Internal::sameBackend(Frame::concat($all), $x);
     };
 }
 
@@ -174,7 +258,7 @@ function bind_cols(Table ...$tables): Closure
             $frames[] = $map === [] ? $t->collect() : $t->collect()->rename($map);
         }
         if (method_exists(Frame::class, 'bindCols')) {
-            return Ops::regroupLike(Frame::bindCols($frames), $x);
+            return Internal::sameBackend(Ops::regroupLike(Frame::bindCols($frames), $x), $x);
         }
         $out = array_shift($frames);
         foreach ($frames as $f) {
@@ -257,4 +341,13 @@ function cur_group_id(): CurGroup
 function cur_group_rows(): CurGroup
 {
     return new CurGroup('rows');
+}
+
+/**
+ * The current group's key, as an array of grouping column => value (dplyr
+ * returns a one-row tibble). In mutate() each row gets its group's key.
+ */
+function cur_group(): CurGroup
+{
+    return new CurGroup('key');
 }

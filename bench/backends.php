@@ -11,8 +11,9 @@
  *   php -d memory_limit=-1 [-d extension=.../libphp_polars.dylib] bench/backends.php \
  *       [--rows=100000,1000000] [--repeats=3] [--out=docs/benchmarks/backends-results.json]
  *
- * PolarsTable runs when the php_polars extension is loaded; its phibble
- * adapter is loaded from PHPOLARS_DIR (a phpolars checkout).
+ * PolarsTable (phibble's Phibble\Polars\PolarsTable) runs when the php_polars
+ * extension is loaded. PHPOLARS_DIR, a phpolars checkout, is optional and
+ * only records that checkout's commit in the results.
  */
 
 declare(strict_types=1);
@@ -23,7 +24,7 @@ use Composer\InstalledVersions;
 use Phibble\Contracts\Table;
 use Phibble\Frame;
 use Phibble\Sql\SqlTable;
-use Phpolars\Phibble\PolarsTable;
+use Phibble\Polars\PolarsTable;
 
 use function Phplyr\{arrange, col, cumsum, desc, filter, group_by, lag, left_join, mean, min_rank, mutate, n, sum, summarise};
 
@@ -35,15 +36,7 @@ $root = dirname(__DIR__);
 $out = $options['out'] ?? $root.'/docs/benchmarks/backends-results.json';
 
 $polarsDir = getenv('PHPOLARS_DIR') ?: null;
-$polars = \extension_loaded('php_polars') && $polarsDir !== null;
-if ($polars) {
-    spl_autoload_register(function (string $class) use ($polarsDir): void {
-        $prefix = 'Phpolars\\Phibble\\';
-        if (str_starts_with($class, $prefix)) {
-            require $polarsDir.'/phibble/src/'.str_replace('\\', '/', substr($class, \strlen($prefix))).'.php';
-        }
-    });
-}
+$polars = \extension_loaded('php_polars') && class_exists(PolarsTable::class);
 
 $pipelines = [
     'A' => ['filter, join, grouped summary, ranked window', fn (Table $s, Table $st) => $s
@@ -189,7 +182,7 @@ $report = [
             'phplyr' => $git($root),
             'phibble' => substr((string) InstalledVersions::getReference('erikwestlund/phibble'), 0, 7) ?: null,
             'phpolars' => $polars ? [
-                'sha' => $git($polarsDir),
+                'sha' => $polarsDir === null ? null : $git($polarsDir),
                 'extension' => Phpolars\version(),
                 'polars' => \function_exists('Phpolars\polars_version') ? Phpolars\polars_version() : null,
                 'profile' => getenv('PHPOLARS_PROFILE') ?: 'release',

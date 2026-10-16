@@ -74,6 +74,25 @@ final class Slice
         });
     }
 
+    /** top_n() / top_frac(): rows whose min_rank() is within n, in their original order. */
+    public static function top(Table $t, mixed $wt, ?int $n, ?float $prop): Table
+    {
+        if ($wt === null) {
+            $candidates = array_values(array_diff($t->columns(), $t->groups()));
+            $wt = end($candidates);
+        }
+        $values = self::lookup($t, $wt, ordinal: true);
+
+        return self::byGroup($t, function (array $rows, Closure $group) use ($values, $n, $prop) {
+            $v = $values($rows, $group);
+            $k = $n ?? $prop * \count($v);
+            $ranks = Window::rank($v, 'min', desc: $k > 0);
+            $keep = array_keys(array_filter($ranks, fn ($r) => $r !== null && $r <= \abs($k)));
+
+            return $keep;
+        }, tableOrder: true);
+    }
+
     public static function sample(Table $t, ?int $n, ?float $prop, bool $replace, mixed $weightBy): Table
     {
         $weights = $weightBy === null ? null : self::lookup($t, $weightBy);
@@ -152,7 +171,7 @@ final class Slice
     }
 
     /** @param Closure(list<int> $rows, Closure(): Table $group): list<int> $pick */
-    private static function byGroup(Table $t, Closure $pick): Table
+    private static function byGroup(Table $t, Closure $pick, bool $tableOrder = false): Table
     {
         $indices = [];
         $ungrouped = null;
@@ -165,6 +184,9 @@ final class Slice
             foreach ($pick($rows, $group) as $i) {
                 $indices[] = $rows[$i];
             }
+        }
+        if ($tableOrder) {
+            sort($indices);
         }
 
         return Ops::take($t, $indices);

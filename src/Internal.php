@@ -70,10 +70,18 @@ final class Internal
         }
 
         return new Vec(function (Table $g) use ($call, $deferred) {
-            $temp = [];
+            $raw = [];
             foreach ($deferred as $name => [$arg, $column]) {
-                $temp[$name] = Vec::values($arg, $g, $column);
+                $raw[$name] = $arg instanceof Vec ? $arg($g) : Vec::values($arg, $g, $column);
             }
+            // Arguments that all have some other length, such as c_across()
+            // in a rowwise table, are evaluated on their own.
+            $lengths = array_unique(array_map(fn ($v) => \is_array($v) && array_is_list($v) ? \count($v) : -1, $raw));
+            if (\count($lengths) === 1 && ! \in_array($lengths[array_key_first($lengths)], [-1, 1, $g->nrow()], true)
+                && array_diff($call->columns(), array_keys($raw)) === []) {
+                return Vec::evaluate($call, \Phibble\Frame::fromColumns($raw));
+            }
+            $temp = array_map(fn ($v) => Vec::recycle($v, $g->nrow(), 'expression'), $raw);
 
             return Vec::evaluate($call, $g->ungroup()->mutate($temp));
         });
@@ -320,7 +328,7 @@ final class Internal
                 continue;
             }
             $out[$key] = match (true) {
-                $def instanceof CurGroup => $def->kind === 'id'
+                $def instanceof CurGroup => $def->kind !== 'rows'
                     ? $def->perGroup($t)
                     : throw new \LengthException("{$verb}(): cur_group_rows() gives several values per group. Use reframe()."),
                 $def instanceof Vec && $def->expr !== null => $def->expr,
@@ -542,6 +550,26 @@ final class Internal
         }
 
         return Ops::take($t, $index)->mutate($out);
+    }
+
+    /**
+     * A result built as a Frame, moved back to $like's backend when that
+     * backend can load tables (PolarsTable::fromTable()). Lazy SQL tables
+     * can't, so their results stay in memory, and so do tables with
+     * list-columns of tables.
+     */
+    public static function sameBackend(Table $result, Table $like): Table
+    {
+        if (! $result instanceof Frame || $like instanceof Frame || ! method_exists($like, 'fromTable')) {
+            return $result;
+        }
+        foreach ($result->types() as $name => $type) {
+            if ($type === \Phibble\Type::List && array_any($result->column($name), fn ($v) => $v instanceof Table)) {
+                return $result;
+            }
+        }
+
+        return $like::fromTable($result);
     }
 
     /** Group by $names, keeping $like's _drop: false setting. */

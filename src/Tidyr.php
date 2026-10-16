@@ -14,12 +14,85 @@ final class Tidyr
 {
     private const string PRESENT = '.phplyr_present';
 
+    private const string ROW = '.phplyr_row';
+
     // -----------------------------------------------------------------
     // Pivoting
     // -----------------------------------------------------------------
 
-    /** @param string|list<?string> $namesTo */
-    public static function pivotLonger(Table $t, mixed $cols, string|array $namesTo, string $valuesTo, ?string $namesPrefix, ?string $namesSep, ?string $namesPattern, bool $valuesDropNa): Table
+    /**
+     * pivot_longer(): build tidyr's spec, run it on the table, then apply
+     * values_transform and cols_vary.
+     *
+     * @param string|list<?string> $namesTo
+     */
+    public static function pivotLonger(Table $t, mixed $cols, string|array $namesTo, string $valuesTo, ?string $namesPrefix, ?string $namesSep, ?string $namesPattern, bool $valuesDropNa, Closure|array|null $namesTransform = null, Closure|array|null $valuesTransform = null, string $colsVary = 'fastest'): Table
+    {
+        $spec = self::longerSpec($t, $cols, $namesTo, $valuesTo, $namesPrefix, $namesSep, $namesPattern, $namesTransform);
+
+        return self::runLongerSpec($t, $spec, $valuesDropNa, $valuesTransform, $colsVary);
+    }
+
+    /**
+     * Run a longer spec (rows with .name, .value and the names_to columns).
+     *
+     * @param list<array<string, mixed>> $spec
+     */
+    public static function runLongerSpec(Table $t, array $spec, bool $valuesDropNa, Closure|array|null $valuesTransform = null, string $colsVary = 'fastest'): Table
+    {
+        if (! \in_array($colsVary, ['fastest', 'slowest'], true)) {
+            throw new \InvalidArgumentException("pivot_longer(): cols_vary must be 'fastest' or 'slowest'.");
+        }
+        $nameCols = array_values(array_diff(array_keys($spec[0] ?? []), ['.name', '.value']));
+        $slowest = $colsVary === 'slowest' && $t->nrow() > 1;
+        if ($slowest) {
+            $t = $t->mutate([self::ROW => range(0, $t->nrow() - 1)]);
+        }
+        $out = $t->pivotLongerSpec($spec, $valuesDropNa);
+        if ($slowest) {
+            // Order by spec position (the names_to combination), then input row.
+            $position = [];
+            foreach ($spec as $row) {
+                $position[self::partsKey(array_map(fn ($c) => $row[$c] ?? null, $nameCols))] ??= \count($position);
+            }
+            $nameVectors = array_map(fn ($c) => $out->column($c), $nameCols);
+            $rows = $out->column(self::ROW);
+            $keys = [];
+            foreach ($rows as $i => $r) {
+                $keys[$i] = [$position[self::partsKey(array_map(fn ($v) => $v[$i], $nameVectors))] ?? 0, $r];
+            }
+            $order = array_keys($keys);
+            usort($order, fn ($a, $b) => $keys[$a] <=> $keys[$b]);
+            $out = Ops::take($out, $order);
+            $out = $out->select(array_values(array_diff($out->columns(), [self::ROW])));
+        }
+        if ($valuesTransform !== null) {
+            $values = array_values(array_unique(array_column($spec, '.value')));
+            $defs = [];
+            foreach ($values as $v) {
+                $fn = $valuesTransform instanceof Closure ? $valuesTransform : ($valuesTransform[$v] ?? null);
+                if ($fn !== null) {
+                    $defs[$v] = array_map($fn, $out->column($v));
+                }
+            }
+            $out = $defs === [] ? $out : $out->mutate($defs);
+        }
+
+        return $out;
+    }
+
+    private static function partsKey(array $parts): string
+    {
+        return implode("\x1f", array_map(Internal::key(...), $parts));
+    }
+
+    /**
+     * The spec for pivot_longer() / build_longer_spec().
+     *
+     * @param string|list<?string> $namesTo
+     * @return list<array<string, mixed>>
+     */
+    public static function longerSpec(Table $t, mixed $cols, string|array $namesTo, string $valuesTo, ?string $namesPrefix, ?string $namesSep, ?string $namesPattern, Closure|array|null $namesTransform = null): array
     {
         $cols = Selector::select([$cols], $t);
         if ($cols === []) {
@@ -58,53 +131,135 @@ final class Tidyr
         // The table runs tidyr's pivot_longer_spec().
         $spec = [];
         foreach ($groups as $g) {
+            $parts = $g['parts'];
+            foreach ($parts as $to => $v) {
+                $fn = $namesTransform instanceof Closure ? $namesTransform : ($namesTransform[$to] ?? null);
+                if ($fn !== null) {
+                    $parts[$to] = $fn($v);
+                }
+            }
             foreach ($g['cols'] as $valueName => $col) {
-                $spec[] = ['.name' => $col, '.value' => $valueName] + $g['parts'];
+                $spec[] = ['.name' => $col, '.value' => $valueName] + $parts;
             }
         }
 
-        return $t->pivotLongerSpec($spec, $valuesDropNa);
+        return $spec;
     }
     /**
-     * @param list<string> $namesFrom
-     * @param list<string> $valuesFrom
+     * pivot_wider(). The table runs tidyr's spec; values_fn, id_expand and
+     * unused_fn are applied here, in PHP, keeping tidyr's first-appearance
+     * row order.
      */
-    public static function pivotWider(Table $t, mixed $idCols, mixed $namesFrom, mixed $valuesFrom, string $namesPrefix, string $namesSep, ?string $namesGlue, bool $namesSort, mixed $valuesFill, Closure|array|null $valuesFn): Table
+    public static function pivotWider(Table $t, mixed $idCols, mixed $namesFrom, mixed $valuesFrom, string $namesPrefix, string $namesSep, ?string $namesGlue, bool $namesSort, mixed $valuesFill, Closure|array|null $valuesFn, string $namesVary = 'fastest', bool $namesExpand = false, bool $idExpand = false, Closure|array|null $unusedFn = null): Table
     {
         $namesFrom = Selector::select([$namesFrom], $t);
         $valuesFrom = Selector::select([$valuesFrom], $t);
         $idCols = $idCols === null
             ? array_values(array_diff($t->columns(), $namesFrom, $valuesFrom))
             : Selector::select([$idCols], $t);
+        $spec = self::widerSpec($t, $namesFrom, $valuesFrom, $namesPrefix, $namesSep, $namesGlue, $namesSort, $namesVary, $namesExpand);
+        $fill = \is_array($valuesFill)
+            ? $valuesFill
+            : ($valuesFill === null ? [] : array_fill_keys($valuesFrom, $valuesFill));
 
-        // The table runs tidyr's pivot_wider_spec(). values_fn is applied here,
-        // in PHP, keeping tidyr's first-appearance row order.
-        if ($valuesFn === null) {
-            $keys = $t->ungroup()->select($namesFrom)->distinct()->toRows();
-            if ($namesSort) {
-                usort($keys, self::nameOrder($t, $namesFrom));
-            }
-            $spec = [];
-            foreach ($valuesFrom as $vc) {
-                foreach ($keys as $key) {
-                    $parts = array_values($key);
-                    $spec[] = ['.name' => self::wideName($vc, $parts, $key, $namesFrom, $valuesFrom, $namesPrefix, $namesSep, $namesGlue), '.value' => $vc] + $key;
-                }
-            }
-            $fill = \is_array($valuesFill)
-                ? $valuesFill
-                : ($valuesFill === null ? [] : array_fill_keys($valuesFrom, $valuesFill));
+        $out = $valuesFn === null
+            ? $t->pivotWiderSpec($spec, $idCols, $fill)
+            : self::widerWithFn($t, $spec, $idCols, $namesFrom, $fill, $valuesFn);
 
-            return $t->pivotWiderSpec($spec, $idCols, $fill);
+        if ($idExpand) {
+            $out = self::expandIds($t, $out, $idCols, $spec, $fill);
+        }
+        $unused = array_values(array_diff($t->columns(), $idCols, $namesFrom, $valuesFrom));
+        if ($unusedFn !== null && $unused !== []) {
+            $out = self::unused($t, $out, $idCols, $unused, $unusedFn);
         }
 
+        return Internal::sameBackend($out, $t);
+    }
+
+    /**
+     * The spec for pivot_wider() / build_wider_spec(): one row per output
+     * column, with .name, .value and the names_from values.
+     *
+     * @param list<string> $namesFrom
+     * @param list<string> $valuesFrom
+     * @return list<array<string, mixed>>
+     */
+    public static function widerSpec(Table $t, array $namesFrom, array $valuesFrom, string $namesPrefix, string $namesSep, ?string $namesGlue, bool $namesSort, string $namesVary, bool $namesExpand): array
+    {
+        if (! \in_array($namesVary, ['fastest', 'slowest'], true)) {
+            throw new \InvalidArgumentException("pivot_wider(): names_vary must be 'fastest' or 'slowest'.");
+        }
+        $keys = $namesExpand
+            ? self::expansion($t, $namesFrom)
+            : $t->ungroup()->select($namesFrom)->distinct()->toRows();
+        if ($namesSort && ! $namesExpand) {
+            usort($keys, self::nameOrder($t, $namesFrom));
+        }
+        $entry = fn (string $vc, array $key) => ['.name' => self::wideName($vc, array_values($key), $key, $namesFrom, $valuesFrom, $namesPrefix, $namesSep, $namesGlue), '.value' => $vc] + $key;
+        $spec = [];
+        if ($namesVary === 'fastest') {
+            foreach ($valuesFrom as $vc) {
+                foreach ($keys as $key) {
+                    $spec[] = $entry($vc, $key);
+                }
+            }
+        } else {
+            foreach ($keys as $key) {
+                foreach ($valuesFrom as $vc) {
+                    $spec[] = $entry($vc, $key);
+                }
+            }
+        }
+
+        return $spec;
+    }
+
+    /**
+     * Every combination of the columns' values (sorted, factors by their
+     * levels, NA last), first column varying slowest.
+     *
+     * @param list<string> $columns
+     * @return list<array<string, mixed>>
+     */
+    private static function expansion(Table $t, array $columns): array
+    {
+        $rows = [[]];
+        foreach ($columns as $c) {
+            $values = ($t->types()[$c] ?? null) === Type::Factor
+                ? $t->collect()->levels($c)
+                : self::sortedUnique($t->column($c));
+            if (\in_array(null, $t->column($c), true) && ! \in_array(null, $values, true)) {
+                $values[] = null;
+            }
+            $next = [];
+            foreach ($rows as $row) {
+                foreach ($values as $v) {
+                    $next[] = $row + [$c => $v];
+                }
+            }
+            $rows = $next;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * pivot_wider() with values_fn: cells are gathered and summarised in PHP.
+     *
+     * @param list<array<string, mixed>> $spec
+     * @param list<string> $idCols
+     * @param list<string> $namesFrom
+     */
+    private static function widerWithFn(Table $t, array $spec, array $idCols, array $namesFrom, array $fill, Closure|array $valuesFn): Table
+    {
+        $valuesFrom = array_values(array_unique(array_column($spec, '.value')));
         $idVectors = array_map(fn ($c) => $t->column($c), $idCols);
         $nameVectors = array_map(fn ($c) => $t->column($c), $namesFrom);
         $valueVectors = array_combine($valuesFrom, array_map(fn ($c) => $t->column($c), $valuesFrom));
 
         $rows = [];
         $first = [];
-        $colKeys = [];
         $cells = [];
         for ($i = 0, $n = $t->nrow(); $i < $n; $i++) {
             $rk = implode("\x1f", array_map(fn ($v) => Internal::key($v[$i]), $idVectors));
@@ -112,18 +267,12 @@ final class Tidyr
                 $rows[$rk] = \count($first);
                 $first[] = $i;
             }
-            $parts = array_map(fn ($v) => $v[$i], $nameVectors);
-            $ck = implode("\x1f", array_map(fn ($v) => Internal::key($v), $parts));
-            $colKeys[$ck] ??= $parts;
+            $ck = self::partsKey(array_map(fn ($v) => $v[$i], $nameVectors));
             foreach ($valuesFrom as $vc) {
                 $cells[$vc][$rows[$rk]][$ck][] = $valueVectors[$vc][$i];
             }
         }
-        if ($namesSort) {
-            uasort($colKeys, self::nameOrder($t, $namesFrom));
-        }
 
-        $out = [];
         $nRows = \count($first);
         // Like tidyr, duplicate cells (without values_fn) turn that value column
         // into list-columns, with tidyr's warning.
@@ -135,27 +284,74 @@ final class Tidyr
                 trigger_error("Values from `{$vc}` are not uniquely identified; output will contain list-cols.", E_USER_WARNING);
             }
         }
-        foreach ($valuesFrom as $vc) {
+        $out = [];
+        foreach ($spec as $entry) {
+            $vc = $entry['.value'];
             $fn = \is_array($valuesFn) ? ($valuesFn[$vc] ?? null) : $valuesFn;
-            $fill = \is_array($valuesFill) ? ($valuesFill[$vc] ?? null) : $valuesFill;
-            foreach ($colKeys as $ck => $parts) {
-                $name = self::wideName($vc, $parts, array_combine($namesFrom, $parts), $namesFrom, $valuesFrom, $namesPrefix, $namesSep, $namesGlue);
-
-                $values = [];
-                for ($r = 0; $r < $nRows; $r++) {
-                    $cell = $cells[$vc][$r][$ck] ?? null;
-                    $values[] = match (true) {
-                        $cell === null => $listCols[$vc] ? null : $fill,
-                        $fn !== null => $fn($cell),
-                        $listCols[$vc] => $cell,
-                        default => $cell[0],
-                    };
-                }
-                $out[$name] = $values;
+            $ck = self::partsKey(array_map(fn ($c) => $entry[$c], $namesFrom));
+            $values = [];
+            for ($r = 0; $r < $nRows; $r++) {
+                $cell = $cells[$vc][$r][$ck] ?? null;
+                $values[] = match (true) {
+                    $cell === null => $listCols[$vc] ? null : ($fill[$vc] ?? null),
+                    $fn !== null => $fn($cell),
+                    $listCols[$vc] => $cell,
+                    default => $cell[0],
+                };
             }
+            $out[$entry['.name']] = $values;
         }
 
         return Ops::take($t->select($idCols), $first)->mutate($out);
+    }
+
+    /** id_expand: a row for every combination of the id columns, sorted. */
+    private static function expandIds(Table $t, Table $out, array $idCols, array $spec, array $fill): Table
+    {
+        $ids = Frame::fromColumns(array_map(fn ($c) => [], array_combine($idCols, $idCols)));
+        $combos = self::expansion($t, $idCols);
+        if ($combos !== [] && $idCols !== []) {
+            $ids = Frame::fromRows($combos);
+        }
+        foreach ($idCols as $c) {
+            if (($t->types()[$c] ?? null) === Type::Factor) {
+                $ids = $ids->asFactor($c, $t->collect()->levels($c));
+            }
+        }
+        $joined = $ids->join($out->ungroup()->mutate([self::PRESENT => true]), array_map(fn ($c) => [$c, $c], $idCols), 'left');
+        $present = $joined->column(self::PRESENT);
+        $defs = [];
+        foreach ($spec as $entry) {
+            if (\array_key_exists($entry['.value'], $fill)) {
+                $f = $fill[$entry['.value']];
+                $defs[$entry['.name']] = array_map(fn ($v, $p) => $p === null && $v === null ? $f : $v, $joined->column($entry['.name']), $present);
+            }
+        }
+        $joined = $defs === [] ? $joined : $joined->mutate($defs);
+
+        return $joined->select(array_values(array_diff($joined->columns(), [self::PRESENT])));
+    }
+
+    /** unused_fn: summarise the columns pivot_wider() would drop, per output row. */
+    private static function unused(Table $t, Table $out, array $idCols, array $unused, Closure|array $unusedFn): Table
+    {
+        $key = fn (Table $x, int $i, array $vectors) => implode("\x1f", array_map(fn ($v) => Internal::key($v[$i]), $vectors));
+        $inVectors = array_map(fn ($c) => $t->column($c), $idCols);
+        $outVectors = array_map(fn ($c) => $out->column($c), $idCols);
+        $defs = [];
+        foreach ($unused as $c) {
+            $fn = $unusedFn instanceof Closure ? $unusedFn : ($unusedFn[$c] ?? null);
+            if ($fn === null) {
+                continue;
+            }
+            $groups = [];
+            foreach ($t->column($c) as $i => $v) {
+                $groups[$key($t, $i, $inVectors)][] = $v;
+            }
+            $defs[$c] = array_map(fn ($i) => isset($groups[$k = $key($out, $i, $outVectors)]) ? $fn($groups[$k]) : null, $out->nrow() === 0 ? [] : range(0, $out->nrow() - 1));
+        }
+
+        return $defs === [] ? $out : $out->mutate($defs);
     }
 
     /**

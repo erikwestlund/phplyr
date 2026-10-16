@@ -5,7 +5,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
-        "erikwestlund/phibble": "^0.1"
+        "erikwestlund/phibble": "dev-main"
     },
     "require-dev": {
         "pestphp/pest": "^4.0"
@@ -24,6 +24,7 @@
             "src/functions/groups.php",
             "src/functions/joins.php",
             "src/functions/tidyr.php",
+            "src/functions/lists.php",
             "src/functions/rows.php",
             "src/functions/scalar.php",
             "src/functions/strings.php",

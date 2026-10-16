@@ -63,7 +63,7 @@ $load = match ($backendName) {
             return SqlTable::table($pdo, $table);
         };
     })(),
-    'polars' => fn (string $path) => Phpolars\Phibble\PolarsTable::fromTable(Frame::fromCsv($path)),
+    'polars' => fn (string $path) => Phibble\Polars\PolarsTable::fromTable(Frame::fromCsv($path)),
     default => throw new InvalidArgumentException("Unknown backend {$backendName}"),
 };
 

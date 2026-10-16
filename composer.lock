@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "beb76513bf9f6159849294994ee78537",
+    "content-hash": "d18fd8444e285df5fd0d5b62ed8482e9",
     "packages": [
         {
             "name": "erikwestlund/phibble",
-            "version": "v0.1.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwestlund/phibble.git",
-                "reference": "2a6e457f5e9a255f5b3cd8eb9cdef577593248b8"
+                "reference": "21f591ee765dcb4722c7b487723589a11ce75d11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/2a6e457f5e9a255f5b3cd8eb9cdef577593248b8",
-                "reference": "2a6e457f5e9a255f5b3cd8eb9cdef577593248b8",
+                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/21f591ee765dcb4722c7b487723589a11ce75d11",
+                "reference": "21f591ee765dcb4722c7b487723589a11ce75d11",
                 "shasum": ""
             },
             "require": {
@@ -31,8 +31,10 @@
             },
             "suggest": {
                 "ext-pdo_sqlite": "Used by the test suite for the PDO source",
+                "ext-php_polars": "The Polars backend (Phibble\\Polars\\PolarsTable), from erikwestlund/phpolars",
                 "illuminate/database": "Laravel integration: Collection::toFrame() and query builder ->phibble() / ->toFrame() macros (auto-discovered)"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -61,10 +63,10 @@
             ],
             "description": "A typed, immutable in-memory data frame for PHP.",
             "support": {
-                "source": "https://github.com/erikwestlund/phibble/tree/v0.1.0",
+                "source": "https://github.com/erikwestlund/phibble/tree/main",
                 "issues": "https://github.com/erikwestlund/phibble/issues"
             },
-            "time": "2026-10-16T10:49:25+00:00"
+            "time": "2026-10-16T13:23:31+00:00"
         }
     ],
     "packages-dev": [
@@ -4240,7 +4242,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "erikwestlund/phibble": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

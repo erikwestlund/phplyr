@@ -64,6 +64,36 @@ function cross_join(Table $y, array $suffix = ['.x', '.y']): Closure
 }
 
 /**
+ * All rows of x, with a list-column (name) holding each row's matching rows
+ * of y as a table. y's equality keys are left out unless keep: true.
+ */
+function nest_join(Table $y, string|array|JoinBy|null $by = null, ?bool $keep = null, string $name = 'data', string $na_matches = 'na'): Closure
+{
+    return function (Table $x) use ($y, $by, $keep, $name, $na_matches) {
+        $pairs = Join::pairs($x, $y, $by);
+        $xRow = '.phplyr_x_row';
+        $yRow = '.phplyr_y_row';
+        $xKeys = array_values(array_unique(array_map(fn ($p) => $p[0], $pairs)));
+        $left = $x->ungroup()->select($xKeys)->mutate([$xRow => $x->nrow() === 0 ? [] : range(0, $x->nrow() - 1)]);
+        $right = $y->ungroup()->mutate([$yRow => $y->nrow() === 0 ? [] : range(0, $y->nrow() - 1)]);
+        $matched = Join::verb('inner', $right, new JoinBy($pairs), ['.x', '.y'], true, $na_matches, 'all', 'drop', 'many-to-many')($left);
+        $members = array_fill(0, $x->nrow(), []);
+        foreach ($matched->column($xRow) as $i => $r) {
+            $members[$r][] = $matched->column($yRow)[$i];
+        }
+        $equality = array_map(fn ($p) => $p[1], array_filter($pairs, fn ($p) => \count($p) === 2));
+        $inner = $keep === true ? $y->ungroup() : $y->ungroup()->select(array_values(array_diff($y->columns(), $equality)));
+        $tables = array_map(function (array $rows) use ($inner) {
+            sort($rows);
+
+            return Ops::take($inner, $rows)->collect();
+        }, $members);
+
+        return $x->mutate([$name => $tables]);
+    };
+}
+
+/**
  * A join specification, as dplyr's join_by(). Conditions are column names
  * (equality on the same name), ['x' => 'y'] or [x, op, y] arrays, or
  * comparisons where the left side is x's column and the right side y's:

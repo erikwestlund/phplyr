@@ -19,16 +19,19 @@ use Phibble\Contracts\Table;
  *   closure whose first parameter is typed array (given the whole column,
  *   returning a list or one value).
  */
-final readonly class Across
+final class Across
 {
+    /** The column across() is applying a function to, for cur_column(). */
+    public static ?string $current = null;
+
     /**
      * @param array<int|string, mixed> $cols select()-style arguments.
      * @param Closure|array<int|string, Closure>|null $fns
      */
     public function __construct(
-        public array $cols,
-        public Closure|array|null $fns,
-        public ?string $names,
+        public readonly array $cols,
+        public readonly Closure|array|null $fns,
+        public readonly ?string $names,
     ) {
     }
 
@@ -81,15 +84,29 @@ final readonly class Across
             return col($col);
         }
         if (self::isHelper($fn)) {
-            $def = $fn($col);
+            $def = self::at($col, fn () => $fn($col));
 
             return $def instanceof Vec ? $def : new Vec($def);
         }
+        // A closure may return a helper's result, as in fn ($v) => mean($v, na_rm: true).
+        $resolve = fn (mixed $r, Table $g) => $r instanceof Vec ? $r($g) : $r;
         if ($verb === 'summarise' || self::takesArray($fn)) {
-            return new Vec(fn (Table $g) => $fn($g->column($col)));
+            return new Vec(fn (Table $g) => self::at($col, fn () => $resolve($fn($g->column($col)), $g)));
         }
 
-        return new Vec(fn (Table $g) => array_map($fn, $g->column($col)));
+        return new Vec(fn (Table $g) => self::at($col, fn () => array_map($fn, $g->column($col))));
+    }
+
+    /** Run $body with cur_column() returning $col. */
+    private static function at(string $col, Closure $body): mixed
+    {
+        $previous = self::$current;
+        self::$current = $col;
+        try {
+            return $body();
+        } finally {
+            self::$current = $previous;
+        }
     }
 
     /** A first-class callable of a phplyr function, such as mean(...). */

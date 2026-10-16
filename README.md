@@ -39,7 +39,7 @@ composer require erikwestlund/phplyr:^0.1
 Two extensions are optional:
 
 - [php-stats](https://github.com/erikwestlund/php-stats) provides `lm()`, `glm()`, `lmer()`, and `glmer()`, and speeds up the descriptive helpers. Without it, the helpers run in PHP with the same results.
-- [phpolars](https://github.com/erikwestlund/phpolars) provides PolarsTable, a Polars-backed table that runs phplyr pipelines natively.
+- [phpolars](https://github.com/erikwestlund/phpolars) provides the php_polars extension behind phibble's PolarsTable (`Phibble\Polars\PolarsTable`), a Polars-backed table that runs phplyr pipelines natively.
 
 See [CHANGELOG.md](CHANGELOG.md) for what each release contains.
 ## Conventions

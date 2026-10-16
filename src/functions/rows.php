@@ -17,13 +17,13 @@ use Phibble\Frame;
 /** All rows of both tables. */
 function union_all(Table $y): Closure
 {
-    return fn (Table $x) => Frame::concat([$x, Rows::aligned($x, $y)]);
+    return fn (Table $x) => Internal::sameBackend(Frame::concat([$x, Rows::aligned($x, $y)]), $x);
 }
 
 /** Distinct rows of both tables. */
 function union(Table $y): Closure
 {
-    return fn (Table $x) => Frame::concat([$x, Rows::aligned($x, $y)])->distinct();
+    return fn (Table $x) => Internal::sameBackend(Frame::concat([$x, Rows::aligned($x, $y)])->distinct(), $x);
 }
 
 /** Distinct rows of x that also appear in y. */
@@ -41,7 +41,7 @@ function setdiff(Table $y): Closure
 /** Rows in exactly one of the tables. */
 function symdiff(Table $y): Closure
 {
-    return fn (Table $x) => Frame::concat([setdiff($y)($x), setdiff($x)(Rows::aligned($x, $y))]);
+    return fn (Table $x) => Internal::sameBackend(Frame::concat([setdiff($y)($x), setdiff($x)(Rows::aligned($x, $y))]), $x);
 }
 
 /** True when both tables hold the same distinct rows, in any order. */
@@ -81,14 +81,14 @@ function rows_insert(Table $y, string|array|null $by = null, string $conflict = 
             $new[] = $i;
         }
 
-        return Frame::concat([$x, Ops::take(Rows::aligned($x, $y, partial: true), $new)]);
+        return Internal::sameBackend(Frame::concat([$x, Ops::take(Rows::aligned($x, $y, partial: true), $new)]), $x);
     };
 }
 
 /** Append all rows of y. */
 function rows_append(Table $y): Closure
 {
-    return fn (Table $x) => Frame::concat([$x, Rows::aligned($x, $y, partial: true)]);
+    return fn (Table $x) => Internal::sameBackend(Frame::concat([$x, Rows::aligned($x, $y, partial: true)]), $x);
 }
 
 /**
@@ -133,5 +133,40 @@ function rows_delete(Table $y, string|array|null $by = null, string $unmatched =
         }
 
         return Rows::keep($x, $drop, false, $by);
+    };
+}
+
+/**
+ * Add rows of values: add_row(x: 4, y: 'd'), or several with lists:
+ * add_row(x: [4, 5]). Columns not given are NA. Options: _before, _after
+ * (a 1-based row; the default adds at the end).
+ */
+function add_row(mixed ...$values): Closure
+{
+    [$values, $o] = Internal::options($values, ['_before' => null, '_after' => null], 'add_row');
+    Internal::assertNamed($values, 'add_row');
+
+    return function (Table $t) use ($values, $o) {
+        if ($o['_before'] !== null && $o['_after'] !== null) {
+            throw new \InvalidArgumentException('add_row(): give _before or _after, not both.');
+        }
+        $unknown = array_diff(array_keys($values), $t->columns());
+        if ($unknown !== []) {
+            throw new \InvalidArgumentException("add_row(): can't add rows with new columns: ".implode(', ', $unknown).'.');
+        }
+        $n = \max(array_map(fn ($v) => \is_array($v) && array_is_list($v) ? \count($v) : 1, $values ?: [null]));
+        $columns = array_map(fn ($v) => Vec::recycle($v, $n, 'add_row() value'), $values);
+        $new = Frame::fromColumns($columns + array_fill_keys(array_diff($t->columns(), array_keys($values)), array_fill(0, $n, null)));
+        $m = $t->nrow();
+        $at = match (true) {
+            $o['_before'] !== null => $o['_before'] - 1,
+            $o['_after'] !== null => (int) $o['_after'],
+            default => $m,
+        };
+        $at = \max(0, \min($m, $at));
+        $combined = bind_rows($new)($t);
+        $order = [...($at > 0 ? range(0, $at - 1) : []), ...range($m, $m + $n - 1), ...($at < $m ? range($at, $m - 1) : [])];
+
+        return Internal::sameBackend(Ops::take($combined, $order), $t);
     };
 }
