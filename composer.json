@@ -1,0 +1,36 @@
+{
+    "name": "erikwestlund/phplyr",
+    "description": "A dplyr-style grammar of data manipulation for PHP 8.5 pipes",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.5"
+    },
+    "require-dev": {
+        "pestphp/pest": "^4.0"
+    },
+    "suggest": {
+        "ext-php_stats": "Native descriptives and model fitting (stats_*), needed for lm() and glm()"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phplyr\\": "src/"
+        },
+        "files": [
+            "src/functions.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phplyr\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

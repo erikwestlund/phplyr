@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Run the test suite under PHP 8.5, loading php_stats from .ext/ when present.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+PHP="${PHP:-php}"
+args=()
+if [[ -f .ext/libphp_stats.dylib && "${NO_EXT:-}" == "" ]]; then
+    args+=(-d "extension=$PWD/.ext/libphp_stats.dylib")
+fi
+exec "$PHP" ${args[@]+"${args[@]}"} vendor/bin/pest "$@"

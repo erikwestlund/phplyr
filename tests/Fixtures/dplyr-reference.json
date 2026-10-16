@@ -1,0 +1,391 @@
+{
+  "school_summary": [
+    {
+      "school": "school-07",
+      "n": 14,
+      "mean_score": 86.8960714285714,
+      "sd_score": 6.32256148754097,
+      "var_gain": 76.9878022252748,
+      "median_hours": 8.405,
+      "q90_score": 93.6893,
+      "min_prior": 39.85,
+      "max_prior": 82.7
+    },
+    {
+      "school": "school-06",
+      "n": 20,
+      "mean_score": 80.8947,
+      "sd_score": 8.90189542264958,
+      "var_gain": 73.1610274315789,
+      "median_hours": 8.98,
+      "q90_score": 90.4197,
+      "min_prior": 47.36,
+      "max_prior": 86.61
+    },
+    {
+      "school": "school-02",
+      "n": 12,
+      "mean_score": 79.7080833333333,
+      "sd_score": 8.21752657388002,
+      "var_gain": 65.6474132954545,
+      "median_hours": 9.645,
+      "q90_score": 88.4761,
+      "min_prior": 45.87,
+      "max_prior": 83.39
+    },
+    {
+      "school": "school-09",
+      "n": 11,
+      "mean_score": 79.2775454545454,
+      "sd_score": 6.67328137221317,
+      "var_gain": 69.3053500909091,
+      "median_hours": 7.6,
+      "q90_score": 88.256,
+      "min_prior": 57.31,
+      "max_prior": 77.89
+    },
+    {
+      "school": "school-11",
+      "n": 13,
+      "mean_score": 77.5778461538462,
+      "sd_score": 7.31032631335239,
+      "var_gain": 55.679999525641,
+      "median_hours": 10.48,
+      "q90_score": 86.188,
+      "min_prior": 47.68,
+      "max_prior": 85.27
+    },
+    {
+      "school": "school-10",
+      "n": 13,
+      "mean_score": 77.5267692307692,
+      "sd_score": 7.01937055765266,
+      "var_gain": 55.6291376410256,
+      "median_hours": 9.36,
+      "q90_score": 85.7608,
+      "min_prior": 49.09,
+      "max_prior": 82.13
+    },
+    {
+      "school": "school-01",
+      "n": 12,
+      "mean_score": 76.6389166666667,
+      "sd_score": 7.93407443715034,
+      "var_gain": 45.4113938409091,
+      "median_hours": 8.205,
+      "q90_score": 87.6449,
+      "min_prior": 40.43,
+      "max_prior": 78.82
+    },
+    {
+      "school": "school-05",
+      "n": 13,
+      "mean_score": 75.8116153846154,
+      "sd_score": 7.57902348083689,
+      "var_gain": 52.9821214102564,
+      "median_hours": 9.08,
+      "q90_score": 84.3226,
+      "min_prior": 48.91,
+      "max_prior": 81.2
+    },
+    {
+      "school": "school-03",
+      "n": 11,
+      "mean_score": 73.2497272727273,
+      "sd_score": 7.38211106785734,
+      "var_gain": 44.2042278181818,
+      "median_hours": 7.57,
+      "q90_score": 83.115,
+      "min_prior": 46.29,
+      "max_prior": 71.38
+    },
+    {
+      "school": "school-04",
+      "n": 20,
+      "mean_score": 71.121,
+      "sd_score": 8.52483640837017,
+      "var_gain": 54.5869765789474,
+      "median_hours": 8.75,
+      "q90_score": 80.6567,
+      "min_prior": 46.26,
+      "max_prior": 81.34
+    },
+    {
+      "school": "school-12",
+      "n": 11,
+      "mean_score": 69.1566363636364,
+      "sd_score": 8.43582540446075,
+      "var_gain": 29.3486118909091,
+      "median_hours": 7.33,
+      "q90_score": 80.01,
+      "min_prior": 54.19,
+      "max_prior": 74.94
+    },
+    {
+      "school": "school-08",
+      "n": 12,
+      "mean_score": 67.531,
+      "sd_score": 6.40361257416468,
+      "var_gain": 95.1231253636364,
+      "median_hours": 7.56,
+      "q90_score": 75.2349,
+      "min_prior": 35.37,
+      "max_prior": 76.5
+    }
+  ],
+  "hours_band_count": [
+    {
+      "band": "low",
+      "n": 155
+    },
+    {
+      "band": "high",
+      "n": 95
+    }
+  ],
+  "grouped_center": [
+    {
+      "school": "school-01",
+      "score": 91.037,
+      "centered": 18.125
+    },
+    {
+      "school": "school-01",
+      "score": 88.223,
+      "centered": 15.311
+    },
+    {
+      "school": "school-02",
+      "score": 92.083,
+      "centered": 19.1785833333333
+    },
+    {
+      "school": "school-02",
+      "score": 88.725,
+      "centered": 15.8205833333333
+    },
+    {
+      "school": "school-02",
+      "score": 86.236,
+      "centered": 13.3315833333333
+    },
+    {
+      "school": "school-02",
+      "score": 84.14,
+      "centered": 11.2355833333333
+    },
+    {
+      "school": "school-03",
+      "score": 83.977,
+      "centered": 14.9887333333333
+    },
+    {
+      "school": "school-03",
+      "score": 83.115,
+      "centered": 14.1267333333333
+    },
+    {
+      "school": "school-03",
+      "score": 80.034,
+      "centered": 11.0457333333333
+    },
+    {
+      "school": "school-04",
+      "score": 83.941,
+      "centered": 14.3308181818182
+    },
+    {
+      "school": "school-04",
+      "score": 83.075,
+      "centered": 13.4648181818182
+    },
+    {
+      "school": "school-04",
+      "score": 80.388,
+      "centered": 10.7778181818182
+    },
+    {
+      "school": "school-05",
+      "score": 87.009,
+      "centered": 14.03645
+    },
+    {
+      "school": "school-05",
+      "score": 84.996,
+      "centered": 12.02345
+    },
+    {
+      "school": "school-06",
+      "score": 96.599,
+      "centered": 19.7169259259259
+    },
+    {
+      "school": "school-06",
+      "score": 96.006,
+      "centered": 19.1239259259259
+    },
+    {
+      "school": "school-06",
+      "score": 89.799,
+      "centered": 12.9169259259259
+    },
+    {
+      "school": "school-06",
+      "score": 89.388,
+      "centered": 12.5059259259259
+    },
+    {
+      "school": "school-06",
+      "score": 87.567,
+      "centered": 10.6849259259259
+    },
+    {
+      "school": "school-07",
+      "score": 96.195,
+      "centered": 12.7683157894737
+    },
+    {
+      "school": "school-07",
+      "score": 93.995,
+      "centered": 10.5683157894737
+    },
+    {
+      "school": "school-08",
+      "score": 78.614,
+      "centered": 14.5490952380952
+    },
+    {
+      "school": "school-08",
+      "score": 75.398,
+      "centered": 11.3330952380952
+    },
+    {
+      "school": "school-09",
+      "score": 89.088,
+      "centered": 14.2005
+    },
+    {
+      "school": "school-09",
+      "score": 88.256,
+      "centered": 13.3685
+    },
+    {
+      "school": "school-09",
+      "score": 85.975,
+      "centered": 11.0875
+    },
+    {
+      "school": "school-10",
+      "score": 90.121,
+      "centered": 18.60112
+    },
+    {
+      "school": "school-10",
+      "score": 86.083,
+      "centered": 14.56312
+    },
+    {
+      "school": "school-10",
+      "score": 84.472,
+      "centered": 12.95212
+    },
+    {
+      "school": "school-10",
+      "score": 81.932,
+      "centered": 10.41212
+    },
+    {
+      "school": "school-11",
+      "score": 90.12,
+      "centered": 18.930652173913
+    },
+    {
+      "school": "school-11",
+      "score": 86.63,
+      "centered": 15.440652173913
+    },
+    {
+      "school": "school-11",
+      "score": 84.42,
+      "centered": 13.230652173913
+    },
+    {
+      "school": "school-11",
+      "score": 82.394,
+      "centered": 11.204652173913
+    },
+    {
+      "school": "school-11",
+      "score": 81.263,
+      "centered": 10.073652173913
+    },
+    {
+      "school": "school-12",
+      "score": 81.628,
+      "centered": 17.6492
+    },
+    {
+      "school": "school-12",
+      "score": 80.01,
+      "centered": 16.0312
+    },
+    {
+      "school": "school-12",
+      "score": 78.386,
+      "centered": 14.4072
+    }
+  ],
+  "housing_rent": [
+    {
+      "rooms": 1,
+      "area_m2": 45.7,
+      "rent_per_m2": 33.0249452954048
+    },
+    {
+      "rooms": 1,
+      "area_m2": 37,
+      "rent_per_m2": 25.9327027027027
+    },
+    {
+      "rooms": 1,
+      "area_m2": 49.1,
+      "rent_per_m2": 25.8217922606925
+    },
+    {
+      "rooms": 2,
+      "area_m2": 57.4,
+      "rent_per_m2": 31.4465156794425
+    },
+    {
+      "rooms": 2,
+      "area_m2": 66.4,
+      "rent_per_m2": 30.4561746987952
+    },
+    {
+      "rooms": 2,
+      "area_m2": 74.4,
+      "rent_per_m2": 25.2587365591398
+    },
+    {
+      "rooms": 3,
+      "area_m2": 93.9,
+      "rent_per_m2": 25.4157614483493
+    },
+    {
+      "rooms": 3,
+      "area_m2": 92.4,
+      "rent_per_m2": 24.2435064935065
+    }
+  ],
+  "housing_rooms": [
+    {
+      "bedrooms": 1
+    },
+    {
+      "bedrooms": 2
+    },
+    {
+      "bedrooms": 3
+    }
+  ]
+}
