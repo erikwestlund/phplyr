@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://erikwestlund.github.io/phplyr/reference/vectors.html</loc>
-    <lastmod>2026-10-16T03:23:40.796Z</lastmod>
+    <lastmod>2026-10-16T13:56:45.342Z</lastmod>
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/reference/tidyselect.html</loc>
-    <lastmod>2026-10-16T03:23:40.798Z</lastmod>
+    <lastmod>2026-10-16T13:56:45.342Z</lastmod>
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/reference/strings-dates.html</loc>
@@ -22,7 +22,7 @@
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/performance.html</loc>
-    <lastmod>2026-10-16T09:57:35.417Z</lastmod>
+    <lastmod>2026-10-16T13:55:55.500Z</lastmod>
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/getting-started.html</loc>
@@ -42,7 +42,7 @@
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/index.html</loc>
-    <lastmod>2026-10-16T03:23:58.343Z</lastmod>
+    <lastmod>2026-10-16T13:55:55.500Z</lastmod>
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/port-r-script.html</loc>
@@ -50,18 +50,18 @@
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/reference/grouping.html</loc>
-    <lastmod>2026-10-16T07:47:40.645Z</lastmod>
+    <lastmod>2026-10-16T13:56:45.342Z</lastmod>
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/reference/single-table.html</loc>
-    <lastmod>2026-10-16T03:23:40.789Z</lastmod>
+    <lastmod>2026-10-16T13:56:45.342Z</lastmod>
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/reference/tidyr.html</loc>
-    <lastmod>2026-10-16T08:06:19.146Z</lastmod>
+    <lastmod>2026-10-16T13:56:45.343Z</lastmod>
   </url>
   <url>
     <loc>https://erikwestlund.github.io/phplyr/reference/two-table.html</loc>
-    <lastmod>2026-10-16T07:44:56.840Z</lastmod>
+    <lastmod>2026-10-16T13:56:45.343Z</lastmod>
   </url>
 </urlset>

@@ -266,6 +266,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#pivoting" id="toc-pivoting" class="nav-link active" data-scroll-target="#pivoting">Pivoting</a></li>
   <li><a href="#missing-combinations-and-values" id="toc-missing-combinations-and-values" class="nav-link" data-scroll-target="#missing-combinations-and-values">Missing combinations and values</a></li>
   <li><a href="#splitting-and-combining" id="toc-splitting-and-combining" class="nav-link" data-scroll-target="#splitting-and-combining">Splitting and combining</a></li>
+  <li><a href="#list-columns" id="toc-list-columns" class="nav-link" data-scroll-target="#list-columns">List-columns</a></li>
   </ul>
 </nav>
     </div>
@@ -294,9 +295,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The tidyr verbs use tidyr’s argument names. Arguments that start with a dot in tidyr start with an underscore here.</p>
 <section id="pivoting" class="level2">
 <h2 class="anchored" data-anchor-id="pivoting">Pivoting</h2>
-<p><code>pivot_longer()</code> turns columns into rows of names and values. <code>names_prefix</code> strips a regular expression from the start of each name. <code>names_sep</code> or <code>names_pattern</code> split names into several <code>names_to</code> columns, and the special name <code>'.value'</code> takes the value column’s name from that part. <code>values_drop_na: true</code> drops rows whose values are all NA.</p>
-<p><code>pivot_wider()</code> spreads names and values into columns. <code>id_cols</code> identify the rows (by default every other column). <code>values_fill</code> fills missing cells, <code>values_fn</code> combines duplicate cells, and <code>names_prefix</code>, <code>names_sep</code>, <code>names_glue</code>, and <code>names_sort</code> control the new names. Without <code>values_fn</code>, duplicate cells turn the value column into list-columns and raise tidyr’s warning.</p>
-<p>Both verbs build tidyr’s pivot spec in phplyr and pass it to the table’s <code>pivotLongerSpec()</code> or <code>pivotWiderSpec()</code>, so a backend can run the pivot natively.</p>
+<p><code>pivot_longer()</code> turns columns into rows of names and values. <code>names_prefix</code> strips a regular expression from the start of each name. <code>names_sep</code> or <code>names_pattern</code> split names into several <code>names_to</code> columns, and the special name <code>'.value'</code> takes the value column’s name from that part. <code>values_drop_na: true</code> drops rows whose values are all NA. <code>names_transform</code> and <code>values_transform</code> take a closure, or an array of closures by column. <code>cols_vary: 'slowest'</code> keeps each source column’s rows together.</p>
+<p><code>pivot_wider()</code> spreads names and values into columns. <code>id_cols</code> identify the rows (by default every other column). <code>values_fill</code> fills missing cells, <code>values_fn</code> combines duplicate cells, and <code>names_prefix</code>, <code>names_sep</code>, <code>names_glue</code>, and <code>names_sort</code> control the new names. Without <code>values_fn</code>, duplicate cells turn the value column into list-columns and raise tidyr’s warning. <code>names_vary: 'slowest'</code> groups each name’s value columns together. <code>names_expand</code> and <code>id_expand</code> add every combination of the <code>names_from</code> and <code>id_cols</code> values (sorted, factors by level). <code>unused_fn</code> summarises the columns that are in none of <code>id_cols</code>, <code>names_from</code>, and <code>values_from</code>.</p>
+<p>Both verbs build tidyr’s pivot spec in phplyr and pass it to the table’s <code>pivotLongerSpec()</code> or <code>pivotWiderSpec()</code>, so a backend can run the pivot natively. <code>build_longer_spec()</code> and <code>build_wider_spec()</code> return that spec as a table, and <code>pivot_longer_spec()</code> and <code>pivot_wider_spec()</code> run an edited one. The superseded <code>gather()</code> and <code>spread()</code> are also available.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">$scores</span> <span class="op">=</span> Frame::fromRows([</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'student'</span> =&gt; <span class="st">'ann'</span><span class="ot">,</span> <span class="st">'wk1'</span> =&gt; <span class="dv">10</span><span class="ot">,</span> <span class="st">'wk2'</span> =&gt; <span class="kw">null</span><span class="ot">,</span> <span class="st">'wk3'</span> =&gt; <span class="dv">30</span>]<span class="ot">,</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'student'</span> =&gt; <span class="st">'bob'</span><span class="ot">,</span> <span class="st">'wk1'</span> =&gt; <span class="dv">7</span><span class="ot">,</span> <span class="st">'wk2'</span> =&gt; <span class="dv">8</span><span class="ot">,</span> <span class="st">'wk3'</span> =&gt; <span class="dv">9</span>]<span class="ot">,</span></span>
@@ -400,8 +401,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Repeat rows by a weight column</td>
 </tr>
 <tr class="odd">
+<td><code>separate_rows(...cols, sep:)</code></td>
+<td>The superseded row splitter, on a regular expression</td>
+</tr>
+<tr class="even">
+<td><code>extract(col, into, regex)</code></td>
+<td>The superseded regex splitter</td>
+</tr>
+<tr class="odd">
 <td><code>nest(data: [...])</code>, <code>unnest('data')</code></td>
 <td>List-columns of tables</td>
+</tr>
+<tr class="even">
+<td><code>full_seq(x, period)</code></td>
+<td>Every value from the smallest to the largest in steps of <code>period</code></td>
 </tr>
 </tbody>
 </table>
@@ -430,6 +443,78 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   &lt;chr&gt;          
 1 1: Ada Lovelace
 2 2: Grace Hopper</code></pre>
+</section>
+<section id="list-columns" class="level2">
+<h2 class="anchored" data-anchor-id="list-columns">List-columns</h2>
+<p>A list element is a PHP array. A list is R’s unnamed list or vector, and an array with string keys is a named list.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>unnest_wider(col, names_sep:)</code></td>
+<td>One column per name; unnamed elements need <code>names_sep</code></td>
+</tr>
+<tr class="even">
+<td><code>unnest_longer(col, values_to:, indices_to:, indices_include:, keep_empty:)</code></td>
+<td>One row per element, with names or positions in <code>{col}_id</code></td>
+</tr>
+<tr class="odd">
+<td><code>hoist(col, name: path, _remove:)</code></td>
+<td>Pull components out by name, 1-based position, or a list path</td>
+</tr>
+<tr class="even">
+<td><code>chop(cols)</code>, <code>unchop(cols, keep_empty:)</code></td>
+<td>Collapse rows into list-columns and back</td>
+</tr>
+<tr class="odd">
+<td><code>pack(name: cols, _names_sep:)</code>, <code>unpack(cols, names_sep:)</code></td>
+<td>Columns into a column of named arrays and back</td>
+</tr>
+</tbody>
+</table>
+<p><code>chop</code>, <code>pack</code>, <code>unpack</code>, and <code>extract</code> share names with PHP built-ins, so import them with <code>use function Phplyr\{chop, pack, unpack, extract};</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phplyr\<span class="fu">chop</span><span class="ot">;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="va">$people</span> <span class="op">=</span> Frame::fromColumns([</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'id'</span> =&gt; [<span class="dv">1</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="dv">3</span>]<span class="ot">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'info'</span> =&gt; [</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'name'</span> =&gt; <span class="st">'ann'</span><span class="ot">,</span> <span class="st">'langs'</span> =&gt; [<span class="st">'php'</span><span class="ot">,</span> <span class="st">'r'</span>]<span class="ot">,</span> <span class="st">'city'</span> =&gt; [<span class="st">'name'</span> =&gt; <span class="st">'Oslo'</span>]]<span class="ot">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        [<span class="st">'name'</span> =&gt; <span class="st">'bob'</span><span class="ot">,</span> <span class="st">'langs'</span> =&gt; [<span class="st">'sql'</span>]]<span class="ot">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">null</span><span class="ot">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ]<span class="ot">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>])<span class="ot">;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$people</span> <span class="op">|&gt;</span> hoist(<span class="st">'info'</span><span class="ot">,</span> town<span class="ot">:</span> [<span class="st">'city'</span><span class="ot">,</span> <span class="st">'name'</span>])<span class="ot">,</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$people</span> <span class="op">|&gt;</span> unnest_wider(<span class="st">'info'</span>) <span class="op">|&gt;</span> select(<span class="st">'id'</span><span class="ot">,</span> <span class="st">'langs'</span>) <span class="op">|&gt;</span> unnest_longer(<span class="st">'langs'</span><span class="ot">,</span> indices_include<span class="ot">:</span> <span class="kw">true</span>)<span class="ot">,</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">;</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> Frame::fromColumns([<span class="st">'g'</span> =&gt; [<span class="st">'a'</span><span class="ot">,</span> <span class="st">'a'</span><span class="ot">,</span> <span class="st">'b'</span>]<span class="ot">,</span> <span class="st">'x'</span> =&gt; [<span class="dv">1</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="dv">3</span>]]) <span class="op">|&gt;</span> <span class="fu">chop</span>(<span class="st">'x'</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A tibble: 3 × 3
+     id town  info            
+  &lt;int&gt; &lt;chr&gt; &lt;list&gt;          
+1     1 Oslo  &lt;named list [3]&gt;
+2     2 &lt;NA&gt;  &lt;named list [2]&gt;
+3     3 &lt;NA&gt;  &lt;NULL&gt;          
+# A tibble: 3 × 3
+     id langs_id langs
+  &lt;int&gt;    &lt;int&gt; &lt;chr&gt;
+1     1        1 php  
+2     1        2 r    
+3     2        1 sql  
+# A tibble: 2 × 2
+  g     x        
+  &lt;chr&gt; &lt;list&gt;   
+1 a     &lt;int [2]&gt;
+2 b     &lt;int [1]&gt;</code></pre>
 
 
 </section>

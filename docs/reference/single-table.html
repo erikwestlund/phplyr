@@ -374,6 +374,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>head(n)</code></td>
 <td>The first rows of the whole table, ignoring groups.</td>
 </tr>
+<tr class="even">
+<td><code>top_n(n, wt)</code>, <code>top_frac(prop, wt)</code></td>
+<td>Superseded by <code>slice_max()</code>. Rows ranked within <code>n</code>, in table order.</td>
+</tr>
+<tr class="odd">
+<td><code>sample_n(size)</code>, <code>sample_frac(size)</code></td>
+<td>Superseded by <code>slice_sample()</code>.</td>
+</tr>
+<tr class="even">
+<td><code>add_row(x: 1, _before:, _after:)</code></td>
+<td>New rows of values; columns not given are NA.</td>
+</tr>
 </tbody>
 </table>
 <p>Each takes <code>prop:</code> in place of <code>n:</code>, and <code>_by:</code>.</p>

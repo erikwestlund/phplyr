@@ -36,6 +36,9 @@ The slice family picks rows within each group:
 | `slice_min(x, n:)`, `slice_max(x, n:)` | The rows with the smallest or largest values, with ties kept unless `with_ties: false`. |
 | `slice_sample(n:, replace:, weight_by:)` | Random rows. Seed with `mt_srand()`. |
 | `head(n)` | The first rows of the whole table, ignoring groups. |
+| `top_n(n, wt)`, `top_frac(prop, wt)` | Superseded by `slice_max()`. Rows ranked within `n`, in table order. |
+| `sample_n(size)`, `sample_frac(size)` | Superseded by `slice_sample()`. |
+| `add_row(x: 1, _before:, _after:)` | New rows of values; columns not given are NA. |
 
 Each takes `prop:` in place of `n:`, and `_by:`.
 

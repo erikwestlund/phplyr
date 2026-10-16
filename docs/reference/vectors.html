@@ -385,6 +385,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>consecutive_id('x')</code></td>
 <td>A new id each time the value changes</td>
 </tr>
+<tr class="odd">
+<td><code>order_by('t', cumsum('x'))</code></td>
+<td>A window function evaluated in another order</td>
+</tr>
 </tbody>
 </table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> Frame::fromCsv(<span class="st">'schools.csv'</span>)</span>
@@ -451,22 +455,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>dplyr’s deprecated form of <code>recode_values()</code></td>
 </tr>
 <tr class="odd">
+<td><code>recode('x', a: 'A', _default:, _missing:)</code></td>
+<td>dplyr’s superseded recoder, matching values by name</td>
+</tr>
+<tr class="even">
 <td><code>when_any(...)</code>, <code>when_all(...)</code></td>
 <td>Elementwise OR and AND across conditions</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>coalesce('x', 0)</code></td>
 <td>The first non-NA value</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>na_if('x', value)</code></td>
 <td>NA where <code>x</code> equals the value</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>between('x', lo, hi)</code></td>
 <td>Inclusive range test</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>near('x', y)</code></td>
 <td>Equality within floating-point tolerance</td>
 </tr>

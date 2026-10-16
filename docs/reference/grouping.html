@@ -354,6 +354,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>A table of group keys</td>
 </tr>
 <tr class="even">
+<td><code>group_rows()</code></td>
+<td>Each group’s 1-based row numbers</td>
+</tr>
+<tr class="odd">
+<td><code>group_data()</code></td>
+<td>The group keys with a <code>.rows</code> list-column</td>
+</tr>
+<tr class="even">
+<td><code>group_trim()</code></td>
+<td>The table regrouped without unused factor levels</td>
+</tr>
+<tr class="odd">
+<td><code>group_nest(_key:, _keep:)</code></td>
+<td>One row per group, with a list-column of tables</td>
+</tr>
+<tr class="even">
+<td><code>nest_by(...cols)</code></td>
+<td><code>group_nest()</code> as a rowwise table</td>
+</tr>
+<tr class="odd">
+<td><code>with_groups(groups, verb)</code></td>
+<td>The verb’s result under other groups, with the original grouping restored</td>
+</tr>
+<tr class="even">
 <td><code>group_split(_keep:)</code></td>
 <td>A list of tables, one per group</td>
 </tr>
@@ -381,12 +405,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>cur_group_rows()</code></td>
 <td>The current group’s row numbers, in <code>mutate()</code> and <code>reframe()</code></td>
 </tr>
+<tr class="odd">
+<td><code>cur_group()</code></td>
+<td>The current group’s key as an array of column =&gt; value</td>
+</tr>
 </tbody>
 </table>
 </section>
 <section id="row-wise-operations" class="level2">
 <h2 class="anchored" data-anchor-id="row-wise-operations">Row-wise operations</h2>
-<p><code>rowwise()</code> makes each row its own group. Closures in <code>summarise()</code> and vector helpers then see one row at a time. Optional id columns stay as groups in the result of <code>summarise()</code>.</p>
+<p><code>rowwise()</code> makes each row its own group. Closures in <code>summarise()</code> and vector helpers then see one row at a time. Optional id columns stay as groups in the result of <code>summarise()</code>. <code>c_across(cols)</code> gives the current row’s values of the selected columns, for helpers such as <code>sum(c_across(starts_with('x')))</code>.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> Frame::fromRows([</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'id'</span> =&gt; <span class="st">'a'</span><span class="ot">,</span> <span class="st">'q1'</span> =&gt; <span class="dv">3</span><span class="ot">,</span> <span class="st">'q2'</span> =&gt; <span class="dv">5</span><span class="ot">,</span> <span class="st">'q3'</span> =&gt; <span class="kw">null</span>]<span class="ot">,</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'id'</span> =&gt; <span class="st">'b'</span><span class="ot">,</span> <span class="st">'q1'</span> =&gt; <span class="dv">4</span><span class="ot">,</span> <span class="st">'q2'</span> =&gt; <span class="dv">1</span><span class="ot">,</span> <span class="st">'q3'</span> =&gt; <span class="dv">2</span>]<span class="ot">,</span></span>

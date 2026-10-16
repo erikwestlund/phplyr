@@ -70,7 +70,7 @@ Frame peaked at about 1.5 GB of memory for the 1M-row table and its results.
 - **SQLite columns need declared types.** PDO binds values as strings. In an
   untyped column, SQLite stores them as text and compares numbers as text.
 
-- **PolarsTable** (phpolars) runs the verbs in Polars, 10 to 100 times faster
+- **PolarsTable** (phibble's Polars backend, on the phpolars extension) runs the verbs in Polars, 10 to 100 times faster
   than Frame, and pays mainly for bringing rows back into PHP. See below.
 
 ## PolarsTable

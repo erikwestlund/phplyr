@@ -23,6 +23,12 @@ within groups. `_by:` groups for a single call and returns an ungrouped table.
 | `group_size()` | Rows per group |
 | `group_indices()` | Each row's 1-based group number |
 | `group_keys()` | A table of group keys |
+| `group_rows()` | Each group's 1-based row numbers |
+| `group_data()` | The group keys with a `.rows` list-column |
+| `group_trim()` | The table regrouped without unused factor levels |
+| `group_nest(_key:, _keep:)` | One row per group, with a list-column of tables |
+| `nest_by(...cols)` | `group_nest()` as a rowwise table |
+| `with_groups(groups, verb)` | The verb's result under other groups, with the original grouping restored |
 | `group_split(_keep:)` | A list of tables, one per group |
 | `group_map(fn ($table, $key))` | A list of the function's results |
 | `group_modify(fn ($table, $key))` | A grouped table built from the returned tables |
@@ -30,11 +36,13 @@ within groups. `_by:` groups for a single call and returns an ungrouped table.
 | `group_cols()` | A selector for the grouping columns |
 | `cur_group_id()` | The current group's number, in `mutate()`, `summarise()`, and `reframe()` |
 | `cur_group_rows()` | The current group's row numbers, in `mutate()` and `reframe()` |
+| `cur_group()` | The current group's key as an array of column => value |
 
 ## Row-wise operations
 
 `rowwise()` makes each row its own group. Closures in `summarise()` and vector
 helpers then see one row at a time. Optional id columns stay as groups in the
-result of `summarise()`.
+result of `summarise()`. `c_across(cols)` gives the current row's values of
+the selected columns, for helpers such as `sum(c_across(starts_with('x')))`.
 
 {{< include ../examples/_rowwise.md >}}

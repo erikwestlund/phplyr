@@ -40,7 +40,14 @@ What each function receives:
 - In `summarise()`, other closures receive the column's values as a list.
 - In `mutate()`, other closures receive one value at a time, or the whole
   column if the first parameter is typed `array`.
+- A closure may return a helper's result, as in
+  `fn ($v) => mean($v, na_rm: true)`, which is then evaluated on the group.
 
-`if_any(cols, fn)` and `if_all(cols, fn)` test a predicate across columns for
-use in `filter()`. `pick(...)` returns the selected columns of the current group
+Inside any of these functions, `cur_column()` returns the name of the column
+being processed.
+
+`if_any(cols, fn)` and `if_all(cols, fn)` test a predicate across columns, in
+`filter()` or as a logical column in `mutate()`. They use R's NA logic, so a
+predicate may return null for NA. With no columns selected, `if_any()` is
+false and `if_all()` is true, as in dplyr 1.1. `pick(...)` returns the selected columns of the current group
 as a table, for use inside closures.

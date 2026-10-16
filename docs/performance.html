@@ -377,7 +377,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>A database table (<code>Phibble\tbl()</code>)</strong> avoids loading the data into PHP. With expressions, <code>filter()</code> and <code>summarise()</code> run in the database, and only the result reaches PHP, so memory stays small. This is the right choice when the data lives in a database or doesn’t fit in memory. For data already in memory, a frame is faster: these timings exclude loading, and reading the 1M-row CSV into a frame takes about 1.4 seconds. Pipelines that return every row (<code>mutate()</code>, <code>arrange()</code>, unfiltered joins) spend most of their database time transferring rows to PHP.</p></li>
 <li><p><strong>Closures on a database table</strong> load all rows first and then run in memory. Use <code>col()</code> expressions and phplyr’s helpers to keep the work in SQL.</p></li>
 <li><p><strong>SQLite columns need declared types.</strong> PDO binds values as strings. In an untyped column, SQLite stores them as text and compares numbers as text.</p></li>
-<li><p><strong>PolarsTable</strong> (phpolars) runs the verbs in Polars, 10 to 100 times faster than Frame, and pays mainly for bringing rows back into PHP. See below.</p></li>
+<li><p><strong>PolarsTable</strong> (phibble’s Polars backend, on the phpolars extension) runs the verbs in Polars, 10 to 100 times faster than Frame, and pays mainly for bringing rows back into PHP. See below.</p></li>
 </ul>
 </section>
 <section id="polarstable" class="level2">

@@ -59,6 +59,9 @@ behavior: equality keys are merged and the columns in other conditions are
 kept from both tables. `keep: false` is an error for these joins. Database tables
 run them in SQL, except right and full rolling joins, which load the rows.
 
+`nest_join()` keeps every row of x and adds a list-column (`name:`, default
+`'data'`) holding each row's matching rows of y as a table.
+
 ## Binding
 
 `bind_rows()` stacks tables under the piped one, matching columns by name and

@@ -12,17 +12,25 @@ strips a regular expression from the start of each name. `names_sep` or
 `names_pattern` split names into several `names_to` columns, and the special
 name `'.value'` takes the value column's name from that part.
 `values_drop_na: true` drops rows whose values are all NA.
+`names_transform` and `values_transform` take a closure, or an array of
+closures by column. `cols_vary: 'slowest'` keeps each source column's rows
+together.
 
 `pivot_wider()` spreads names and values into columns. `id_cols` identify the
 rows (by default every other column). `values_fill` fills missing cells,
 `values_fn` combines duplicate cells, and `names_prefix`, `names_sep`,
 `names_glue`, and `names_sort` control the new names. Without `values_fn`,
 duplicate cells turn the value column into list-columns and raise tidyr's
-warning.
+warning. `names_vary: 'slowest'` groups each name's value columns together.
+`names_expand` and `id_expand` add every combination of the `names_from` and
+`id_cols` values (sorted, factors by level). `unused_fn` summarises the
+columns that are in none of `id_cols`, `names_from`, and `values_from`.
 
 Both verbs build tidyr's pivot spec in phplyr and pass it to the table's
 `pivotLongerSpec()` or `pivotWiderSpec()`, so a backend can run the pivot
-natively.
+natively. `build_longer_spec()` and `build_wider_spec()` return that spec as a
+table, and `pivot_longer_spec()` and `pivot_wider_spec()` run an edited one.
+The superseded `gather()` and `spread()` are also available.
 
 {{< include ../examples/_pivot.md >}}
 
@@ -55,8 +63,29 @@ with NA in the given columns, and `replace_na()` replaces NA per column.
 | `separate(col, into, sep:)` | The superseded splitter, with `extra`, `fill`, and `convert` |
 | `unite(col, ...cols, sep:)` | Paste columns together |
 | `uncount('n', _id:)` | Repeat rows by a weight column |
+| `separate_rows(...cols, sep:)` | The superseded row splitter, on a regular expression |
+| `extract(col, into, regex)` | The superseded regex splitter |
 | `nest(data: [...])`, `unnest('data')` | List-columns of tables |
+| `full_seq(x, period)` | Every value from the smallest to the largest in steps of `period` |
 
 `too_few` and `too_many` handle pieces that don't fit, as in tidyr.
 
 {{< include ../examples/_separate.md >}}
+
+## List-columns
+
+A list element is a PHP array. A list is R's unnamed list or vector, and an
+array with string keys is a named list.
+
+| Function | Use |
+| --- | --- |
+| `unnest_wider(col, names_sep:)` | One column per name; unnamed elements need `names_sep` |
+| `unnest_longer(col, values_to:, indices_to:, indices_include:, keep_empty:)` | One row per element, with names or positions in `{col}_id` |
+| `hoist(col, name: path, _remove:)` | Pull components out by name, 1-based position, or a list path |
+| `chop(cols)`, `unchop(cols, keep_empty:)` | Collapse rows into list-columns and back |
+| `pack(name: cols, _names_sep:)`, `unpack(cols, names_sep:)` | Columns into a column of named arrays and back |
+
+`chop`, `pack`, `unpack`, and `extract` share names with PHP built-ins, so
+import them with `use function Phplyr\{chop, pack, unpack, extract};`.
+
+{{< include ../examples/_rectangling.md >}}

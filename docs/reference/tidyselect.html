@@ -388,8 +388,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>A phplyr helper passed as a first-class callable, such as <code>mean(...)</code>, is called with the column name.</li>
 <li>In <code>summarise()</code>, other closures receive the column’s values as a list.</li>
 <li>In <code>mutate()</code>, other closures receive one value at a time, or the whole column if the first parameter is typed <code>array</code>.</li>
+<li>A closure may return a helper’s result, as in <code>fn ($v) =&gt; mean($v, na_rm: true)</code>, which is then evaluated on the group.</li>
 </ul>
-<p><code>if_any(cols, fn)</code> and <code>if_all(cols, fn)</code> test a predicate across columns for use in <code>filter()</code>. <code>pick(...)</code> returns the selected columns of the current group as a table, for use inside closures.</p>
+<p>Inside any of these functions, <code>cur_column()</code> returns the name of the column being processed.</p>
+<p><code>if_any(cols, fn)</code> and <code>if_all(cols, fn)</code> test a predicate across columns, in <code>filter()</code> or as a logical column in <code>mutate()</code>. They use R’s NA logic, so a predicate may return null for NA. With no columns selected, <code>if_any()</code> is false and <code>if_all()</code> is true, as in dplyr 1.1. <code>pick(...)</code> returns the selected columns of the current group as a table, for use inside closures.</p>
 
 
 </section>

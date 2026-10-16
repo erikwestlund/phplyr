@@ -45,5 +45,5 @@ speeds up the descriptive helpers and provides `lm()` and `glm()`.
 - **phplyr** provides the dplyr and tidyr verbs.
 - **php-stats** is a native extension for statistical models and descriptive
   statistics.
-- **phpolars** is a planned Polars-backed table that implements the same
-  contract.
+- **phpolars** is a native extension that binds Polars. phibble's
+  `PolarsTable` uses it to run the same verbs in Polars.
