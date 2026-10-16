@@ -1,0 +1,1044 @@
+{
+  "longer": [
+    {
+      "id": 1,
+      "name": "ann",
+      "week": "wk1",
+      "rank": 10
+    },
+    {
+      "id": 1,
+      "name": "ann",
+      "week": "wk2",
+      "rank": null
+    },
+    {
+      "id": 1,
+      "name": "ann",
+      "week": "wk3",
+      "rank": 30
+    },
+    {
+      "id": 2,
+      "name": "bob",
+      "week": "wk1",
+      "rank": null
+    },
+    {
+      "id": 2,
+      "name": "bob",
+      "week": "wk2",
+      "rank": null
+    },
+    {
+      "id": 2,
+      "name": "bob",
+      "week": "wk3",
+      "rank": 5
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "week": "wk1",
+      "rank": 7
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "week": "wk2",
+      "rank": 8
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "week": "wk3",
+      "rank": 9
+    }
+  ],
+  "longer_drop": [
+    {
+      "id": 1,
+      "name": "ann",
+      "week": "1",
+      "value": 10
+    },
+    {
+      "id": 1,
+      "name": "ann",
+      "week": "3",
+      "value": 30
+    },
+    {
+      "id": 2,
+      "name": "bob",
+      "week": "3",
+      "value": 5
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "week": "1",
+      "value": 7
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "week": "2",
+      "value": 8
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "week": "3",
+      "value": 9
+    }
+  ],
+  "longer_sep": [
+    {
+      "country": "AF",
+      "diag": "sp",
+      "sex_age": "m014",
+      "value": 1
+    },
+    {
+      "country": "AF",
+      "diag": "sp",
+      "sex_age": "f014",
+      "value": 2
+    },
+    {
+      "country": "AF",
+      "diag": "ep",
+      "sex_age": "m65",
+      "value": 3
+    },
+    {
+      "country": "BR",
+      "diag": "sp",
+      "sex_age": "m014",
+      "value": 4
+    },
+    {
+      "country": "BR",
+      "diag": "sp",
+      "sex_age": "f014",
+      "value": null
+    },
+    {
+      "country": "BR",
+      "diag": "ep",
+      "sex_age": "m65",
+      "value": 6
+    }
+  ],
+  "longer_pattern": [
+    {
+      "country": "AF",
+      "diag": "sp",
+      "sex": "m",
+      "age": "014",
+      "value": 1
+    },
+    {
+      "country": "AF",
+      "diag": "sp",
+      "sex": "f",
+      "age": "014",
+      "value": 2
+    },
+    {
+      "country": "AF",
+      "diag": "ep",
+      "sex": "m",
+      "age": "65",
+      "value": 3
+    },
+    {
+      "country": "BR",
+      "diag": "sp",
+      "sex": "m",
+      "age": "014",
+      "value": 4
+    },
+    {
+      "country": "BR",
+      "diag": "sp",
+      "sex": "f",
+      "age": "014",
+      "value": null
+    },
+    {
+      "country": "BR",
+      "diag": "ep",
+      "sex": "m",
+      "age": "65",
+      "value": 6
+    }
+  ],
+  "longer_value": [
+    {
+      "family": 1,
+      "child": "child1",
+      "dob": 1998,
+      "name": "Susan"
+    },
+    {
+      "family": 1,
+      "child": "child2",
+      "dob": 2000,
+      "name": "Jose"
+    },
+    {
+      "family": 2,
+      "child": "child1",
+      "dob": 1996,
+      "name": "Mark"
+    },
+    {
+      "family": 3,
+      "child": "child1",
+      "dob": 2000,
+      "name": "Sam"
+    },
+    {
+      "family": 3,
+      "child": "child2",
+      "dob": 2004,
+      "name": "Seth"
+    }
+  ],
+  "wider": [
+    {
+      "id": 1,
+      "x": 1.5,
+      "y": 2
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": null
+    },
+    {
+      "id": 3,
+      "x": null,
+      "y": 4
+    }
+  ],
+  "wider_fill": [
+    {
+      "id": 1,
+      "k_x": 1.5,
+      "k_y": 2
+    },
+    {
+      "id": 2,
+      "k_x": 3,
+      "k_y": 0
+    },
+    {
+      "id": 3,
+      "k_x": 0,
+      "k_y": 4
+    }
+  ],
+  "wider_fn": [
+    {
+      "id": 1,
+      "x": 1.5,
+      "y": 2,
+      "z": null
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": null,
+      "z": null
+    },
+    {
+      "id": 3,
+      "x": null,
+      "y": 4,
+      "z": 11
+    }
+  ],
+  "wider_multi": [
+    {
+      "id": 1,
+      "val_x": 1.5,
+      "val_y": 2,
+      "w_x": 10,
+      "w_y": 20
+    },
+    {
+      "id": 2,
+      "val_x": 3,
+      "val_y": null,
+      "w_x": 30,
+      "w_y": null
+    },
+    {
+      "id": 3,
+      "val_x": null,
+      "val_y": 4,
+      "w_x": null,
+      "w_y": 40
+    }
+  ],
+  "wider_sort": [
+    {
+      "id": 1,
+      "x": 1.5,
+      "y": 2
+    },
+    {
+      "id": 3,
+      "x": null,
+      "y": 4
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": null
+    }
+  ],
+  "wider_glue": [
+    {
+      "id": 1,
+      "x_val": 1.5,
+      "y_val": 2
+    },
+    {
+      "id": 2,
+      "x_val": 3,
+      "y_val": null
+    },
+    {
+      "id": 3,
+      "x_val": null,
+      "y_val": 4
+    }
+  ],
+  "complete": [
+    {
+      "id": 1,
+      "key": "x",
+      "val": 1.5
+    },
+    {
+      "id": 1,
+      "key": "y",
+      "val": 2
+    },
+    {
+      "id": 1,
+      "key": "z",
+      "val": null
+    },
+    {
+      "id": 2,
+      "key": "x",
+      "val": 3
+    },
+    {
+      "id": 2,
+      "key": "y",
+      "val": null
+    },
+    {
+      "id": 2,
+      "key": "z",
+      "val": null
+    },
+    {
+      "id": 3,
+      "key": "x",
+      "val": null
+    },
+    {
+      "id": 3,
+      "key": "y",
+      "val": 4
+    },
+    {
+      "id": 3,
+      "key": "z",
+      "val": 5
+    }
+  ],
+  "complete_fill": [
+    {
+      "id": 1,
+      "key": "x",
+      "w": 10
+    },
+    {
+      "id": 1,
+      "key": "y",
+      "w": 20
+    },
+    {
+      "id": 1,
+      "key": "z",
+      "w": 0
+    },
+    {
+      "id": 2,
+      "key": "x",
+      "w": 30
+    },
+    {
+      "id": 2,
+      "key": "y",
+      "w": 0
+    },
+    {
+      "id": 2,
+      "key": "z",
+      "w": 0
+    },
+    {
+      "id": 3,
+      "key": "x",
+      "w": 0
+    },
+    {
+      "id": 3,
+      "key": "y",
+      "w": 40
+    },
+    {
+      "id": 3,
+      "key": "z",
+      "w": 50
+    }
+  ],
+  "complete_nesting": [
+    {
+      "g": "a",
+      "label": "x",
+      "year": 2001
+    },
+    {
+      "g": "a",
+      "label": "x",
+      "year": 2002
+    },
+    {
+      "g": "a",
+      "label": "y",
+      "year": 2001
+    },
+    {
+      "g": "a",
+      "label": "y",
+      "year": 2002
+    },
+    {
+      "g": "a",
+      "label": "z",
+      "year": 2001
+    },
+    {
+      "g": "a",
+      "label": "z",
+      "year": 2002
+    },
+    {
+      "g": "b",
+      "label": "x",
+      "year": 2001
+    },
+    {
+      "g": "b",
+      "label": "x",
+      "year": 2002
+    }
+  ],
+  "complete_grouped": [
+    {
+      "id": 1,
+      "key": "x",
+      "w": 10
+    },
+    {
+      "id": 1,
+      "key": "y",
+      "w": 20
+    },
+    {
+      "id": 2,
+      "key": "x",
+      "w": 30
+    },
+    {
+      "id": 2,
+      "key": "y",
+      "w": null
+    },
+    {
+      "id": 3,
+      "key": "x",
+      "w": null
+    },
+    {
+      "id": 3,
+      "key": "y",
+      "w": 40
+    },
+    {
+      "id": 3,
+      "key": "z",
+      "w": 50
+    }
+  ],
+  "expand": [
+    {
+      "id": 1,
+      "key": "x"
+    },
+    {
+      "id": 1,
+      "key": "y"
+    },
+    {
+      "id": 1,
+      "key": "z"
+    },
+    {
+      "id": 2,
+      "key": "x"
+    },
+    {
+      "id": 2,
+      "key": "y"
+    },
+    {
+      "id": 2,
+      "key": "z"
+    },
+    {
+      "id": 3,
+      "key": "x"
+    },
+    {
+      "id": 3,
+      "key": "y"
+    },
+    {
+      "id": 3,
+      "key": "z"
+    }
+  ],
+  "expand_nesting": [
+    {
+      "id": 1,
+      "key": "x"
+    },
+    {
+      "id": 1,
+      "key": "y"
+    },
+    {
+      "id": 2,
+      "key": "x"
+    },
+    {
+      "id": 3,
+      "key": "y"
+    },
+    {
+      "id": 3,
+      "key": "z"
+    }
+  ],
+  "crossing": [
+    {
+      "x": 1,
+      "y": "a"
+    },
+    {
+      "x": 1,
+      "y": "b"
+    },
+    {
+      "x": 2,
+      "y": "a"
+    },
+    {
+      "x": 2,
+      "y": "b"
+    }
+  ],
+  "fill_down": [
+    {
+      "id": 1,
+      "name": "ann",
+      "wk1": 10,
+      "wk2": null,
+      "wk3": 30
+    },
+    {
+      "id": 2,
+      "name": "bob",
+      "wk1": 10,
+      "wk2": null,
+      "wk3": 5
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "wk1": 7,
+      "wk2": 8,
+      "wk3": 9
+    }
+  ],
+  "fill_up": [
+    {
+      "id": 1,
+      "name": "ann",
+      "wk1": 10,
+      "wk2": 8,
+      "wk3": 30
+    },
+    {
+      "id": 2,
+      "name": "bob",
+      "wk1": 7,
+      "wk2": 8,
+      "wk3": 5
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "wk1": 7,
+      "wk2": 8,
+      "wk3": 9
+    }
+  ],
+  "fill_grouped": [
+    {
+      "id": 1,
+      "g": "a",
+      "value": 4.5
+    },
+    {
+      "id": 2,
+      "g": "a",
+      "value": 4.5
+    },
+    {
+      "id": 3,
+      "g": "a",
+      "value": 2.25
+    },
+    {
+      "id": 4,
+      "g": "a",
+      "value": 8
+    },
+    {
+      "id": 5,
+      "g": "b",
+      "value": 1.5
+    },
+    {
+      "id": 6,
+      "g": "b",
+      "value": 3
+    },
+    {
+      "id": 7,
+      "g": "b",
+      "value": 3
+    },
+    {
+      "id": 8,
+      "g": "b",
+      "value": 6.75
+    },
+    {
+      "id": 9,
+      "g": "c",
+      "value": 10
+    },
+    {
+      "id": 10,
+      "g": "c",
+      "value": 0.5
+    },
+    {
+      "id": 11,
+      "g": "c",
+      "value": 7.25
+    },
+    {
+      "id": 12,
+      "g": "c",
+      "value": 5
+    }
+  ],
+  "drop_na_all": [
+    {
+      "id": 3,
+      "name": "cy",
+      "wk1": 7,
+      "wk2": 8,
+      "wk3": 9
+    }
+  ],
+  "drop_na_col": [
+    {
+      "id": 1,
+      "name": "ann",
+      "wk1": 10,
+      "wk2": null,
+      "wk3": 30
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "wk1": 7,
+      "wk2": 8,
+      "wk3": 9
+    }
+  ],
+  "replace_na": [
+    {
+      "id": 1,
+      "name": "ann",
+      "wk1": 10,
+      "wk2": -1,
+      "wk3": 30
+    },
+    {
+      "id": 2,
+      "name": "bob",
+      "wk1": 0,
+      "wk2": -1,
+      "wk3": 5
+    },
+    {
+      "id": 3,
+      "name": "cy",
+      "wk1": 7,
+      "wk2": 8,
+      "wk3": 9
+    }
+  ],
+  "uncount": [
+    {
+      "id": 1,
+      "copy": 1
+    },
+    {
+      "id": 1,
+      "copy": 2
+    },
+    {
+      "id": 2,
+      "copy": 1
+    },
+    {
+      "id": 4,
+      "copy": 1
+    },
+    {
+      "id": 4,
+      "copy": 2
+    },
+    {
+      "id": 4,
+      "copy": 3
+    }
+  ],
+  "unite": [
+    {
+      "id": 1,
+      "gl": "a:x",
+      "year": 2003,
+      "value": 4.5,
+      "score": 3
+    },
+    {
+      "id": 2,
+      "gl": "a:y",
+      "year": 2001,
+      "value": null,
+      "score": 7
+    },
+    {
+      "id": 3,
+      "gl": "a:x",
+      "year": 2004,
+      "value": 2.25,
+      "score": 3
+    }
+  ],
+  "unite_keep": [
+    {
+      "id": 1,
+      "gv": "a_4.5",
+      "g": "a",
+      "year": 2003,
+      "value": 4.5,
+      "score": 3,
+      "label": "x"
+    },
+    {
+      "id": 2,
+      "gv": "a_NA",
+      "g": "a",
+      "year": 2001,
+      "value": null,
+      "score": 7,
+      "label": "y"
+    },
+    {
+      "id": 3,
+      "gv": "a_2.25",
+      "g": "a",
+      "year": 2004,
+      "value": 2.25,
+      "score": 3,
+      "label": "x"
+    }
+  ],
+  "separate": [
+    {
+      "id": 1,
+      "a": "a",
+      "b": "b"
+    },
+    {
+      "id": 2,
+      "a": "d",
+      "b": "e"
+    },
+    {
+      "id": 3,
+      "a": null,
+      "b": null
+    },
+    {
+      "id": 4,
+      "a": "f",
+      "b": null
+    }
+  ],
+  "separate_merge": [
+    {
+      "id": 1,
+      "a": "a",
+      "b": "b-c"
+    },
+    {
+      "id": 2,
+      "a": "d",
+      "b": "e"
+    },
+    {
+      "id": 3,
+      "a": null,
+      "b": null
+    },
+    {
+      "id": 4,
+      "a": null,
+      "b": "f"
+    }
+  ],
+  "separate_pos": [
+    {
+      "id": 1,
+      "letters": "AB",
+      "digits": 123
+    },
+    {
+      "id": 2,
+      "letters": "CD",
+      "digits": 4
+    },
+    {
+      "id": 3,
+      "letters": "EF",
+      "digits": 567
+    },
+    {
+      "id": 4,
+      "letters": "GH",
+      "digits": 890
+    }
+  ],
+  "wider_delim": [
+    {
+      "id": 1,
+      "p1": "a",
+      "p2": "b",
+      "p3": "c"
+    },
+    {
+      "id": 2,
+      "p1": "d",
+      "p2": "e",
+      "p3": null
+    },
+    {
+      "id": 3,
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    {
+      "id": 4,
+      "p1": "f",
+      "p2": null,
+      "p3": null
+    }
+  ],
+  "wider_delim_sep": [
+    {
+      "id": 1,
+      "s_1": "a",
+      "s_2": "b",
+      "s_3": "c"
+    },
+    {
+      "id": 2,
+      "s_1": null,
+      "s_2": "d",
+      "s_3": "e"
+    },
+    {
+      "id": 3,
+      "s_1": null,
+      "s_2": null,
+      "s_3": null
+    },
+    {
+      "id": 4,
+      "s_1": null,
+      "s_2": null,
+      "s_3": "f"
+    }
+  ],
+  "wider_position": [
+    {
+      "id": 1,
+      "state": "AB",
+      "digits": "23"
+    },
+    {
+      "id": 2,
+      "state": "CD",
+      "digits": null
+    },
+    {
+      "id": 3,
+      "state": "EF",
+      "digits": "67"
+    },
+    {
+      "id": 4,
+      "state": "GH",
+      "digits": "90"
+    }
+  ],
+  "wider_regex": [
+    {
+      "id": 1,
+      "letters": "AB",
+      "digits": "123"
+    },
+    {
+      "id": 2,
+      "letters": "CD",
+      "digits": "4"
+    },
+    {
+      "id": 3,
+      "letters": "EF",
+      "digits": "567"
+    },
+    {
+      "id": 4,
+      "letters": "GH",
+      "digits": "890"
+    }
+  ],
+  "longer_delim": [
+    {
+      "id": 1,
+      "tags": "x"
+    },
+    {
+      "id": 1,
+      "tags": "y"
+    },
+    {
+      "id": 2,
+      "tags": "z"
+    },
+    {
+      "id": 3,
+      "tags": "u"
+    },
+    {
+      "id": 3,
+      "tags": "v"
+    },
+    {
+      "id": 3,
+      "tags": "w"
+    },
+    {
+      "id": 4,
+      "tags": null
+    }
+  ],
+  "longer_position": [
+    {
+      "id": 1,
+      "code": "AB"
+    },
+    {
+      "id": 1,
+      "code": "12"
+    },
+    {
+      "id": 1,
+      "code": "3"
+    },
+    {
+      "id": 2,
+      "code": "CD"
+    },
+    {
+      "id": 2,
+      "code": "4"
+    },
+    {
+      "id": 3,
+      "code": "EF"
+    },
+    {
+      "id": 3,
+      "code": "56"
+    },
+    {
+      "id": 3,
+      "code": "7"
+    },
+    {
+      "id": 4,
+      "code": "GH"
+    },
+    {
+      "id": 4,
+      "code": "89"
+    },
+    {
+      "id": 4,
+      "code": "0"
+    }
+  ]
+}

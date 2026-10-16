@@ -89,6 +89,27 @@ What an `across()` function receives:
 
 Names default to `{col}` for one function, or `{col}_{fn}` for a named list.
 
+## tidyr
+
+The tidyr verbs are pipe-able too, with tidyr's argument names. The test suite compares them with tidyr output from `tests/r/tidyr.R`.
+
+| Verb | Example |
+| --- | --- |
+| `pivot_longer` | `pivot_longer(starts_with('wk'), names_to: 'week', values_to: 'rank', names_prefix: 'wk', values_drop_na: true)` |
+| | `names_to` can list several names, split with `names_sep` or `names_pattern`. The name `'.value'` takes the value column's name from that part. |
+| `pivot_wider` | `pivot_wider(names_from: 'key', values_from: ['val', 'w'], values_fill: 0, values_fn: fn ($v) => array_sum($v))` |
+| | Also takes `id_cols`, `names_prefix`, `names_sep`, `names_glue: '{key}_{.value}'` and `names_sort`. |
+| `complete` / `expand` | `complete('id', 'key', fill: ['n' => 0])`, `expand(nesting('g', 'label'), year: [2001, 2002])` |
+| `crossing` / `expand_grid` | `crossing(x: [2, 1], y: ['a', 'b'])`. These return a new Frame. |
+| `fill` | `fill('price', _direction: 'downup')`. Works within groups. |
+| `drop_na` / `replace_na` | `drop_na('wk1')`, `replace_na(['wk1' => 0])` |
+| `uncount` | `uncount('n', _id: 'copy')` |
+| `unite` | `unite('date', 'year', 'month', sep: '-', remove: false, na_rm: true)` |
+| `separate` | `separate('s', ['a', 'b'], sep: '-', extra: 'merge', fill: 'left', convert: true)` |
+| `separate_wider_*` | `separate_wider_delim('s', '-', names: [...])`, `separate_wider_position('code', ['state' => 2, 1, 'n' => 2])`, `separate_wider_regex('code', ['l' => '[A-Z]+', 'd' => '\d+'])` |
+| `separate_longer_*` | `separate_longer_delim('tags', ',')`, `separate_longer_position('code', 2)` |
+| `nest` / `unnest` | `group_by('g') \|> nest()`, `nest(data: ['x', 'y'])`, `unnest('data')` |
+
 ## Models
 
 `lm('y ~ x + g')` and `glm('y ~ x', family: 'binomial')` pass the table to php_stats' `stats_lm` / `stats_glm`, so factor levels reach the model.

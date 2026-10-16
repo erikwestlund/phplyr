@@ -22,7 +22,8 @@
             "src/functions/vectors.php",
             "src/functions/select.php",
             "src/functions/groups.php",
-            "src/functions/joins.php"
+            "src/functions/joins.php",
+            "src/functions/tidyr.php"
         ]
     },
     "autoload-dev": {

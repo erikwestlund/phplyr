@@ -394,6 +394,31 @@ final class Internal
         return implode("\n", $lines)."\n";
     }
 
+    /**
+     * Split columns into rows (separate_longer_*). Each row's pieces must
+     * have the same length across columns, or length one (recycled).
+     *
+     * @param Closure(string): list<string> $split
+     */
+    public static function longer(Table $t, mixed $cols, Closure $split): Table
+    {
+        $names = Selector::select([$cols], $t);
+        $vectors = array_map(fn ($c) => $t->column($c), array_combine($names, $names));
+        $index = [];
+        $out = array_fill_keys($names, []);
+        for ($i = 0, $n = $t->nrow(); $i < $n; $i++) {
+            $pieces = array_map(fn ($v) => $v[$i] === null ? [null] : $split(Tidyr::str($v[$i])), $vectors);
+            $len = \max(array_map('count', $pieces));
+            foreach ($pieces as $c => $p) {
+                $p = Vec::recycle($p, $len, "split of '{$c}' in row ".($i + 1));
+                array_push($out[$c], ...$p);
+            }
+            array_push($index, ...array_fill(0, $len, $i));
+        }
+
+        return Ops::take($t, $index)->mutate($out);
+    }
+
     public static function callStats(string $function, mixed ...$args): mixed
     {
         if (! \function_exists($function)) {
