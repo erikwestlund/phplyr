@@ -86,6 +86,61 @@ final class Ops
     }
 
     /**
+     * Each group's key and 0-based row indexes, in group order, without
+     * building a table per group.
+     *
+     * @return list<array{key: array<string, mixed>, rows: list<int>}>
+     */
+    public static function groupIndex(Table $t): array
+    {
+        $n = $t->nrow();
+        if (method_exists($t, 'isRowwise') && $t->isRowwise()) {
+            $ids = $t->groups();
+            $vectors = array_map(fn ($c) => $t->column($c), array_combine($ids, $ids));
+
+            return array_map(fn ($i) => ['key' => array_map(fn ($v) => $v[$i], $vectors), 'rows' => [$i]], $n === 0 ? [] : range(0, $n - 1));
+        }
+        if (method_exists($t, 'groupRows')) {
+            return $t->groupRows();
+        }
+        $groups = $t->groups();
+        if ($groups === []) {
+            return [['key' => [], 'rows' => $n === 0 ? [] : range(0, $n - 1)]];
+        }
+        $keys = $t->summarise([])->toRows();
+        $out = [];
+        $position = [];
+        foreach ($keys as $i => $key) {
+            $key = array_intersect_key($key, array_flip($groups));
+            $out[] = ['key' => $key, 'rows' => []];
+            $position[self::keyOf(array_values($key))] = $i;
+        }
+        if (\count($groups) === 1) {
+            // One key column: index by value directly.
+            foreach ($t->column($groups[0]) as $i => $v) {
+                $out[$position[Internal::key($v)]]['rows'][] = $i;
+            }
+
+            return $out;
+        }
+        $vectors = array_map(fn ($c) => $t->column($c), $groups);
+        for ($i = 0; $i < $n; $i++) {
+            $parts = [];
+            foreach ($vectors as $v) {
+                $parts[] = Internal::key($v[$i]);
+            }
+            $out[$position[implode("\x1f", $parts)]]['rows'][] = $i;
+        }
+
+        return $out;
+    }
+
+    private static function keyOf(array $values): string
+    {
+        return implode("\x1f", array_map(Internal::key(...), $values));
+    }
+
+    /**
      * Each group's 0-based row indexes in the table, in group order.
      *
      * @return list<array{key: array<string, mixed>, table: Table, rows: list<int>}>

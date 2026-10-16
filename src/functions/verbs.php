@@ -316,9 +316,9 @@ function count(mixed ...$args): Closure
     return function (Table $t) use ($columns, $wt, $sort, $name) {
         $groups = $t->groups();
         $by = array_values(array_unique([...$groups, ...Selector::select($columns, $t)]));
-        $grouped = $t->groupBy($by);
+        $grouped = Internal::regroup($t, $by, $t);
         $out = $grouped->summarise(Internal::summaries($grouped, [Internal::countName($t, $name) => Internal::tallyOf($wt)], 'count'));
-        $out = $groups === [] ? $out->ungroup() : $out->groupBy($groups);
+        $out = Internal::regroup($out, $groups, $t);
 
         return $sort ? $out->arrange([[Internal::countName($t, $name), 'desc']]) : $out;
     };
@@ -344,8 +344,8 @@ function add_count(mixed ...$args): Closure
         $groups = $t->groups();
         $by = array_values(array_unique([...$groups, ...Selector::select($columns, $t)]));
         $name = Internal::countName($t, $name);
-        $out = Mutate::run($t->groupBy($by), [$name => Internal::tallyOf($wt)], ['_keep' => 'all', '_before' => null, '_after' => null]);
-        $out = $groups === [] ? $out->ungroup() : $out->groupBy($groups);
+        $out = Mutate::run(Internal::regroup($t, $by, $t), [$name => Internal::tallyOf($wt)], ['_keep' => 'all', '_before' => null, '_after' => null]);
+        $out = Internal::regroup($out, $groups, $t);
 
         return $sort ? $out->arrange([[$name, 'desc']]) : $out;
     };
@@ -419,13 +419,13 @@ function slice(int|array ...$positions): Closure
 /** First rows of each group: slice_head(n: 3) or slice_head(prop: 0.1). */
 function slice_head(?int $n = null, ?float $prop = null, mixed $_by = null): Closure
 {
-    return fn (Table $t) => Internal::withBy($t, $_by, fn (Table $t) => Slice::run($t, fn ($g, $k) => $k === 0 ? [] : range(0, $k - 1), $n, $prop));
+    return fn (Table $t) => Internal::withBy($t, $_by, fn (Table $t) => Slice::run($t, fn ($m, $k) => $k === 0 ? [] : range(0, $k - 1), $n, $prop));
 }
 
 /** Last rows of each group. */
 function slice_tail(?int $n = null, ?float $prop = null, mixed $_by = null): Closure
 {
-    return fn (Table $t) => Internal::withBy($t, $_by, fn (Table $t) => Slice::run($t, fn ($g, $k) => $k === 0 ? [] : range($g->nrow() - $k, $g->nrow() - 1), $n, $prop));
+    return fn (Table $t) => Internal::withBy($t, $_by, fn (Table $t) => Slice::run($t, fn ($m, $k) => $k === 0 ? [] : range($m - $k, $m - 1), $n, $prop));
 }
 
 /** Rows with the smallest values of $order_by in each group, ordered by it. */

@@ -272,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>group_by()</code> sets the grouping columns. Selectors work, named arguments group by a computed column, and <code>_add: true</code> adds to the existing groups. <code>ungroup()</code> removes grouping, or only the named columns.</p>
+<p><code>group_by()</code> sets the grouping columns. Selectors work, named arguments group by a computed column, and <code>_add: true</code> adds to the existing groups. <code>_drop: false</code> keeps groups for unused factor levels, so <code>summarise()</code> and <code>count()</code> return them with <code>n() = 0</code>, as dplyr does. <code>ungroup()</code> removes grouping, or only the named columns.</p>
 <p>Groups are ordered like dplyr’s: sorted by key, factors by level order, and NA last. <code>filter()</code>, <code>mutate()</code>, <code>summarise()</code>, and the slice functions work within groups. <code>_by:</code> groups for a single call and returns an ungrouped table.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">$schools</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'schools.csv'</span>) <span class="op">|&gt;</span> group_by(<span class="st">'school'</span>)<span class="ot">;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>

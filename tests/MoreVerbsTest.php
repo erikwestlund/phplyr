@@ -104,3 +104,12 @@ it('matches dplyr cur_group_id() and cur_group_rows()', function () {
     expectRowsClose($refr->toRows(), $ref['refr']);
     expect(fn () => panel() |> group_by('g') |> summarise(r: Phplyr\cur_group_rows()))->toThrow(LengthException::class, 'reframe');
 });
+
+it('keeps empty factor-level groups with _drop: false', function () {
+    $ref = json_decode(file_get_contents(fixturePath('drop-reference.json')), true);
+    $d = Frame::fromColumns(['f' => ['a', 'a', 'c'], 's' => ['x', 'y', 'x'], 'v' => [1.0, 2.0, 3.0]])->asFactor('f', ['a', 'b', 'c']);
+    expectRowsClose(($d |> group_by('f', _drop: false) |> summarise(n: n(), total: Phplyr\sum('v')))->toRows(), $ref['drop']);
+    expectRowsClose(($d |> group_by('f', _drop: false) |> Phplyr\count())->ungroup()->toRows(), $ref['count']);
+    expectRowsClose(($d |> group_by('f', 's', _drop: false) |> summarise(n: n(), _groups: 'drop'))->toRows(), $ref['two']);
+    expect(($d |> group_by('f', _drop: false))->dropsEmptyGroups())->toBeFalse();
+})->skip(fn () => ! method_exists(Frame::class, 'dropsEmptyGroups'), 'phibble lacks groupBy drop: false');

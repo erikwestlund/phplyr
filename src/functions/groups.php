@@ -21,13 +21,13 @@ function group_vars(): Closure
 /** The number of groups (1 for an ungrouped table). */
 function n_groups(): Closure
 {
-    return fn (Table $t) => \count(Ops::groupRows($t)) ?: 1;
+    return fn (Table $t) => \count(Ops::groupIndex($t)) ?: 1;
 }
 
 /** Rows in each group, in group order. */
 function group_size(): Closure
 {
-    return fn (Table $t) => array_map(fn ($g) => \count($g['rows']), Ops::groupRows($t));
+    return fn (Table $t) => array_map(fn ($g) => \count($g['rows']), Ops::groupIndex($t));
 }
 
 /** Each row's 1-based group number. */
@@ -35,7 +35,7 @@ function group_indices(): Closure
 {
     return function (Table $t) {
         $out = array_fill(0, $t->nrow(), null);
-        foreach (Ops::groupRows($t) as $k => $g) {
+        foreach (Ops::groupIndex($t) as $k => $g) {
             foreach ($g['rows'] as $i) {
                 $out[$i] = $k + 1;
             }

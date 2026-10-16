@@ -7,15 +7,19 @@ namespace Phplyr;
 use Closure;
 use Phibble\Contracts\Table;
 
-/** @internal The slice_*() verbs: pick row indexes per group, then take them. */
+/**
+ * @internal The slice_*() verbs: pick row indexes per group, then take them.
+ * Groups are handled as row-index lists; a group's table is built only when
+ * an expression has to be evaluated on it.
+ */
 final class Slice
 {
     /**
-     * @param Closure(Table $group, int $size): list<int> $pick 0-based rows within the group.
+     * @param Closure(int $groupSize, int $size): list<int> $pick 0-based rows within the group.
      */
     public static function run(Table $t, Closure $pick, ?int $n, ?float $prop): Table
     {
-        return self::byGroup($t, fn (Table $g) => $pick($g, self::size($g->nrow(), $n, $prop)));
+        return self::byGroup($t, fn (array $rows) => $pick(\count($rows), self::size(\count($rows), $n, $prop)));
     }
 
     /** @param list<int> $positions 1-based; negatives drop. */
@@ -27,12 +31,12 @@ final class Slice
             throw new \InvalidArgumentException('slice(): positions must be all positive or all negative.');
         }
 
-        return self::byGroup($t, function (Table $g) use ($positive, $negative) {
-            $m = $g->nrow();
+        return self::byGroup($t, function (array $rows) use ($positive, $negative) {
+            $m = \count($rows);
             if ($negative !== []) {
-                $drop = array_map(fn ($p) => -$p - 1, $negative);
+                $drop = array_flip(array_map(fn ($p) => -$p - 1, $negative));
 
-                return array_values(array_diff(range(0, \max(0, $m - 1)), $drop, $m === 0 ? [0] : []));
+                return array_values(array_filter($m === 0 ? [] : range(0, $m - 1), fn ($i) => ! isset($drop[$i])));
             }
 
             return array_values(array_filter(array_map(fn ($p) => $p - 1, $positive), fn ($i) => $i < $m));
@@ -41,22 +45,25 @@ final class Slice
 
     public static function extreme(Table $t, mixed $orderBy, bool $max, ?int $n, ?float $prop, bool $withTies, bool $naRm): Table
     {
-        return self::byGroup($t, function (Table $g) use ($orderBy, $max, $n, $prop, $withTies, $naRm) {
-            $values = Vec::values($orderBy, $g, true);
-            $order = Window::order($values, $max);
-            if (! $naRm) {
-                foreach (array_keys($values) as $i) {
-                    if (! \in_array($i, $order, true)) {
+        $values = self::lookup($t, $orderBy);
+
+        return self::byGroup($t, function (array $rows, Closure $group) use ($values, $max, $n, $prop, $withTies, $naRm) {
+            $v = $values($rows, $group);
+            $order = Window::order($v, $max);
+            if (! $naRm && \count($order) < \count($v)) {
+                $seen = array_flip($order);
+                foreach (array_keys($v) as $i) {
+                    if (! isset($seen[$i])) {
                         $order[] = $i;
                     }
                 }
             }
-            $size = self::size($naRm ? \count($order) : $g->nrow(), $n, $prop);
+            $size = self::size($naRm ? \count($order) : \count($v), $n, $prop);
             $picked = \array_slice($order, 0, $size);
             if ($withTies && $size > 0 && $size < \count($order)) {
-                $edge = $values[$order[$size - 1]];
-                for ($i = $size; $i < \count($order) && $edge !== null && $values[$order[$i]] !== null
-                    && Window::compare($values[$order[$i]], $edge) === 0; $i++) {
+                $edge = $v[$order[$size - 1]];
+                for ($i = $size; $i < \count($order) && $edge !== null && $v[$order[$i]] !== null
+                    && Window::compare($v[$order[$i]], $edge) === 0; $i++) {
                     $picked[] = $order[$i];
                 }
             }
@@ -67,21 +74,26 @@ final class Slice
 
     public static function sample(Table $t, ?int $n, ?float $prop, bool $replace, mixed $weightBy): Table
     {
-        return self::byGroup($t, function (Table $g) use ($n, $prop, $replace, $weightBy) {
-            $m = $g->nrow();
+        $weights = $weightBy === null ? null : self::lookup($t, $weightBy);
+
+        return self::byGroup($t, function (array $rows, Closure $group) use ($n, $prop, $replace, $weights) {
+            $m = \count($rows);
             $size = $replace && $n !== null ? \max(0, $n) : self::size($m, $n, $prop);
             if ($m === 0) {
                 return [];
             }
-            $weights = $weightBy === null ? array_fill(0, $m, 1.0) : array_map(fn ($w) => (float) ($w ?? 0), Vec::values($weightBy, $g, true));
+            $w = $weights === null ? array_fill(0, $m, 1.0) : array_map(fn ($x) => (float) ($x ?? 0), $weights($rows, $group));
             $picked = [];
             $available = range(0, $m - 1);
             for ($k = 0; $k < $size && $available !== []; $k++) {
-                $total = array_sum(array_map(fn ($i) => $weights[$i], $available));
+                $total = 0.0;
+                foreach ($available as $i) {
+                    $total += $w[$i];
+                }
                 $r = mt_rand() / mt_getrandmax() * $total;
                 $choice = end($available);
                 foreach ($available as $pos => $i) {
-                    $r -= $weights[$i];
+                    $r -= $w[$i];
                     if ($r <= 0) {
                         $choice = $i;
                         break;
@@ -111,12 +123,35 @@ final class Slice
         return $k < 0 ? \max(0, $m + $k) : \min($k, $m);
     }
 
-    /** @param Closure(Table): list<int> $pick */
+    /**
+     * Values of a column or expression for a group's rows. A column name is
+     * read once for the whole table; anything else is evaluated on the group.
+     *
+     * @return Closure(list<int>, Closure(): Table): list<mixed>
+     */
+    private static function lookup(Table $t, mixed $x): Closure
+    {
+        if (\is_string($x)) {
+            $column = $t->column($x);
+
+            return fn (array $rows) => array_map(fn ($i) => $column[$i], $rows);
+        }
+
+        return fn (array $rows, Closure $group) => Vec::values($x, $group(), true);
+    }
+
+    /** @param Closure(list<int> $rows, Closure(): Table $group): list<int> $pick */
     private static function byGroup(Table $t, Closure $pick): Table
     {
         $indices = [];
-        foreach (Ops::groupRows($t) as ['table' => $g, 'rows' => $rows]) {
-            foreach ($pick($g) as $i) {
+        $ungrouped = null;
+        foreach (Ops::groupIndex($t) as ['rows' => $rows]) {
+            $group = function () use ($t, $rows, &$ungrouped) {
+                $ungrouped ??= $t->ungroup();
+
+                return Ops::take($ungrouped, $rows);
+            };
+            foreach ($pick($rows, $group) as $i) {
                 $indices[] = $rows[$i];
             }
         }

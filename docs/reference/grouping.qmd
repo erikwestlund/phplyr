@@ -4,6 +4,8 @@ title: "Grouping"
 
 `group_by()` sets the grouping columns. Selectors work, named arguments group
 by a computed column, and `_add: true` adds to the existing groups.
+`_drop: false` keeps groups for unused factor levels, so `summarise()` and
+`count()` return them with `n() = 0`, as dplyr does.
 `ungroup()` removes grouping, or only the named columns.
 
 Groups are ordered like dplyr's: sorted by key, factors by level order, and NA

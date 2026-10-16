@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwestlund/phibble.git",
-                "reference": "2cb674ce7d058dc316b72d31795010867203e538"
+                "reference": "dbd8b1eeaa584b07d2cc32f1acb885db29be0677"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/2cb674ce7d058dc316b72d31795010867203e538",
-                "reference": "2cb674ce7d058dc316b72d31795010867203e538",
+                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/dbd8b1eeaa584b07d2cc32f1acb885db29be0677",
+                "reference": "dbd8b1eeaa584b07d2cc32f1acb885db29be0677",
                 "shasum": ""
             },
             "require": {
@@ -63,7 +63,7 @@
                 "source": "https://github.com/erikwestlund/phibble/tree/main",
                 "issues": "https://github.com/erikwestlund/phibble/issues"
             },
-            "time": "2026-10-16T07:44:11+00:00"
+            "time": "2026-10-16T07:46:07+00:00"
         }
     ],
     "packages-dev": [

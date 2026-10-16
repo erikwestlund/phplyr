@@ -39,7 +39,7 @@ final readonly class CurGroup
     {
         $groups = $t->groups();
         $index = [];
-        foreach (Ops::groupRows($t) as $i => $g) {
+        foreach (Ops::groupIndex($t) as $i => $g) {
             $key = implode("\x1f", array_map(Internal::key(...), array_values($g['key'])));
             $index[$key] = $this->kind === 'id' ? $i + 1 : array_map(fn ($r) => $r + 1, $g['rows']);
         }

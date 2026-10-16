@@ -169,6 +169,13 @@ final class Internal
      */
     public static function key(mixed $value): string
     {
+        if (\is_string($value)) {
+            return 's'.$value;
+        }
+        if (\is_int($value)) {
+            return 'n'.$value.'.0';
+        }
+
         return match (true) {
             $value === null => "\0NA",
             \is_bool($value) => 'b'.(int) $value,
@@ -479,6 +486,18 @@ final class Internal
         return Ops::take($t, $index)->mutate($out);
     }
 
+    /** Group by $names, keeping $like's _drop: false setting. */
+    public static function regroup(Table $t, array $names, Table $like): Table
+    {
+        if ($names === []) {
+            return $t->ungroup();
+        }
+        if (method_exists($like, 'dropsEmptyGroups') && ! $like->dropsEmptyGroups()) {
+            return $t->groupBy($names, false);
+        }
+
+        return $t->groupBy($names);
+    }
     /** na_rm as a named option, only when set. */
     public static function naRm(bool $naRm): array
     {
