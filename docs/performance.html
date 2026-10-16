@@ -261,6 +261,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#phplyrs-overhead" id="toc-phplyrs-overhead" class="nav-link" data-scroll-target="#phplyrs-overhead">phplyr’s overhead</a></li>
   <li><a href="#timings-at-1000000-rows" id="toc-timings-at-1000000-rows" class="nav-link" data-scroll-target="#timings-at-1000000-rows">Timings at 1,000,000 rows</a></li>
   <li><a href="#choosing-a-backend" id="toc-choosing-a-backend" class="nav-link" data-scroll-target="#choosing-a-backend">Choosing a backend</a></li>
+  <li><a href="#polarstable" id="toc-polarstable" class="nav-link" data-scroll-target="#polarstable">PolarsTable</a></li>
   </ul>
 </nav>
     </div>
@@ -286,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>phplyr is a thin layer. Each verb calls one or two methods of the table it is given, so the backend determines how fast a pipeline runs. This page reports timings for phibble’s shared benchmark workloads on two backends and gives guidance on choosing one.</p>
+<p>phplyr is a thin layer. Each verb calls one or two methods of the table it is given, so the backend determines how fast a pipeline runs. This page reports timings for phibble’s shared benchmark workloads on Frame and SQLite, and for three phplyr pipelines on Frame, PolarsTable, and SQLite, and gives guidance on choosing a backend.</p>
 <section id="method" class="level2">
 <h2 class="anchored" data-anchor-id="method">Method</h2>
 <p><code>bench/harness.php</code> runs each workload twice: as a phplyr pipeline, and as the same calls made directly on the table. <code>bench/generate.php</code> writes the data. It is the same generator and seed as phibble’s <code>bin/bench</code>, so the two harnesses time identical data:</p>
@@ -366,12 +367,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="choosing-a-backend" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-a-backend">Choosing a backend</h2>
 <ul>
-<li><strong>In-memory <code>Frame</code></strong> suits data that fits in memory, up to a few million rows. Expression arguments are the fastest form: a grouped summary with <code>mean('x')</code> runs about four times faster than the same summary written as closures, because phibble computes it in one pass without building a table per group.</li>
-<li><strong>A database table (<code>Phibble\tbl()</code>)</strong> avoids loading the data into PHP. With expressions, <code>filter()</code> and <code>summarise()</code> run in the database, and only the result reaches PHP, so memory stays small. This is the right choice when the data lives in a database or doesn’t fit in memory. For data already in memory, a frame is faster: these timings exclude loading, and reading the 1M-row CSV into a frame takes about 1.4 seconds. Pipelines that return every row (<code>mutate()</code>, <code>arrange()</code>, unfiltered joins) spend most of their database time transferring rows to PHP.</li>
-<li><strong>Closures on a database table</strong> load all rows first and then run in memory. Use <code>col()</code> expressions and phplyr’s helpers to keep the work in SQL.</li>
-<li><strong>SQLite columns need declared types.</strong> PDO binds values as strings. In an untyped column, SQLite stores them as text and compares numbers as text.</li>
+<li><p><strong>In-memory <code>Frame</code></strong> suits data that fits in memory, up to a few million rows. Expression arguments are the fastest form: a grouped summary with <code>mean('x')</code> runs about four times faster than the same summary written as closures, because phibble computes it in one pass without building a table per group.</p></li>
+<li><p><strong>A database table (<code>Phibble\tbl()</code>)</strong> avoids loading the data into PHP. With expressions, <code>filter()</code> and <code>summarise()</code> run in the database, and only the result reaches PHP, so memory stays small. This is the right choice when the data lives in a database or doesn’t fit in memory. For data already in memory, a frame is faster: these timings exclude loading, and reading the 1M-row CSV into a frame takes about 1.4 seconds. Pipelines that return every row (<code>mutate()</code>, <code>arrange()</code>, unfiltered joins) spend most of their database time transferring rows to PHP.</p></li>
+<li><p><strong>Closures on a database table</strong> load all rows first and then run in memory. Use <code>col()</code> expressions and phplyr’s helpers to keep the work in SQL.</p></li>
+<li><p><strong>SQLite columns need declared types.</strong> PDO binds values as strings. In an untyped column, SQLite stores them as text and compares numbers as text.</p></li>
+<li><p><strong>PolarsTable</strong> (phpolars) runs the verbs in Polars, 10 to 100 times faster than Frame, and pays mainly for bringing rows back into PHP. See below.</p></li>
 </ul>
-<p>PolarsTable (phpolars) implements the same contract. Its timings will be added here when its benchmark run is complete.</p>
+</section>
+<section id="polarstable" class="level2">
+<h2 class="anchored" data-anchor-id="polarstable">PolarsTable</h2>
+<p>phpolars’ <code>bench/phplyr.php</code> times three phplyr pipelines on Frame, PolarsTable, and SQLite, and checks that all three backends return the same rows. The pipelines are:</p>
+<ul>
+<li><strong>A:</strong> filter, join a store lookup, two-key summarise, then a ranking window.</li>
+<li><strong>B:</strong> grouped <code>lag(order_by:)</code>, <code>cumsum()</code>, and a share of the group total over all rows.</li>
+<li><strong>C:</strong> pipeline A with closures in place of expressions.</li>
+</ul>
+<p>These timings come from phpolars’ run on an Apple M5 Ultra with Polars at two threads and an earlier phibble (dbd8b1e), so the Frame column is slower than in the table above. Times are the best of three, through <code>collect()</code>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Pipeline, 1M rows</th>
+<th style="text-align: right;">Frame (s)</th>
+<th style="text-align: right;">PolarsTable (s)</th>
+<th style="text-align: right;">SQLite (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A: reduce to a ranked summary</td>
+<td style="text-align: right;">1.52</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.46</td>
+</tr>
+<tr class="even">
+<td>B: windows over every row</td>
+<td style="text-align: right;">2.68</td>
+<td style="text-align: right;">0.44</td>
+<td style="text-align: right;">3.57</td>
+</tr>
+<tr class="odd">
+<td>C: A with closures</td>
+<td style="text-align: right;">1.67</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">2.88</td>
+</tr>
+</tbody>
+</table>
+<p>The verbs themselves are fast in Polars. Most of PolarsTable’s time goes to converting results back to PHP values: about 0.2 seconds per million rows of plain columns, plus about 0.5 seconds per million values of a datetime column, because each value becomes a PHP <code>DateTimeImmutable</code>. A pipeline that returns every row of a table with a datetime column can therefore be slower on PolarsTable than on Frame. In phibble’s harness, <code>mutate()</code> and <code>left_join()</code> returning 1M rows took 1.3 seconds on PolarsTable against 0.3 seconds on Frame.</p>
+<p>A closure makes PolarsTable convert the data to a Frame and back, which costs about a second per million rows. Pipeline C ran one closure step in memory.</p>
+<p>Use PolarsTable when a pipeline reduces the data before collecting (summaries, filters, <code>distinct()</code>, or a join followed by a summary), when it chains several steps, or when the data starts in Polars: <code>PolarsTable::fromPolars(Phpolars\read_csv($path))</code> skips phibble’s CSV parse. Keep the pipeline in expressions so every step stays in Polars.</p>
 
 
 </section>
