@@ -114,9 +114,13 @@ The tidyr verbs are pipe-able too, with tidyr's argument names. The test suite c
 | `separate_longer_*` | `separate_longer_delim('tags', ',')`, `separate_longer_position('code', 2)` |
 | `nest` / `unnest` | `group_by('g') \|> nest()`, `nest(data: ['x', 'y'])`, `unnest('data')` |
 
+## Expressions and databases
+
+`col('price')->mul(1.1)->gt(100)` and helpers such as `mean('x')` build inspectable `Phibble\Expr` trees when their arguments are column names, literals, or other helpers. Verbs pass them to the table. The in-memory Frame evaluates them, and `Phibble\tbl($pdo, 'sales')` compiles them to SQL (SQLite, PostgreSQL, MySQL). `show_query()` returns the SQL and `collect()` runs it. A PHP closure makes a database table load its rows and continue in memory. `mutate(_keep: 'used' | 'unused')` works with expression arguments.
+
 ## Models
 
-`lm('y ~ x + g')` and `glm('y ~ x', family: 'binomial')` pass the table to php_stats' `stats_lm` / `stats_glm`, so factor levels reach the model.
+`lm('y ~ x + g')`, `glm('y ~ x', family: 'binomial')`, `lmer('y ~ x + (1 | g)')` and `glmer(...)` pass the table to php_stats' formula functions, so factor levels reach the model.
 
 ## Development
 

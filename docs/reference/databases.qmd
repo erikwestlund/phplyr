@@ -1,0 +1,50 @@
+---
+title: "Databases and expressions"
+---
+
+## Expressions
+
+phplyr's helpers build inspectable expressions whenever their arguments are
+column names, literals, or other helpers. `col('x')` refers to a column, and
+methods combine expressions with operators:
+
+```php
+filter(col('price')->mul(1.1)->gt(100), col('brand')->isIn(['a', 'b']))
+mutate(margin: col('price')->sub(col('cost'))->div(col('price')))
+mutate(dev: col('score')->sub(mean('score')))      // mean() recycles per group
+```
+
+The operator methods are `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`,
+`ne`, `lt`, `le`, `gt`, `ge`, `and`, `or`, `not`, `isNa`, `isIn`, `between`,
+and `desc`. Scalar helpers include `round`, `abs`, `sqrt`, `exp`, `log`,
+`log10`, `floor`, `ceiling`, `is_na`, `as_int`, `as_float`, `as_string`,
+`as_bool`, `paste`, `paste0`, and the `str_*` functions (`str_upper`,
+`str_sub`, `str_detect`, `str_replace`, and others). Several of these names
+shadow PHP built-ins in files that import them.
+
+An expression is a `Phibble\Expr` tree. Verbs pass it to the table. The
+in-memory `Frame` evaluates it with dplyr's semantics, and a database table
+compiles it to SQL. A helper given a PHP closure still works, but it is
+evaluated in PHP.
+
+`mutate(_keep: 'used')` and `_keep: 'unused'` need expression arguments,
+because phplyr reads the columns an expression uses from the tree.
+
+## Database tables
+
+`Phibble\tbl($pdo, 'table')` returns a lazy table for a PDO connection. Verbs
+with expression arguments add to a SQL query instead of loading rows.
+`show_query()` returns the SQL, and `collect()` runs it and returns a `Frame`.
+SQLite, PostgreSQL, and MySQL are supported.
+
+{{< include ../examples/_sql.md >}}
+
+Grouped `mutate()` and `filter()` compile aggregates and window functions to
+`OVER (PARTITION BY ...)`. Window functions need an order, so call `arrange()`
+first or pass `order_by:`.
+
+A verb given a PHP closure runs the query so far, loads the rows, and continues
+in memory, returning a `Frame`. Expressions with no faithful SQL translation do
+the same. They include `round()` (R rounds halves to even), `first()`, `last()`,
+`nth()`, `iqr()`, `cumprod()`, `consecutive_id()`, and `median()` or
+`quantile()` outside PostgreSQL.

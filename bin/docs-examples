@@ -5,7 +5,9 @@
  * Run every docs/examples/*.php and write docs/examples/_<name>.md with the
  * example's code and its actual output, for Quarto to include. Examples run
  * with docs/data as the working directory, after a hidden prelude that
- * imports Phibble\Frame and every Phplyr function.
+ * imports Phibble\Frame, Phibble\tbl and every Phplyr function except those
+ * that would shadow a PHP built-in other than count, min and max (examples
+ * import round(), abs() and the like themselves).
  *
  * Usage: bin/docs-examples [name ...]   (PHP and PHP_STATS env vars as in bin/test)
  */
@@ -20,8 +22,9 @@ $functions = array_values(array_filter(
     fn (string $f) => str_starts_with($f, 'phplyr\\'),
 ));
 $names = array_map(fn (string $f) => (new ReflectionFunction($f))->getShortName(), $functions);
+$names = array_values(array_filter($names, fn (string $n) => ! function_exists('\\'.$n) || in_array($n, ['count', 'min', 'max'], true)));
 sort($names);
-$prelude = "use Phibble\\Frame;\nuse Phplyr\\Stats;\nuse function Phplyr\\{".implode(', ', $names)."};\n";
+$prelude = "use Phibble\\Frame;\nuse Phplyr\\Stats;\nuse function Phibble\\tbl;\nuse function Phplyr\\{".implode(', ', $names)."};\n";
 
 $php = getenv('PHP') ?: PHP_BINARY;
 $ext = $root.'/.ext/libphp_stats.dylib';

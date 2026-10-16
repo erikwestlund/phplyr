@@ -104,7 +104,7 @@ final class Slice
             throw new \InvalidArgumentException('Give n or prop, not both.');
         }
         $k = match (true) {
-            $prop !== null => (int) floor(abs($prop) * $m) * ($prop < 0 ? -1 : 1),
+            $prop !== null => (int) \floor(\abs($prop) * $m) * ($prop < 0 ? -1 : 1),
             default => $n ?? 1,
         };
 

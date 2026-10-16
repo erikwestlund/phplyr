@@ -9,12 +9,12 @@ echo Frame::fromCsv('schools.csv')
 ```
 
 ```{.text .output}
-# A phibble: 4 × 2
-# Groups: school [4]
+# A tibble: 4 × 2
+# Groups:   school [4]
   school    score
   <chr>     <dbl>
-1 school-01 91.037
-2 school-02 92.083
-3 school-03 83.977
-4 school-04 83.941
+1 school-01  91.0
+2 school-02  92.1
+3 school-03  84.0
+4 school-04  83.9
 ```

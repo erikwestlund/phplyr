@@ -11,16 +11,16 @@ echo "\n", $schools |> count('band', wt: 'study_hours', name: 'hours');
 ```
 
 ```{.text .output}
-# A phibble: 3 × 2
-  band     n
+# A tibble: 3 × 2
+  band         n
   <chr>    <int>
-1 heavy    95
-2 moderate 90
-3 light    65
-# A phibble: 3 × 2
+1 heavy       95
+2 moderate    90
+3 light       65
+# A tibble: 3 × 2
   band     hours
   <chr>    <dbl>
-1 heavy    953.46
-2 light    158.95
-3 moderate 539.89
+1 heavy     953.
+2 light     159.
+3 moderate  540.
 ```

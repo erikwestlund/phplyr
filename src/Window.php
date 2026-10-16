@@ -119,7 +119,7 @@ final class Window
         $nSmaller = $n - $nLarger;
         $size = $len / $n;
         $largerSize = (int) ceil($size);
-        $smallerSize = (int) floor($size);
+        $smallerSize = (int) \floor($size);
         $threshold = $largerSize * $nLarger;
 
         return array_map(function ($x) use ($threshold, $largerSize, $smallerSize, $nLarger) {

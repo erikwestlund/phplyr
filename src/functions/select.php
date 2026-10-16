@@ -38,7 +38,7 @@ function contains(string|array $needle, bool $ignore_case = true): Selector
  */
 function matches(string $pattern, bool $ignore_case = true): Selector
 {
-    $regex = '/'.str_replace('/', '\/', $pattern).'/'.($ignore_case ? 'i' : '');
+    $regex = '/'.\str_replace('/', '\/', $pattern).'/'.($ignore_case ? 'i' : '');
 
     return new Selector(fn (Table $t) => array_values(array_filter(
         $t->columns(),

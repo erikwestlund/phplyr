@@ -215,6 +215,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -376,17 +382,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> select(<span class="st">'study_hours'</span><span class="ot">,</span> <span class="st">'score'</span><span class="ot">,</span> <span class="st">'prev'</span><span class="ot">,</span> <span class="st">'change'</span><span class="ot">,</span> <span class="st">'running_mean'</span><span class="ot">,</span> <span class="st">'rank'</span><span class="ot">,</span> <span class="st">'pct'</span><span class="ot">,</span> <span class="st">'quartile'</span>)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> head(<span class="dv">8</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 8 × 8
-  study_hours score  prev   change running_mean rank  pct       quartile
-  &lt;dbl&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;        &lt;int&gt; &lt;dbl&gt;     &lt;int&gt;
-1 1.31        63.707 NA     NA     63.707       15    0.176471  1
-2 2.7         67.242 63.707 3.54   65.4745      14    0.235294  1
-3 2.74        60.355 67.242 -6.89  63.768       17    0.0588235 1
-4 3.71        68.546 60.355 8.19   64.9625      13    0.294118  2
-5 4.38        60.137 68.546 -8.41  63.9974      18    0         1
-6 4.89        72.762 60.137 12.63  65.4582      9     0.529412  2
-7 5.21        69.67  72.762 -3.09  66.0599      12    0.352941  2
-8 5.51        72.147 69.67  2.48   66.8208      10    0.470588  2</code></pre>
+<pre class="text output"><code># A tibble: 8 × 8
+  study_hours score  prev change running_mean  rank    pct quartile
+        &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;        &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt;    &lt;int&gt;
+1        1.31  63.7  NA    NA            63.7    15 0.176         1
+2        2.7   67.2  63.7   3.54         65.5    14 0.235         1
+3        2.74  60.4  67.2  -6.89         63.8    17 0.0588        1
+4        3.71  68.5  60.4   8.19         65.0    13 0.294         2
+5        4.38  60.1  68.5  -8.41         64.0    18 0             1
+6        4.89  72.8  60.1  12.6          65.5     9 0.529         2
+7        5.21  69.7  72.8  -3.09         66.1    12 0.353         2
+8        5.51  72.1  69.7   2.48         66.8    10 0.471         2</code></pre>
 </section>
 <section id="conditionals-and-na" class="level2">
 <h2 class="anchored" data-anchor-id="conditionals-and-na">Conditionals and NA</h2>
@@ -461,13 +467,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        capped<span class="ot">:</span> replace_when(<span class="st">'visits'</span><span class="ot">,</span> [<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;visits <span class="op">&gt;</span> <span class="dv">10</span><span class="ot">,</span> <span class="dv">10</span>])<span class="ot">,</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        any_flag<span class="ot">:</span> when_any(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;state <span class="op">===</span> <span class="st">'CA'</span><span class="ot">,</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;visits <span class="op">===</span> <span class="dv">0</span>)<span class="ot">,</span></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    )<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 4 × 6
+<pre class="text output"><code># A tibble: 4 × 6
   state visits name           busy  capped any_flag
-  &lt;chr&gt; &lt;int&gt;  &lt;chr&gt;          &lt;chr&gt; &lt;int&gt;  &lt;lgl&gt;
-1 NC    3      North Carolina no    3      FALSE
-2 NYC   0      New York       no    0      TRUE
-3 CA    12     other          yes   10     TRUE
-4 NA    0      other          no    0      TRUE</code></pre>
+  &lt;chr&gt;  &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;  &lt;int&gt; &lt;lgl&gt;   
+1 NC         3 North Carolina no         3 FALSE   
+2 NYC        0 New York       no         0 TRUE    
+3 CA        12 other          yes       10 TRUE    
+4 &lt;NA&gt;       0 other          no         0 TRUE</code></pre>
 
 
 </section>

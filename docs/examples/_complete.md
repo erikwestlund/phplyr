@@ -8,13 +8,13 @@ echo Frame::fromRows([
 ```
 
 ```{.text .output}
-# A phibble: 6 × 3
+# A tibble: 6 × 3
   shop  month sales
   <chr> <int> <int>
-1 north 1     10
-2 north 2     0
-3 north 3     12
-4 south 1     0
-5 south 2     7
-6 south 3     0
+1 north     1    10
+2 north     2     0
+3 north     3    12
+4 south     1     0
+5 south     2     7
+6 south     3     0
 ```

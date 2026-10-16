@@ -12,22 +12,22 @@ echo "\n", $stock |> setdiff(Frame::fromRows([['sku' => 'C3', 'qty' => 0]]));
 ```
 
 ```{.text .output}
-# A phibble: 4 × 2
-  sku   qty
+# A tibble: 4 × 2
+  sku     qty
   <chr> <int>
-1 A1    5
-2 B2    12
-3 C3    0
-4 D4    3
-# A phibble: 3 × 2
-  sku   qty
+1 A1        5
+2 B2       12
+3 C3        0
+4 D4        3
+# A tibble: 3 × 2
+  sku     qty
   <chr> <int>
-1 A1    5
-2 B2    12
-3 C3    0
-# A phibble: 2 × 2
-  sku   qty
+1 A1        5
+2 B2       12
+3 C3        0
+# A tibble: 2 × 2
+  sku     qty
   <chr> <int>
-1 A1    5
-2 B2    NA
+1 A1        5
+2 B2       NA
 ```

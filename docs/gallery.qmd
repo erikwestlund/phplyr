@@ -15,6 +15,15 @@ their students exceed that expectation.
 
 {{< include examples/_gallery-schools.md >}}
 
+## Schools as random intercepts
+
+The same data as a mixed model: `lmer()` fits a random intercept for each
+school. The intraclass correlation is the share of residual variance between
+schools, and the estimated intercept shifts are shrunk toward zero compared
+with the raw school means.
+
+{{< include examples/_gallery-mixed.md >}}
+
 ## Rent per square meter
 
 The housing data has eight flats. The first table summarizes area, rent, and

@@ -9,14 +9,14 @@ echo $schools
 ```
 
 ```{.text .output}
-# A phibble: 6 × 2
-# Groups: school [3]
+# A tibble: 6 × 2
+# Groups:   school [3]
   school    score
   <chr>     <dbl>
-1 school-01 91.037
-2 school-01 88.223
-3 school-02 92.083
-4 school-02 88.725
-5 school-03 83.977
-6 school-03 83.115
+1 school-01  91.0
+2 school-01  88.2
+3 school-02  92.1
+4 school-02  88.7
+5 school-03  84.0
+6 school-03  83.1
 ```

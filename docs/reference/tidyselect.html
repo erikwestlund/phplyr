@@ -215,6 +215,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -340,24 +346,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(across([<span class="st">'study_hours'</span><span class="ot">,</span> <span class="st">'score'</span>]<span class="ot">,</span> <span class="kw">fn</span> (<span class="dt">array</span> <span class="va">$v</span>) =&gt; <span class="fu">round</span>(\<span class="fu">max</span>(<span class="va">$v</span>) <span class="op">-</span> \<span class="fu">min</span>(<span class="va">$v</span>)<span class="ot">,</span> <span class="dv">1</span>)<span class="ot">,</span> names<span class="ot">:</span> <span class="st">'range_{col}'</span>))</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> head(<span class="dv">3</span>)<span class="ot">;</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$schools</span> <span class="op">|&gt;</span> ungroup() <span class="op">|&gt;</span> mutate(across(ends_with(<span class="st">'score'</span>)<span class="ot">,</span> <span class="kw">fn</span> (<span class="va">$v</span>) =&gt; <span class="fu">round</span>(<span class="va">$v</span>))) <span class="op">|&gt;</span> head(<span class="dv">3</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 3 × 7
-  school    study_hours_avg study_hours_sd prior_score_avg prior_score_sd score_avg score_sd
-  &lt;chr&gt;     &lt;dbl&gt;           &lt;dbl&gt;          &lt;dbl&gt;           &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;
-1 school-01 6.59778         3.2576         63.0078         12.2531        72.912    8.79829
-2 school-02 6.19708         3.57179        59.2638         13.3174        72.9044   10.041
-3 school-03 6.51933         3.33815        56.076          11.2669        68.9883   10.7716
-# A phibble: 3 × 3
+<pre class="text output"><code># A tibble: 3 × 7
+  school study_hours_avg study_hours_sd prior_score_avg prior_score_sd score_avg
+  &lt;chr&gt;            &lt;dbl&gt;          &lt;dbl&gt;           &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;
+1 schoo…            6.60           3.26            63.0           12.3      72.9
+2 schoo…            6.20           3.57            59.3           13.3      72.9
+3 schoo…            6.52           3.34            56.1           11.3      69.0
+# ℹ 1 more variable: score_sd &lt;dbl&gt;
+# A tibble: 3 × 3
   school    range_study_hours range_score
-  &lt;chr&gt;     &lt;dbl&gt;             &lt;dbl&gt;
-1 school-01 10.3              30.9
-2 school-02 10.8              34.4
-3 school-03 10.3              35.7
-# A phibble: 3 × 4
+  &lt;chr&gt;                 &lt;dbl&gt;       &lt;dbl&gt;
+1 school-01              10.3        30.9
+2 school-02              10.8        34.4
+3 school-03              10.3        35.7
+# A tibble: 3 × 4
   school    study_hours prior_score score
-  &lt;chr&gt;     &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
-1 school-01 11.58       77          78
-2 school-01 2.7         52          67
-3 school-01 10.02       79          88</code></pre>
+  &lt;chr&gt;           &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;
+1 school-01        11.6          77    78
+2 school-01         2.7          52    67
+3 school-01        10.0          79    88</code></pre>
 <p>What each function receives:</p>
 <ul>
 <li>A phplyr helper passed as a first-class callable, such as <code>mean(...)</code>, is called with the column name.</li>

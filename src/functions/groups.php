@@ -206,3 +206,40 @@ function glm(string $formula, string $family = 'gaussian', mixed ...$options): C
 {
     return fn (Table $t) => Internal::callStats('stats_glm', $formula, $t, $family, ...$options);
 }
+
+/**
+ * Linear mixed model with lme4-style random effects:
+ * $t |> lmer('score ~ study_hours + (1 | school)'). REML by default
+ * (reml: false for maximum likelihood). Needs stats_lmer from php_stats.
+ */
+function lmer(string $formula, mixed ...$options): Closure
+{
+    return fn (Table $t) => Internal::callStats('stats_lmer', $formula, $t, ...$options);
+}
+
+/**
+ * Generalised linear mixed model: $t |> glmer('y ~ x + (1 | g)', family: 'binomial').
+ * Needs stats_glmer from php_stats.
+ */
+function glmer(string $formula, string $family = 'binomial', mixed ...$options): Closure
+{
+    return fn (Table $t) => Internal::callStats('stats_glmer', $formula, $t, $family, ...$options);
+}
+
+/** The SQL a lazy table would run (database backends only). */
+function show_query(): Closure
+{
+    return function (Table $t) {
+        if (! method_exists($t, 'showQuery')) {
+            throw new \LogicException('show_query() needs a database-backed table, such as Phibble\tbl().');
+        }
+
+        return $t->showQuery();
+    };
+}
+
+/** Run a lazy table's query and return an in-memory Phibble\Frame. */
+function collect(): Closure
+{
+    return fn (Table $t) => $t->collect();
+}

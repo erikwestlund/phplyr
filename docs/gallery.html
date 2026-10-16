@@ -215,6 +215,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -240,6 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#school-value-added" id="toc-school-value-added" class="nav-link active" data-scroll-target="#school-value-added">School value added</a></li>
+  <li><a href="#schools-as-random-intercepts" id="toc-schools-as-random-intercepts" class="nav-link" data-scroll-target="#schools-as-random-intercepts">Schools as random intercepts</a></li>
   <li><a href="#rent-per-square-meter" id="toc-rent-per-square-meter" class="nav-link" data-scroll-target="#rent-per-square-meter">Rent per square meter</a></li>
   <li><a href="#pass-rates-by-study-time" id="toc-pass-rates-by-study-time" class="nav-link" data-scroll-target="#pass-rates-by-study-time">Pass rates by study time</a></li>
   <li><a href="#clinic-calls-by-staffing" id="toc-clinic-calls-by-staffing" class="nav-link" data-scroll-target="#clinic-calls-by-staffing">Clinic calls by staffing</a></li>
@@ -290,102 +297,141 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(rank<span class="ot">:</span> min_rank(desc(<span class="st">'avg_residual'</span>))<span class="ot">,</span> avg_score<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;avg_score<span class="ot">,</span> <span class="dv">1</span>)<span class="ot">,</span> avg_residual<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;avg_residual<span class="ot">,</span> <span class="dv">2</span>))</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="st">'rank'</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 12 × 6
-   school    students avg_score avg_residual share_above rank
-   &lt;chr&gt;     &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;       &lt;int&gt;
-1  school-07 19       83.4      11.13        1           1
-2  school-06 27       76.9      2.28         0.52        2
-3  school-09 16       74.9      2.25         0.69        3
-4  school-02 24       72.9      1.7          0.67        4
-5  school-10 25       71.5      0.66         0.56        5
-6  school-05 20       73        0.23         0.55        6
-7  school-11 23       71.2      0.09         0.39        7
-8  school-01 18       72.9      0.06         0.44        8
-9  school-03 15       69        -1.85        0.4         9
-10 school-12 20       64        -5.14        0.05        10
-# ℹ 2 more rows</code></pre>
+<pre class="text output"><code># A tibble: 12 × 6
+   school    students avg_score avg_residual share_above  rank
+   &lt;chr&gt;        &lt;int&gt;     &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;int&gt;
+ 1 school-07       19      83.4        11.1         1        1
+ 2 school-06       27      76.9         2.28        0.52     2
+ 3 school-09       16      74.9         2.25        0.69     3
+ 4 school-02       24      72.9         1.7         0.67     4
+ 5 school-10       25      71.5         0.66        0.56     5
+ 6 school-05       20      73           0.23        0.55     6
+ 7 school-11       23      71.2         0.09        0.39     7
+ 8 school-01       18      72.9         0.06        0.44     8
+ 9 school-03       15      69          -1.85        0.4      9
+10 school-12       20      64          -5.14        0.05    10
+11 school-08       21      64.1        -5.36        0.14    11
+12 school-04       22      69.6        -5.95        0.14    12</code></pre>
+</section>
+<section id="schools-as-random-intercepts" class="level2">
+<h2 class="anchored" data-anchor-id="schools-as-random-intercepts">Schools as random intercepts</h2>
+<p>The same data as a mixed model: <code>lmer()</code> fits a random intercept for each school. The intraclass correlation is the share of residual variance between schools, and the estimated intercept shifts are shrunk toward zero compared with the raw school means.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// A random-intercept model: students nested in schools. The fixed effects</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// are shared; each school gets its own intercept shift.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="va">$schools</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'schools.csv'</span>)<span class="ot">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> <span class="va">$schools</span> <span class="op">|&gt;</span> lmer(<span class="st">'score ~ study_hours + prior_score + (1 | school)'</span>)<span class="ot">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">foreach</span> (<span class="va">$fit</span>[<span class="st">'columns'</span>] <span class="kw">as</span> <span class="va">$i</span> =&gt; <span class="va">$term</span>) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">printf</span>(<span class="st">"%-12s %8.4f  (se %.4f)</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$term</span><span class="ot">,</span> <span class="va">$fit</span>[<span class="st">'coefficients'</span>][<span class="va">$i</span>]<span class="ot">,</span> <span class="va">$fit</span>[<span class="st">'std_errors'</span>][<span class="va">$i</span>])<span class="ot">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="va">$schoolSd</span> <span class="op">=</span> <span class="va">$fit</span>[<span class="st">'theta'</span>][<span class="dv">0</span>] <span class="op">*</span> <span class="va">$fit</span>[<span class="st">'sigma'</span>]<span class="ot">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">printf</span>(<span class="st">"school sd %.3f, residual sd %.3f, ICC %.3f</span><span class="sc">\n\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$schoolSd</span><span class="ot">,</span> <span class="va">$fit</span>[<span class="st">'sigma'</span>]<span class="ot">,</span> <span class="va">$schoolSd</span> <span class="op">**</span> <span class="dv">2</span> <span class="op">/</span> (<span class="va">$schoolSd</span> <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="va">$fit</span>[<span class="st">'sigma'</span>] <span class="op">**</span> <span class="dv">2</span>))<span class="ot">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Compare each school's raw mean with its estimated intercept shift.</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="va">$random</span> <span class="op">=</span> <span class="va">$fit</span>[<span class="st">'random'</span>][<span class="dv">0</span>]<span class="ot">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="va">$effects</span> <span class="op">=</span> <span class="fu">array_combine</span>(<span class="va">$random</span>[<span class="st">'group_labels'</span>]<span class="ot">,</span> <span class="fu">array_column</span>(<span class="va">$random</span>[<span class="st">'effects'</span>]<span class="ot">,</span> <span class="dv">0</span>))<span class="ot">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$schools</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'school'</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(students<span class="ot">:</span> n()<span class="ot">,</span> raw_mean<span class="ot">:</span> mean(<span class="st">'score'</span>))</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(intercept_shift<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$effects</span>[<span class="va">$r</span>-&gt;school]<span class="ot">,</span> <span class="dv">2</span>)<span class="ot">,</span> raw_mean<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;raw_mean<span class="ot">,</span> <span class="dv">1</span>))</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(desc(<span class="st">'intercept_shift'</span>))</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> head(<span class="dv">5</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code>(Intercept)   46.6627  (se 2.2438)
+study_hours    1.6141  (se 0.1609)
+prior_score    0.2453  (se 0.0419)
+school sd 4.458, residual sd 5.057, ICC 0.437
+
+# A tibble: 5 × 4
+  school    students raw_mean intercept_shift
+  &lt;chr&gt;        &lt;int&gt;    &lt;dbl&gt;           &lt;dbl&gt;
+1 school-07       19     83.4           10.4 
+2 school-06       27     76.9            2.27
+3 school-09       16     74.9            2.12
+4 school-02       24     72.9            1.62
+5 school-10       25     71.5            0.57</code></pre>
 </section>
 <section id="rent-per-square-meter" class="level2">
 <h2 class="anchored" data-anchor-id="rent-per-square-meter">Rent per square meter</h2>
 <p>The housing data has eight flats. The first table summarizes area, rent, and rent per square meter by number of bedrooms with <code>across()</code>. The second compares each flat with its bedroom group using <code>_by</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Price per square meter by number of bedrooms, with each flat's</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// position relative to its bedroom group.</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="va">$housing</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'housing.csv'</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(per_m2<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;monthly_rent <span class="op">/</span> <span class="va">$r</span>-&gt;area_m2<span class="ot">,</span> <span class="dv">2</span>))<span class="ot">;</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$housing</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'bedrooms'</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(across([<span class="st">'area_m2'</span><span class="ot">,</span> <span class="st">'monthly_rent'</span><span class="ot">,</span> <span class="st">'per_m2'</span>]<span class="ot">,</span> [<span class="st">'mean'</span> =&gt; mean(...)<span class="ot">,</span> <span class="st">'max'</span> =&gt; <span class="fu">max</span>(...)])<span class="ot">,</span> flats<span class="ot">:</span> n())</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(across(where(<span class="st">'double'</span>)<span class="ot">,</span> <span class="kw">fn</span> (<span class="va">$v</span>) =&gt; <span class="fu">round</span>(<span class="va">$v</span><span class="ot">,</span> <span class="dv">1</span>)))<span class="ot">;</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$housing</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(vs_group<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span><span class="ot">,</span> <span class="va">$g</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;per_m2 <span class="op">-</span> mean(<span class="st">'per_m2'</span>)(<span class="va">$g</span>)<span class="ot">,</span> <span class="dv">2</span>)<span class="ot">,</span> _by<span class="ot">:</span> <span class="st">'bedrooms'</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="st">'bedrooms'</span><span class="ot">,</span> desc(<span class="st">'vs_group'</span>))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 3 × 8
-  bedrooms area_m2_mean area_m2_max monthly_rent_mean monthly_rent_max per_m2_mean per_m2_max flats
-  &lt;int&gt;    &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;      &lt;int&gt;
-1 1        43.9         49.1        1245.5            1509.2           28.3        33         3
-2 2        66.1         74.4        1902.2            2022.3           29.1        31.5       3
-3 3        93.2         93.9        2313.3            2386.5           24.8        25.4       2
-# A phibble: 8 × 5
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Price per square meter by number of bedrooms, with each flat's</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// position relative to its bedroom group.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="va">$housing</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'housing.csv'</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(per_m2<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;monthly_rent <span class="op">/</span> <span class="va">$r</span>-&gt;area_m2<span class="ot">,</span> <span class="dv">2</span>))<span class="ot">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$housing</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'bedrooms'</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(across([<span class="st">'area_m2'</span><span class="ot">,</span> <span class="st">'monthly_rent'</span><span class="ot">,</span> <span class="st">'per_m2'</span>]<span class="ot">,</span> [<span class="st">'mean'</span> =&gt; mean(...)<span class="ot">,</span> <span class="st">'max'</span> =&gt; <span class="fu">max</span>(...)])<span class="ot">,</span> flats<span class="ot">:</span> n())</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(across(where(<span class="st">'double'</span>)<span class="ot">,</span> <span class="kw">fn</span> (<span class="va">$v</span>) =&gt; <span class="fu">round</span>(<span class="va">$v</span><span class="ot">,</span> <span class="dv">1</span>)))<span class="ot">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$housing</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(vs_group<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span><span class="ot">,</span> <span class="va">$g</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;per_m2 <span class="op">-</span> mean(<span class="st">'per_m2'</span>)(<span class="va">$g</span>)<span class="ot">,</span> <span class="dv">2</span>)<span class="ot">,</span> _by<span class="ot">:</span> <span class="st">'bedrooms'</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="st">'bedrooms'</span><span class="ot">,</span> desc(<span class="st">'vs_group'</span>))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A tibble: 3 × 8
+  bedrooms area_m2_mean area_m2_max monthly_rent_mean monthly_rent_max
+     &lt;int&gt;        &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;
+1        1         43.9        49.1             1246.            1509.
+2        2         66.1        74.4             1902.            2022.
+3        3         93.2        93.9             2313.            2386.
+# ℹ 3 more variables: per_m2_mean &lt;dbl&gt;, per_m2_max &lt;dbl&gt;, flats &lt;int&gt;
+# A tibble: 8 × 5
   area_m2 bedrooms monthly_rent per_m2 vs_group
-  &lt;dbl&gt;   &lt;int&gt;    &lt;dbl&gt;        &lt;dbl&gt;  &lt;dbl&gt;
-1 45.7    1        1509.24      33.02  4.76
-2 37      1        959.51       25.93  -2.33
-3 49.1    1        1267.85      25.82  -2.44
-4 57.4    2        1805.03      31.45  2.39
-5 66.4    2        2022.29      30.46  1.4
-6 74.4    2        1879.25      25.26  -3.8
-7 93.9    3        2386.54      25.42  0.59
-8 92.4    3        2240.1       24.24  -0.59</code></pre>
+    &lt;dbl&gt;    &lt;int&gt;        &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+1    45.7        1        1509.   33.0     4.76
+2    37          1         960.   25.9    -2.33
+3    49.1        1        1268.   25.8    -2.44
+4    57.4        2        1805.   31.4     2.39
+5    66.4        2        2022.   30.5     1.4 
+6    74.4        2        1879.   25.3    -3.8 
+7    93.9        3        2387.   25.4     0.59
+8    92.4        3        2240.   24.2    -0.59</code></pre>
 </section>
 <section id="pass-rates-by-study-time" class="level2">
 <h2 class="anchored" data-anchor-id="pass-rates-by-study-time">Pass rates by study time</h2>
 <p>The learning data records study hours, a practice score, and whether 80 students passed. <code>ntile()</code> splits students into study-hour quartiles, and a logistic regression estimates the effect of an extra hour.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Pass rates by study-hour quartile, then a logistic regression.</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="va">$learning</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'learning.csv'</span>)<span class="ot">;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$learning</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(hours_quartile<span class="ot">:</span> ntile(<span class="st">'study_hours'</span><span class="ot">,</span> <span class="dv">4</span>))</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'hours_quartile'</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        students<span class="ot">:</span> n()<span class="ot">,</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        min_hours<span class="ot">:</span> <span class="fu">min</span>(<span class="st">'study_hours'</span>)<span class="ot">,</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        max_hours<span class="ot">:</span> <span class="fu">max</span>(<span class="st">'study_hours'</span>)<span class="ot">,</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        pass_rate<span class="ot">:</span> mean(<span class="st">'passed'</span>)<span class="ot">,</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    )<span class="ot">;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> <span class="va">$learning</span> <span class="op">|&gt;</span> glm(<span class="st">'passed ~ study_hours + practice_score'</span><span class="ot">,</span> family<span class="ot">:</span> <span class="st">'binomial'</span>)<span class="ot">;</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="fu">printf</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Odds ratio per extra study hour: %.3f</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="fu">exp</span>(<span class="va">$fit</span>[<span class="st">'coefficients'</span>][<span class="dv">1</span>]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 4 × 5
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Pass rates by study-hour quartile, then a logistic regression.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="va">$learning</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'learning.csv'</span>)<span class="ot">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$learning</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(hours_quartile<span class="ot">:</span> ntile(<span class="st">'study_hours'</span><span class="ot">,</span> <span class="dv">4</span>))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'hours_quartile'</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        students<span class="ot">:</span> n()<span class="ot">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        min_hours<span class="ot">:</span> <span class="fu">min</span>(<span class="st">'study_hours'</span>)<span class="ot">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        max_hours<span class="ot">:</span> <span class="fu">max</span>(<span class="st">'study_hours'</span>)<span class="ot">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        pass_rate<span class="ot">:</span> mean(<span class="st">'passed'</span>)<span class="ot">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    )<span class="ot">;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> <span class="va">$learning</span> <span class="op">|&gt;</span> glm(<span class="st">'passed ~ study_hours + practice_score'</span><span class="ot">,</span> family<span class="ot">:</span> <span class="st">'binomial'</span>)<span class="ot">;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="fu">printf</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Odds ratio per extra study hour: %.3f</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="fu">exp</span>(<span class="va">$fit</span>[<span class="st">'coefficients'</span>][<span class="dv">1</span>]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A tibble: 4 × 5
   hours_quartile students min_hours max_hours pass_rate
-  &lt;int&gt;          &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 1              20       1.24      3.38      0.25
-2 2              20       3.44      5.98      0.3
-3 3              20       6         8.83      0.45
-4 4              20       8.87      11.77     0.45
+           &lt;int&gt;    &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1              1       20      1.24      3.38      0.25
+2              2       20      3.44      5.98      0.3 
+3              3       20      6         8.83      0.45
+4              4       20      8.87     11.8       0.45
 Odds ratio per extra study hour: 1.066</code></pre>
 </section>
 <section id="clinic-calls-by-staffing" class="level2">
 <h2 class="anchored" data-anchor-id="clinic-calls-by-staffing">Clinic calls by staffing</h2>
 <p>The clinic data has visitors, staff, and calls for 120 days. The example bands staffing and visitor volume, averages calls, and widens the result into a cross-tabulation.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Calls by staffing level and visitor volume, as a cross-tabulation.</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> Frame::fromCsv(<span class="st">'clinic.csv'</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        staffing<span class="ot">:</span> case_when([<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;staff <span class="op">&lt;</span> <span class="dv">4</span><span class="ot">,</span> <span class="st">'low'</span>]<span class="ot">,</span> [<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;staff <span class="op">&lt;</span> <span class="dv">6</span><span class="ot">,</span> <span class="st">'mid'</span>]<span class="ot">,</span> <span class="cf">default</span><span class="ot">:</span> <span class="st">'high'</span>)<span class="ot">,</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        volume<span class="ot">:</span> if_else(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;visitors <span class="op">&gt;=</span> <span class="dv">250</span><span class="ot">,</span> <span class="st">'busy'</span><span class="ot">,</span> <span class="st">'quiet'</span>)<span class="ot">,</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'staffing'</span><span class="ot">,</span> <span class="st">'volume'</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(mean_calls<span class="ot">:</span> mean(<span class="st">'calls'</span>)<span class="ot">,</span> _groups<span class="ot">:</span> <span class="st">'drop'</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(mean_calls<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;mean_calls<span class="ot">,</span> <span class="dv">2</span>))</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> pivot_wider(names_from<span class="ot">:</span> <span class="st">'volume'</span><span class="ot">,</span> values_from<span class="ot">:</span> <span class="st">'mean_calls'</span><span class="ot">,</span> names_sort<span class="ot">:</span> <span class="kw">true</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">array_search</span>(<span class="va">$r</span>-&gt;staffing<span class="ot">,</span> [<span class="st">'low'</span><span class="ot">,</span> <span class="st">'mid'</span><span class="ot">,</span> <span class="st">'high'</span>]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 3 × 3
-  staffing busy  quiet
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Calls by staffing level and visitor volume, as a cross-tabulation.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> Frame::fromCsv(<span class="st">'clinic.csv'</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        staffing<span class="ot">:</span> case_when([<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;staff <span class="op">&lt;</span> <span class="dv">4</span><span class="ot">,</span> <span class="st">'low'</span>]<span class="ot">,</span> [<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;staff <span class="op">&lt;</span> <span class="dv">6</span><span class="ot">,</span> <span class="st">'mid'</span>]<span class="ot">,</span> <span class="cf">default</span><span class="ot">:</span> <span class="st">'high'</span>)<span class="ot">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        volume<span class="ot">:</span> if_else(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;visitors <span class="op">&gt;=</span> <span class="dv">250</span><span class="ot">,</span> <span class="st">'busy'</span><span class="ot">,</span> <span class="st">'quiet'</span>)<span class="ot">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'staffing'</span><span class="ot">,</span> <span class="st">'volume'</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(mean_calls<span class="ot">:</span> mean(<span class="st">'calls'</span>)<span class="ot">,</span> _groups<span class="ot">:</span> <span class="st">'drop'</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(mean_calls<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;mean_calls<span class="ot">,</span> <span class="dv">2</span>))</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> pivot_wider(names_from<span class="ot">:</span> <span class="st">'volume'</span><span class="ot">,</span> values_from<span class="ot">:</span> <span class="st">'mean_calls'</span><span class="ot">,</span> names_sort<span class="ot">:</span> <span class="kw">true</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">array_search</span>(<span class="va">$r</span>-&gt;staffing<span class="ot">,</span> [<span class="st">'low'</span><span class="ot">,</span> <span class="st">'mid'</span><span class="ot">,</span> <span class="st">'high'</span>]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A tibble: 3 × 3
+  staffing  busy quiet
   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;
-1 low      NA    1.9
-2 mid      1.79  1.64
-3 high     1.8   NA</code></pre>
+1 low      NA     1.9 
+2 mid       1.79  1.64
+3 high      1.8  NA</code></pre>
 
 
 </section>

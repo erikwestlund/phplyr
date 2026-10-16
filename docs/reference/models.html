@@ -215,6 +215,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -259,10 +265,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>lm()</code> and <code>glm()</code> pass the piped table to the php-stats extension’s <code>stats_lm()</code> and <code>stats_glm()</code>. The extension reads factor levels from the table, builds the model matrix, and returns coefficients, standard errors, and fit statistics in the same order as R.</p>
+<p><code>lm()</code>, <code>glm()</code>, <code>lmer()</code>, and <code>glmer()</code> pass the piped table to the php-stats extension’s <code>stats_lm()</code>, <code>stats_glm()</code>, <code>stats_lmer()</code>, and <code>stats_glmer()</code>. The extension reads factor levels from the table, builds the model matrix, and returns coefficients, standard errors, and fit statistics in the same order as R.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">$table</span> <span class="op">|&gt;</span> lm(<span class="st">'y ~ x + group'</span>)<span class="ot">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">$table</span> <span class="op">|&gt;</span> glm(<span class="st">'passed ~ hours'</span><span class="ot">,</span> family<span class="ot">:</span> <span class="st">'binomial'</span>)<span class="ot">;</span>   <span class="co">// also 'poisson', link:</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Both need php-stats with the formula functions. Without the extension they throw an exception that says so.</p>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">$table</span> <span class="op">|&gt;</span> glm(<span class="st">'passed ~ hours'</span><span class="ot">,</span> family<span class="ot">:</span> <span class="st">'binomial'</span>)<span class="ot">;</span>   <span class="co">// also 'poisson', link:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">$table</span> <span class="op">|&gt;</span> lmer(<span class="st">'score ~ hours + (1 | school)'</span>)<span class="ot">;</span>        <span class="co">// REML; reml: false for ML</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">$table</span> <span class="op">|&gt;</span> glmer(<span class="st">'passed ~ hours + (1 | school)'</span><span class="ot">,</span> family<span class="ot">:</span> <span class="st">'binomial'</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>lmer()</code> and <code>glmer()</code> take lme4’s random-effect bars. The result includes <code>columns</code> with R’s coefficient names. All four need php-stats with the formula functions. Without the extension they throw an exception that says so.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'schools.csv'</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> filter(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;prior_score <span class="op">&gt;</span> <span class="dv">50</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> lm(<span class="st">'score ~ study_hours + prior_score'</span>)<span class="ot">;</span></span>

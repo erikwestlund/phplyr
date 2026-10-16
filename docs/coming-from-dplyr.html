@@ -180,6 +180,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -255,7 +261,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>mutate(z = x * 2)</code></td>
-<td><code>mutate(z: fn ($r) =&gt; $r-&gt;x * 2)</code></td>
+<td><code>mutate(z: fn ($r) =&gt; $r-&gt;x * 2)</code> or <code>mutate(z: col('x')-&gt;mul(2))</code></td>
 </tr>
 <tr class="odd">
 <td><code>mutate(z = lag(x))</code></td>
@@ -347,7 +353,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="not-supported">Not supported</h2>
 <ul>
 <li><strong>Bare column names and tidy evaluation.</strong> Columns are strings, and expressions are closures or phplyr helpers.</li>
-<li><strong><code>mutate(.keep = "used")</code> and <code>.keep = "unused"</code>.</strong> These need to know which columns an expression reads, which a PHP closure does not expose.</li>
+<li><strong><code>mutate(.keep = "used")</code> and <code>.keep = "unused"</code> with closures.</strong> These work with expression arguments such as <code>col('x')-&gt;mul(2)</code>, whose columns can be read. A PHP closure does not expose the columns it reads.</li>
 <li><strong>Inequality and rolling joins</strong> (<code>join_by(a &gt;= b)</code>, <code>closest()</code>).</li>
 <li><strong><code>group_by(.drop = FALSE)</code></strong>, which keeps empty factor-level groups.</li>
 <li><strong><code>cur_group_id()</code> and the other <code>cur_*()</code> functions.</strong> Use <code>group_indices()</code> or the group table passed to closures.</li>

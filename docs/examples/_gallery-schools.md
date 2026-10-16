@@ -20,18 +20,19 @@ echo $schools
 ```
 
 ```{.text .output}
-# A phibble: 12 × 6
-   school    students avg_score avg_residual share_above rank
-   <chr>     <int>    <dbl>     <dbl>        <dbl>       <int>
-1  school-07 19       83.4      11.13        1           1
-2  school-06 27       76.9      2.28         0.52        2
-3  school-09 16       74.9      2.25         0.69        3
-4  school-02 24       72.9      1.7          0.67        4
-5  school-10 25       71.5      0.66         0.56        5
-6  school-05 20       73        0.23         0.55        6
-7  school-11 23       71.2      0.09         0.39        7
-8  school-01 18       72.9      0.06         0.44        8
-9  school-03 15       69        -1.85        0.4         9
-10 school-12 20       64        -5.14        0.05        10
-# ℹ 2 more rows
+# A tibble: 12 × 6
+   school    students avg_score avg_residual share_above  rank
+   <chr>        <int>     <dbl>        <dbl>       <dbl> <int>
+ 1 school-07       19      83.4        11.1         1        1
+ 2 school-06       27      76.9         2.28        0.52     2
+ 3 school-09       16      74.9         2.25        0.69     3
+ 4 school-02       24      72.9         1.7         0.67     4
+ 5 school-10       25      71.5         0.66        0.56     5
+ 6 school-05       20      73           0.23        0.55     6
+ 7 school-11       23      71.2         0.09        0.39     7
+ 8 school-01       18      72.9         0.06        0.44     8
+ 9 school-03       15      69          -1.85        0.4      9
+10 school-12       20      64          -5.14        0.05    10
+11 school-08       21      64.1        -5.36        0.14    11
+12 school-04       22      69.6        -5.95        0.14    12
 ```

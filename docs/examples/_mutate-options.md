@@ -11,17 +11,17 @@ echo "\n", $housing
 ```
 
 ```{.text .output}
-# A phibble: 3 × 1
+# A tibble: 3 × 1
   rent_k
-  <dbl>
-1 1.87925
-2 1.80503
-3 2.02229
-# A phibble: 4 × 4
+   <dbl>
+1   1.88
+2   1.81
+3   2.02
+# A tibble: 4 × 4
   area_m2 bedrooms vs_bedroom_avg monthly_rent
-  <dbl>   <int>    <dbl>          <dbl>
-1 74.4    2        -22.94         1879.25
-2 57.4    2        -97.16         1805.03
-3 66.4    2        120.1          2022.29
-4 49.1    1        22.3167        1267.85
+    <dbl>    <int>          <dbl>        <dbl>
+1    74.4        2          -22.9        1879.
+2    57.4        2          -97.2        1805.
+3    66.4        2          120.         2022.
+4    49.1        1           22.3        1268.
 ```

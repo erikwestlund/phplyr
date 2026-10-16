@@ -215,6 +215,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -287,13 +293,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> \<span class="fu">count</span>(<span class="va">$parts</span>)<span class="ot">,</span> <span class="st">' tables; the first has '</span><span class="ot">,</span> <span class="va">$parts</span>[<span class="dv">0</span>]-&gt;nrow()<span class="ot">,</span> <span class="st">" rows</span><span class="sc">\n</span><span class="st">"</span><span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre class="text output"><code>{"groups":["school"],"n_groups":12,"sizes":[18,24,15,22]}
 
-# A phibble: 4 × 6
-  school    study_hours prior_score score  centered rank_in_school
-  &lt;chr&gt;     &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;  &lt;dbl&gt;    &lt;int&gt;
-1 school-01 11.58       77.33       78.257 5.34     4
-2 school-01 2.7         51.7        67.242 -5.67    14
-3 school-01 10.02       78.82       88.223 15.31    2
-4 school-01 3.71        45.34       68.546 -4.37    13
+# A tibble: 4 × 6
+  school    study_hours prior_score score centered rank_in_school
+  &lt;chr&gt;           &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;          &lt;int&gt;
+1 school-01       11.6         77.3  78.3     5.34              4
+2 school-01        2.7         51.7  67.2    -5.67             14
+3 school-01       10.0         78.8  88.2    15.3               2
+4 school-01        3.71        45.3  68.5    -4.37             13
 12 tables; the first has 18 rows</code></pre>
 <section id="group-utilities" class="level2">
 <h2 class="anchored" data-anchor-id="group-utilities">Group utilities</h2>
@@ -364,12 +370,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        [...<span class="va">$row</span>-&gt;column(<span class="st">'q1'</span>)<span class="ot">,</span> ...<span class="va">$row</span>-&gt;column(<span class="st">'q2'</span>)<span class="ot">,</span> ...<span class="va">$row</span>-&gt;column(<span class="st">'q3'</span>)]<span class="ot">,</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        naRm<span class="ot">:</span> <span class="kw">true</span><span class="ot">,</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    ))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 2 × 2
-# Groups: id [2]
+<pre class="text output"><code># A tibble: 2 × 2
+# Groups:   id [2]
   id    total
   &lt;chr&gt; &lt;int&gt;
-1 a     8
-2 b     7</code></pre>
+1 a         8
+2 b         7</code></pre>
 
 
 </section>

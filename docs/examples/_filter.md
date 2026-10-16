@@ -11,11 +11,11 @@ echo "\n", $schools |> filter_out(fn ($r) => $r->prior_score < 70) |> count();
 ```
 
 ```{.text .output}
-# A phibble: 0 × 4
- school study_hours prior_score score
- <chr>  <dbl>       <dbl>       <dbl>
-# A phibble: 1 × 1
-  n
+# A tibble: 0 × 4
+# ℹ 4 variables: school <chr>, study_hours <dbl>, prior_score <dbl>,
+#   score <dbl>
+# A tibble: 1 × 1
+      n
   <int>
-1 59
+1    59
 ```

@@ -16,22 +16,22 @@ echo "\n", $districts |> anti_join($schools, by: ['school_id' => 'school']);
 ```
 
 ```{.text .output}
-# A phibble: 3 × 3
+# A tibble: 3 × 3
   school    avg_score district
-  <chr>     <dbl>     <chr>
-1 school-01 72.912    North
-2 school-02 72.9044   North
-3 school-03 68.9883   South
-# A phibble: 5 × 3
+  <chr>         <dbl> <chr>   
+1 school-01      72.9 North   
+2 school-02      72.9 North   
+3 school-03      69.0 South   
+# A tibble: 5 × 3
   school    avg_score district
-  <chr>     <dbl>     <chr>
-1 school-01 72.912    North
-2 school-02 72.9044   North
-3 school-03 68.9883   South
-4 school-04 69.6102   NA
-5 school-05 72.9725   NA
-# A phibble: 1 × 2
+  <chr>         <dbl> <chr>   
+1 school-01      72.9 North   
+2 school-02      72.9 North   
+3 school-03      69.0 South   
+4 school-04      69.6 <NA>    
+5 school-05      73.0 <NA>    
+# A tibble: 1 × 2
   school_id district
-  <chr>     <chr>
+  <chr>     <chr>   
 1 school-99 East
 ```

@@ -11,8 +11,8 @@ echo Frame::fromCsv('schools.csv')
 ```
 
 ```{.text .output}
-# A phibble: 1 × 6
+# A tibble: 1 × 6
   students schools median_hours q90_score iqr_score top_school
-  <int>    <int>   <dbl>        <dbl>     <dbl>     <chr>
-1 250      12      6.665        86.0983   15.3108   school-06
+     <int>   <int>        <dbl>     <dbl>     <dbl> <chr>     
+1      250      12         6.66      86.1      15.3 school-06
 ```

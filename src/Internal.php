@@ -6,11 +6,94 @@ namespace Phplyr;
 
 use Closure;
 use Phibble\Contracts\Table;
+use Phibble\Expr;
 use Phibble\Frame;
 
 /** @internal Helpers shared by the verb functions. */
 final class Internal
 {
+    /**
+     * An argument as a Phibble expression, or null when it can't be one
+     * (a PHP closure, or a Vec built from one). Strings are columns when
+     * $column, literals otherwise.
+     */
+    public static function toExpr(mixed $arg, bool $column): ?Expr\Expr
+    {
+        return match (true) {
+            $arg instanceof Vec => $arg->expr,
+            $arg instanceof Expr\Expr => $arg,
+            $arg instanceof Desc => ($inner = self::toExpr($arg->x, true)) === null ? null : new Expr\Desc($inner),
+            \is_string($arg) => $column ? new Expr\Col($arg) : new Expr\Lit($arg),
+            $arg === null, \is_int($arg), \is_float($arg), \is_bool($arg), $arg instanceof \DateTimeInterface => new Expr\Lit($arg),
+            default => null,
+        };
+    }
+
+    /**
+     * A registered function as a Vec. When every argument converts to an
+     * expression, the Vec carries the Phibble\Expr\Call. Otherwise the
+     * arguments that can't (closures) are evaluated per group into
+     * temporary columns and the same call runs on those, so both paths
+     * share phibble's semantics.
+     *
+     * @param list<mixed> $args
+     * @param array<string, mixed> $named
+     * @param list<int> $columns Positions whose strings are column names.
+     */
+    public static function call(string $fn, array $args, array $named = [], array $columns = [0]): Vec
+    {
+        $exprs = [];
+        $deferred = [];
+        foreach ($args as $i => $arg) {
+            [$inner, $desc] = self::direction($arg);
+            $isColumn = \in_array($i, $columns, true);
+            $e = self::toExpr($inner, $isColumn);
+            if ($e === null) {
+                $deferred['.phplyr_arg_'.$i] = [$inner, $isColumn];
+                $e = new Expr\Col('.phplyr_arg_'.$i);
+            }
+            $exprs[] = $desc ? new Expr\Desc($e) : $e;
+        }
+        $namedExprs = [];
+        foreach ($named as $key => $arg) {
+            [$inner, $desc] = self::direction($arg);
+            $e = self::toExpr($inner, $key === 'order_by');
+            if ($e === null) {
+                $deferred['.phplyr_arg_'.$key] = [$inner, $key === 'order_by'];
+                $e = new Expr\Col('.phplyr_arg_'.$key);
+            }
+            $namedExprs[$key] = $desc ? new Expr\Desc($e) : $e;
+        }
+        $call = new Expr\Call($fn, $exprs, $namedExprs);
+        if ($deferred === []) {
+            return Vec::of($call);
+        }
+
+        return new Vec(function (Table $g) use ($call, $deferred) {
+            $temp = [];
+            foreach ($deferred as $name => [$arg, $column]) {
+                $temp[$name] = Vec::values($arg, $g, $column);
+            }
+
+            return Vec::evaluate($call, $g->ungroup()->mutate($temp));
+        });
+    }
+
+    /** AND several conditions into one expression, or null if any is a closure. */
+    public static function allExpr(array $conditions): ?Expr\Expr
+    {
+        $out = null;
+        foreach ($conditions as $c) {
+            $e = self::toExpr($c, true);
+            if ($e === null) {
+                return null;
+            }
+            $out = $out === null ? $e : new Expr\Call('&', [$out, $e]);
+        }
+
+        return $out;
+    }
+
     /** Verbs that name their outputs need named arguments (across() may be positional). */
     public static function assertNamed(array $args, string $verb): void
     {
@@ -79,45 +162,6 @@ final class Internal
         }
 
         return [$x, false];
-    }
-
-    /** A Vec applying a rank function to $x, honouring desc(). */
-    public static function ranked(mixed $x, Closure $rank): Vec
-    {
-        [$x, $desc] = self::direction($x);
-
-        return new Vec(fn (Table $g) => $rank(Vec::values($x, $g, true), $desc));
-    }
-
-    /**
-     * A Vec applying a window function to $x after ordering rows by
-     * $orderBy, then restoring row order.
-     */
-    public static function ordered(mixed $x, mixed $orderBy, Closure $window): Vec
-    {
-        return new Vec(function (Table $g) use ($x, $orderBy, $window) {
-            $values = Vec::values($x, $g, true);
-            if ($orderBy === null) {
-                return $window($values);
-            }
-            [$key, $desc] = self::direction($orderBy);
-            $keys = Vec::values($key, $g, true);
-            $order = Window::order($keys, $desc);
-            // Rows with NA keys sort last, as in R.
-            foreach (array_keys($keys) as $i) {
-                if (! \in_array($i, $order, true)) {
-                    $order[] = $i;
-                }
-            }
-            $shifted = $window(array_map(fn ($i) => $values[$i], $order));
-            $out = [];
-            foreach ($order as $pos => $i) {
-                $out[$i] = $shifted[$pos];
-            }
-            ksort($out);
-
-            return array_values($out);
-        });
     }
 
     /**
@@ -214,6 +258,12 @@ final class Internal
             if ($x instanceof Across) {
                 $x = any_selected(...$x->cols);
             }
+            $expr = $x instanceof Vec ? $x->expr : ($x instanceof Expr\Expr ? $x : null);
+            if ($expr !== null) {
+                $sort[] = $desc ? new Expr\Desc($expr) : $expr;
+
+                continue;
+            }
             if (\is_string($x) || $x instanceof Selector) {
                 foreach (Selector::select([$x], $work) as $c) {
                     $sort[] = [$c, $desc ? 'desc' : 'asc'];
@@ -246,7 +296,7 @@ final class Internal
         foreach ($aggregates as $key => $def) {
             if ($def instanceof Across) {
                 foreach ($def->expand($t, 'summarise') as $name => $vec) {
-                    $out[$name] = self::single($vec, $name, $verb);
+                    $out[$name] = $vec->expr ?? self::single($vec, $name, $verb);
                 }
 
                 continue;
@@ -255,6 +305,8 @@ final class Internal
                 throw new \InvalidArgumentException("{$verb}() needs named arguments, for example {$verb}(total: ...), or across(...).");
             }
             $out[$key] = match (true) {
+                $def instanceof Vec && $def->expr !== null => $def->expr,
+                $def instanceof Expr\Expr => $def,
                 $def instanceof Vec, $def instanceof Closure => self::single($def, $key, $verb),
                 default => fn () => $def,
             };
@@ -419,9 +471,34 @@ final class Internal
         return Ops::take($t, $index)->mutate($out);
     }
 
+    /** na_rm as a named option, only when set. */
+    public static function naRm(bool $naRm): array
+    {
+        return $naRm ? ['na_rm' => true] : [];
+    }
+
+    /** Options for first(), last() and nth(). */
+    public static function positionOptions(mixed $default, mixed $orderBy, bool $naRm): array
+    {
+        return array_filter(['default' => $default, 'order_by' => $orderBy], fn ($v) => $v !== null) + self::naRm($naRm);
+    }
+
+    /** Options for lag() and lead(). */
+    public static function shiftOptions(int $n, mixed $default, mixed $orderBy): array
+    {
+        return ($n === 1 ? [] : ['n' => $n]) + array_filter(['default' => $default, 'order_by' => $orderBy], fn ($v) => $v !== null);
+    }
     /** when_any() / when_all() with R's three-valued logic. */
     public static function when(array $conditions, bool $naRm, bool $any): Vec
     {
+        if (! $naRm && $conditions !== []) {
+            $out = array_shift($conditions);
+            foreach ($conditions as $c) {
+                $out = self::call($any ? '|' : '&', [$out, $c], columns: [0, 1]);
+            }
+
+            return $out instanceof Vec ? $out : self::call($any ? '|' : '&', [$out, $out], columns: [0, 1]);
+        }
         return new Vec(function (Table $g) use ($conditions, $naRm, $any) {
             $out = array_fill(0, $g->nrow(), ! $any);
             foreach ($conditions as $c) {

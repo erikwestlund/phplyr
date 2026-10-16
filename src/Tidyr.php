@@ -359,7 +359,7 @@ final class Tidyr
         return match (true) {
             $v === null => 'NA',
             \is_bool($v) => $v ? 'TRUE' : 'FALSE',
-            \is_float($v) => fmod($v, 1.0) === 0.0 && abs($v) < 1e15 ? (string) (int) $v : (string) $v,
+            \is_float($v) => fmod($v, 1.0) === 0.0 && \abs($v) < 1e15 ? (string) (int) $v : (string) $v,
             $v instanceof \DateTimeInterface => $v->format('Y-m-d'),
             default => (string) $v,
         };
@@ -368,7 +368,7 @@ final class Tidyr
     /** Wrap a bare pattern in delimiters. */
     public static function regex(string $pattern): string
     {
-        return '/'.str_replace('/', '\/', $pattern).'/u';
+        return '/'.\str_replace('/', '\/', $pattern).'/u';
     }
 
     private static function glue(string $template, array $values): string

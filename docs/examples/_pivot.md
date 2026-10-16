@@ -11,17 +11,17 @@ echo "\n", $long |> pivot_wider(names_from: 'week', values_from: 'points', names
 ```
 
 ```{.text .output}
-# A phibble: 5 × 3
+# A tibble: 5 × 3
   student week  points
-  <chr>   <chr> <int>
-1 ann     1     10
-2 ann     3     30
-3 bob     1     7
-4 bob     2     8
-5 bob     3     9
-# A phibble: 2 × 4
+  <chr>   <chr>  <int>
+1 ann     1         10
+2 ann     3         30
+3 bob     1          7
+4 bob     2          8
+5 bob     3          9
+# A tibble: 2 × 4
   student week_1 week_2 week_3
-  <chr>   <int>  <int>  <int>
-1 ann     10     0      30
-2 bob     7      8      9
+  <chr>    <int>  <int>  <int>
+1 ann         10      0     30
+2 bob          7      8      9
 ```

@@ -69,6 +69,10 @@ also be `col('x')`, another helper, or a row closure. Later arguments are
 values, so a string there is a literal. Wrap it in `col()` to refer to a
 column.
 
+A third form, `col('x')->mul(2)`, builds an inspectable expression. Expressions
+behave like the helpers in memory, and they let the same pipeline run as SQL on
+a database table. See [Databases and expressions](reference/databases.qmd).
+
 ## Named arguments and options
 
 Verbs that create columns name them with PHP named arguments:

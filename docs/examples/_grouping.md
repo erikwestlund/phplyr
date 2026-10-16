@@ -21,12 +21,12 @@ echo "\n", \count($parts), ' tables; the first has ', $parts[0]->nrow(), " rows\
 ```{.text .output}
 {"groups":["school"],"n_groups":12,"sizes":[18,24,15,22]}
 
-# A phibble: 4 × 6
-  school    study_hours prior_score score  centered rank_in_school
-  <chr>     <dbl>       <dbl>       <dbl>  <dbl>    <int>
-1 school-01 11.58       77.33       78.257 5.34     4
-2 school-01 2.7         51.7        67.242 -5.67    14
-3 school-01 10.02       78.82       88.223 15.31    2
-4 school-01 3.71        45.34       68.546 -4.37    13
+# A tibble: 4 × 6
+  school    study_hours prior_score score centered rank_in_school
+  <chr>           <dbl>       <dbl> <dbl>    <dbl>          <int>
+1 school-01       11.6         77.3  78.3     5.34              4
+2 school-01        2.7         51.7  67.2    -5.67             14
+3 school-01       10.0         78.8  88.2    15.3               2
+4 school-01        3.71        45.3  68.5    -4.37             13
 12 tables; the first has 18 rows
 ```

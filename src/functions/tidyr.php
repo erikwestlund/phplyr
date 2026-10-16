@@ -358,7 +358,7 @@ function separate_wider_position(mixed $cols, array $widths, string $too_few = '
 function separate_wider_regex(mixed $cols, array $patterns, string $too_few = 'error', bool $cols_remove = true): Closure
 {
     $regex = '/^'.implode('', array_map(
-        fn ($name, $p) => \is_string($name) ? '('.str_replace('/', '\/', $p).')' : '(?:'.str_replace('/', '\/', $p).')',
+        fn ($name, $p) => \is_string($name) ? '('.\str_replace('/', '\/', $p).')' : '(?:'.\str_replace('/', '\/', $p).')',
         array_keys($patterns),
         $patterns,
     )).'$/u';

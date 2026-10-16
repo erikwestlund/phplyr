@@ -40,6 +40,10 @@ function filter(mixed ...$conditions): Closure
     $conditions = array_values($conditions);
 
     return fn (Table $t) => Internal::withBy($t, $o['_by'], function (Table $t) use ($conditions) {
+        $expr = Internal::allExpr($conditions);
+        if ($expr !== null) {
+            return $t->filter($expr);
+        }
         if ($conditions !== [] && array_all($conditions, fn ($c) => $c instanceof Closure)) {
             return $t->filter(function ($r, $g) use ($conditions) {
                 foreach ($conditions as $c) {
@@ -74,6 +78,14 @@ function filter_out(mixed ...$conditions): Closure
 {
     [$conditions, $o] = Internal::options($conditions, ['_by' => null], 'filter_out');
     $conditions = array_values($conditions);
+
+    $expr = Internal::allExpr($conditions);
+    if ($expr !== null) {
+        // Keep rows where the conditions are false or NA.
+        $keep = new \Phibble\Expr\Call('if_else', [$expr, new \Phibble\Expr\Lit(false), new \Phibble\Expr\Lit(true)], ['missing' => new \Phibble\Expr\Lit(true)]);
+
+        return fn (Table $t) => Internal::withBy($t, $o['_by'], fn (Table $t) => $t->filter($keep));
+    }
 
     return fn (Table $t) => Internal::withBy($t, $o['_by'], fn (Table $t) => Ops::filterGroups($t, function (Table $g) use ($conditions) {
         $drop = array_fill(0, $g->nrow(), true);
@@ -294,7 +306,8 @@ function count(mixed ...$args): Closure
     return function (Table $t) use ($columns, $wt, $sort, $name) {
         $groups = $t->groups();
         $by = array_values(array_unique([...$groups, ...Selector::select($columns, $t)]));
-        $out = $t->groupBy($by)->summarise([Internal::countName($t, $name) => Internal::tallyOf($wt)]);
+        $grouped = $t->groupBy($by);
+        $out = $grouped->summarise(Internal::summaries($grouped, [Internal::countName($t, $name) => Internal::tallyOf($wt)], 'count'));
         $out = $groups === [] ? $out->ungroup() : $out->groupBy($groups);
 
         return $sort ? $out->arrange([[Internal::countName($t, $name), 'desc']]) : $out;
@@ -306,7 +319,7 @@ function tally(mixed $wt = null, bool $sort = false, ?string $name = null): Clos
 {
     return function (Table $t) use ($wt, $sort, $name) {
         $name = Internal::countName($t, $name);
-        $out = $t->summarise([$name => Internal::tallyOf($wt)]);
+        $out = $t->summarise(Internal::summaries($t, [$name => Internal::tallyOf($wt)], 'tally'));
 
         return $sort ? $out->arrange([[$name, 'desc']]) : $out;
     };
@@ -321,7 +334,7 @@ function add_count(mixed ...$args): Closure
         $groups = $t->groups();
         $by = array_values(array_unique([...$groups, ...Selector::select($columns, $t)]));
         $name = Internal::countName($t, $name);
-        $out = Ops::mutateGroups($t->groupBy($by), [$name => Internal::tallyOf($wt)->fn]);
+        $out = Mutate::run($t->groupBy($by), [$name => Internal::tallyOf($wt)], ['_keep' => 'all', '_before' => null, '_after' => null]);
         $out = $groups === [] ? $out->ungroup() : $out->groupBy($groups);
 
         return $sort ? $out->arrange([[$name, 'desc']]) : $out;
@@ -333,7 +346,7 @@ function add_tally(mixed $wt = null, bool $sort = false, ?string $name = null): 
 {
     return function (Table $t) use ($wt, $sort, $name) {
         $name = Internal::countName($t, $name);
-        $out = Ops::mutateGroups($t, [$name => Internal::tallyOf($wt)->fn]);
+        $out = Mutate::run($t, [$name => Internal::tallyOf($wt)], ['_keep' => 'all', '_before' => null, '_after' => null]);
 
         return $sort ? $out->arrange([[$name, 'desc']]) : $out;
     };

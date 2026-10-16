@@ -27,6 +27,7 @@ website:
           - reference/tidyselect.qmd
           - reference/tidyr.qmd
           - reference/models.qmd
+          - reference/databases.qmd
       - gallery.qmd
       - development.qmd
 

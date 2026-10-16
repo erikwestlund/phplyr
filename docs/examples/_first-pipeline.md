@@ -10,12 +10,12 @@ echo $schools
 ```
 
 ```{.text .output}
-# A phibble: 5 × 4
+# A tibble: 5 × 4
   school    students avg_score sd_score
-  <chr>     <int>    <dbl>     <dbl>
-1 school-07 14       86.8961   6.32256
-2 school-06 20       80.8947   8.9019
-3 school-02 12       79.7081   8.21753
-4 school-09 11       79.2775   6.67328
-5 school-11 13       77.5778   7.31033
+  <chr>        <int>     <dbl>    <dbl>
+1 school-07       14      86.9     6.32
+2 school-06       20      80.9     8.90
+3 school-02       12      79.7     8.22
+4 school-09       11      79.3     6.67
+5 school-11       13      77.6     7.31
 ```

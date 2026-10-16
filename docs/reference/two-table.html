@@ -215,6 +215,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -323,23 +329,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$schools</span> <span class="op">|&gt;</span> inner_join(<span class="va">$districts</span><span class="ot">,</span> by<span class="ot">:</span> [<span class="st">'school'</span> =&gt; <span class="st">'school_id'</span>])<span class="ot">;</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$schools</span> <span class="op">|&gt;</span> left_join(<span class="va">$districts</span><span class="ot">,</span> by<span class="ot">:</span> [<span class="st">'school'</span> =&gt; <span class="st">'school_id'</span>]) <span class="op">|&gt;</span> head(<span class="dv">5</span>)<span class="ot">;</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$districts</span> <span class="op">|&gt;</span> anti_join(<span class="va">$schools</span><span class="ot">,</span> by<span class="ot">:</span> [<span class="st">'school_id'</span> =&gt; <span class="st">'school'</span>])<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 3 × 3
+<pre class="text output"><code># A tibble: 3 × 3
   school    avg_score district
-  &lt;chr&gt;     &lt;dbl&gt;     &lt;chr&gt;
-1 school-01 72.912    North
-2 school-02 72.9044   North
-3 school-03 68.9883   South
-# A phibble: 5 × 3
+  &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;   
+1 school-01      72.9 North   
+2 school-02      72.9 North   
+3 school-03      69.0 South   
+# A tibble: 5 × 3
   school    avg_score district
-  &lt;chr&gt;     &lt;dbl&gt;     &lt;chr&gt;
-1 school-01 72.912    North
-2 school-02 72.9044   North
-3 school-03 68.9883   South
-4 school-04 69.6102   NA
-5 school-05 72.9725   NA
-# A phibble: 1 × 2
+  &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;   
+1 school-01      72.9 North   
+2 school-02      72.9 North   
+3 school-03      69.0 South   
+4 school-04      69.6 &lt;NA&gt;    
+5 school-05      73.0 &lt;NA&gt;    
+# A tibble: 1 × 2
   school_id district
-  &lt;chr&gt;     &lt;chr&gt;
+  &lt;chr&gt;     &lt;chr&gt;   
 1 school-99 East</code></pre>
 <p>The options follow dplyr 1.1:</p>
 <ul>
@@ -358,19 +364,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Keep only the first match, and never match NA keys.</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$x</span> <span class="op">|&gt;</span> left_join(<span class="va">$y</span><span class="ot">,</span> by<span class="ot">:</span> <span class="st">'id'</span><span class="ot">,</span> multiple<span class="ot">:</span> <span class="st">'first'</span><span class="ot">,</span> na_matches<span class="ot">:</span> <span class="st">'never'</span><span class="ot">,</span> suffix<span class="ot">:</span> [<span class="st">'_x'</span><span class="ot">,</span> <span class="st">'_y'</span>])<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 4 × 3
-  id    v.x   v.y
+<pre class="text output"><code># A tibble: 4 × 3
+     id v.x   v.y  
   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;
-1 1     a     NA
-2 2     b     B
-3 2     b     B2
-4 NA    c     C
-# A phibble: 3 × 3
-  id    v_x   v_y
+1     1 a     &lt;NA&gt; 
+2     2 b     B    
+3     2 b     B2   
+4    NA c     C    
+# A tibble: 3 × 3
+     id v_x   v_y  
   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;
-1 1     a     NA
-2 2     b     B
-3 NA    c     NA</code></pre>
+1     1 a     &lt;NA&gt; 
+2     2 b     B    
+3    NA c     &lt;NA&gt;</code></pre>
 <p>Joins keep x’s grouping, except for a grouping column that the join renames.</p>
 </section>
 <section id="binding" class="level2">
@@ -381,15 +387,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$a</span> <span class="op">|&gt;</span> bind_rows(<span class="va">$b</span><span class="ot">,</span> _id<span class="ot">:</span> <span class="st">'source'</span>)<span class="ot">;</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$a</span> <span class="op">|&gt;</span> bind_cols(Frame::fromRows([[<span class="st">'id'</span> =&gt; <span class="dv">10</span>]]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 2 × 4
-  source id    v     w
+<pre class="text output"><code># A tibble: 2 × 4
+  source    id v     w    
   &lt;chr&gt;  &lt;int&gt; &lt;chr&gt; &lt;lgl&gt;
-1 1      1     a     NA
-2 2      2     NA    TRUE
-# A phibble: 1 × 3
+1 1          1 a     NA   
+2 2          2 &lt;NA&gt;  TRUE 
+# A tibble: 1 × 3
   id...1 v     id...3
-  &lt;int&gt;  &lt;chr&gt; &lt;int&gt;
-1 1      a     10</code></pre>
+   &lt;int&gt; &lt;chr&gt;  &lt;int&gt;
+1      1 a         10</code></pre>
 </section>
 <section id="set-operations-and-row-updates" class="level2">
 <h2 class="anchored" data-anchor-id="set-operations-and-row-updates">Set operations and row updates</h2>
@@ -414,24 +420,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$stock</span> <span class="op">|&gt;</span> rows_upsert(<span class="va">$delivery</span><span class="ot">,</span> by<span class="ot">:</span> <span class="st">'sku'</span>)<span class="ot">;</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$stock</span> <span class="op">|&gt;</span> rows_patch(<span class="va">$delivery</span><span class="ot">,</span> by<span class="ot">:</span> <span class="st">'sku'</span><span class="ot">,</span> unmatched<span class="ot">:</span> <span class="st">'ignore'</span>)<span class="ot">;</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$stock</span> <span class="op">|&gt;</span> setdiff(Frame::fromRows([[<span class="st">'sku'</span> =&gt; <span class="st">'C3'</span><span class="ot">,</span> <span class="st">'qty'</span> =&gt; <span class="dv">0</span>]]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 4 × 2
-  sku   qty
+<pre class="text output"><code># A tibble: 4 × 2
+  sku     qty
   &lt;chr&gt; &lt;int&gt;
-1 A1    5
-2 B2    12
-3 C3    0
-4 D4    3
-# A phibble: 3 × 2
-  sku   qty
+1 A1        5
+2 B2       12
+3 C3        0
+4 D4        3
+# A tibble: 3 × 2
+  sku     qty
   &lt;chr&gt; &lt;int&gt;
-1 A1    5
-2 B2    12
-3 C3    0
-# A phibble: 2 × 2
-  sku   qty
+1 A1        5
+2 B2       12
+3 C3        0
+# A tibble: 2 × 2
+  sku     qty
   &lt;chr&gt; &lt;int&gt;
-1 A1    5
-2 B2    NA</code></pre>
+1 A1        5
+2 B2       NA</code></pre>
 
 
 </section>

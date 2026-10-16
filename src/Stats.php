@@ -74,7 +74,7 @@ final class Stats
         }
         $var = self::var($values, $naRm);
 
-        return $var === null ? null : sqrt($var);
+        return $var === null ? null : \sqrt($var);
     }
 
     /** @param list<mixed> $values */
@@ -165,7 +165,7 @@ final class Stats
     {
         sort($values);
         $h = (\count($values) - 1) * $p;
-        $lo = (int) floor($h);
+        $lo = (int) \floor($h);
         $hi = (int) ceil($h);
 
         return $values[$lo] + ($h - $lo) * ($values[$hi] - $values[$lo]);

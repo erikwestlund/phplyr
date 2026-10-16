@@ -215,6 +215,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Models</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/databases.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases and expressions</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -281,19 +287,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$long</span><span class="ot">;</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$long</span> <span class="op">|&gt;</span> pivot_wider(names_from<span class="ot">:</span> <span class="st">'week'</span><span class="ot">,</span> values_from<span class="ot">:</span> <span class="st">'points'</span><span class="ot">,</span> names_prefix<span class="ot">:</span> <span class="st">'week_'</span><span class="ot">,</span> values_fill<span class="ot">:</span> <span class="dv">0</span><span class="ot">,</span> names_sort<span class="ot">:</span> <span class="kw">true</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 5 × 3
+<pre class="text output"><code># A tibble: 5 × 3
   student week  points
-  &lt;chr&gt;   &lt;chr&gt; &lt;int&gt;
-1 ann     1     10
-2 ann     3     30
-3 bob     1     7
-4 bob     2     8
-5 bob     3     9
-# A phibble: 2 × 4
+  &lt;chr&gt;   &lt;chr&gt;  &lt;int&gt;
+1 ann     1         10
+2 ann     3         30
+3 bob     1          7
+4 bob     2          8
+5 bob     3          9
+# A tibble: 2 × 4
   student week_1 week_2 week_3
-  &lt;chr&gt;   &lt;int&gt;  &lt;int&gt;  &lt;int&gt;
-1 ann     10     0      30
-2 bob     7      8      9</code></pre>
+  &lt;chr&gt;    &lt;int&gt;  &lt;int&gt;  &lt;int&gt;
+1 ann         10      0     30
+2 bob          7      8      9</code></pre>
 </section>
 <section id="missing-combinations-and-values" class="level2">
 <h2 class="anchored" data-anchor-id="missing-combinations-and-values">Missing combinations and values</h2>
@@ -304,15 +310,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'shop'</span> =&gt; <span class="st">'south'</span><span class="ot">,</span> <span class="st">'month'</span> =&gt; <span class="dv">2</span><span class="ot">,</span> <span class="st">'sales'</span> =&gt; <span class="dv">7</span>]<span class="ot">,</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>])</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> complete(<span class="st">'shop'</span><span class="ot">,</span> month<span class="ot">:</span> [<span class="dv">1</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="dv">3</span>]<span class="ot">,</span> fill<span class="ot">:</span> [<span class="st">'sales'</span> =&gt; <span class="dv">0</span>])<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 6 × 3
+<pre class="text output"><code># A tibble: 6 × 3
   shop  month sales
   &lt;chr&gt; &lt;int&gt; &lt;int&gt;
-1 north 1     10
-2 north 2     0
-3 north 3     12
-4 south 1     0
-5 south 2     7
-6 south 3     0</code></pre>
+1 north     1    10
+2 north     2     0
+3 north     3    12
+4 south     1     0
+5 south     2     7
+6 south     3     0</code></pre>
 <p><code>fill()</code> carries values down or up over NA within groups (<code>_direction: 'down' | 'up' | 'downup' | 'updown'</code>). <code>drop_na()</code> drops rows with NA in the given columns, and <code>replace_na()</code> replaces NA per column.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> Frame::fromRows([</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'quarter'</span> =&gt; <span class="st">'Q1'</span><span class="ot">,</span> <span class="st">'year'</span> =&gt; <span class="dv">2024</span><span class="ot">,</span> <span class="st">'sales'</span> =&gt; <span class="dv">10</span>]<span class="ot">,</span></span>
@@ -321,12 +327,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>])</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> fill(<span class="st">'year'</span>)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> replace_na([<span class="st">'sales'</span> =&gt; <span class="dv">0</span>])<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 3 × 3
-  quarter year  sales
+<pre class="text output"><code># A tibble: 3 × 3
+  quarter  year sales
   &lt;chr&gt;   &lt;int&gt; &lt;int&gt;
-1 Q1      2024  10
-2 Q2      2024  0
-3 Q3      2024  14</code></pre>
+1 Q1       2024    10
+2 Q2       2024     0
+3 Q3       2024    14</code></pre>
 </section>
 <section id="splitting-and-combining" class="level2">
 <h2 class="anchored" data-anchor-id="splitting-and-combining">Splitting and combining</h2>
@@ -389,20 +395,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$t</span> <span class="op">|&gt;</span> separate_wider_delim(<span class="st">'name'</span><span class="ot">,</span> <span class="st">' '</span><span class="ot">,</span> names<span class="ot">:</span> [<span class="st">'first'</span><span class="ot">,</span> <span class="st">'last'</span>])<span class="ot">;</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$t</span> <span class="op">|&gt;</span> select(<span class="st">'id'</span><span class="ot">,</span> <span class="st">'tags'</span>) <span class="op">|&gt;</span> separate_longer_delim(<span class="st">'tags'</span><span class="ot">,</span> <span class="st">','</span>)<span class="ot">;</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$t</span> <span class="op">|&gt;</span> select(<span class="st">'id'</span><span class="ot">,</span> <span class="st">'name'</span>) <span class="op">|&gt;</span> unite(<span class="st">'label'</span><span class="ot">,</span> <span class="st">'id'</span><span class="ot">,</span> <span class="st">'name'</span><span class="ot">,</span> sep<span class="ot">:</span> <span class="st">': '</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<pre class="text output"><code># A phibble: 2 × 4
-  id    first last     tags
-  &lt;int&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;
-1 1     Ada   Lovelace math,code
-2 2     Grace Hopper   navy
-# A phibble: 3 × 2
-  id    tags
+<pre class="text output"><code># A tibble: 2 × 4
+     id first last     tags     
+  &lt;int&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;    
+1     1 Ada   Lovelace math,code
+2     2 Grace Hopper   navy     
+# A tibble: 3 × 2
+     id tags 
   &lt;int&gt; &lt;chr&gt;
-1 1     math
-2 1     code
-3 2     navy
-# A phibble: 2 × 1
-  label
-  &lt;chr&gt;
+1     1 math 
+2     1 code 
+3     2 navy 
+# A tibble: 2 × 1
+  label          
+  &lt;chr&gt;          
 1 1: Ada Lovelace
 2 2: Grace Hopper</code></pre>
 

@@ -9,10 +9,10 @@ echo Frame::fromRows([
 ```
 
 ```{.text .output}
-# A phibble: 3 × 3
-  quarter year  sales
+# A tibble: 3 × 3
+  quarter  year sales
   <chr>   <int> <int>
-1 Q1      2024  10
-2 Q2      2024  0
-3 Q3      2024  14
+1 Q1       2024    10
+2 Q2       2024     0
+3 Q3       2024    14
 ```

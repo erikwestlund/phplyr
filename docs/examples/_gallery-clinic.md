@@ -13,10 +13,10 @@ echo Frame::fromCsv('clinic.csv')
 ```
 
 ```{.text .output}
-# A phibble: 3 × 3
-  staffing busy  quiet
+# A tibble: 3 × 3
+  staffing  busy quiet
   <chr>    <dbl> <dbl>
-1 low      NA    1.9
-2 mid      1.79  1.64
-3 high     1.8   NA
+1 low      NA     1.9 
+2 mid       1.79  1.64
+3 high      1.8  NA
 ```

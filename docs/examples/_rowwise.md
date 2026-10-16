@@ -11,10 +11,10 @@ echo Frame::fromRows([
 ```
 
 ```{.text .output}
-# A phibble: 2 × 2
-# Groups: id [2]
+# A tibble: 2 × 2
+# Groups:   id [2]
   id    total
   <chr> <int>
-1 a     8
-2 b     7
+1 a         8
+2 b         7
 ```

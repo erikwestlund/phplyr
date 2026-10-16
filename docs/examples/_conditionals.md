@@ -15,11 +15,11 @@ echo Frame::fromRows([
 ```
 
 ```{.text .output}
-# A phibble: 4 × 6
+# A tibble: 4 × 6
   state visits name           busy  capped any_flag
-  <chr> <int>  <chr>          <chr> <int>  <lgl>
-1 NC    3      North Carolina no    3      FALSE
-2 NYC   0      New York       no    0      TRUE
-3 CA    12     other          yes   10     TRUE
-4 NA    0      other          no    0      TRUE
+  <chr>  <int> <chr>          <chr>  <int> <lgl>   
+1 NC         3 North Carolina no         3 FALSE   
+2 NYC        0 New York       no         0 TRUE    
+3 CA        12 other          yes       10 TRUE    
+4 <NA>       0 other          no         0 TRUE
 ```
