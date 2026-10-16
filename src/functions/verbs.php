@@ -248,7 +248,7 @@ function ungroup(mixed ...$columns): Closure
         $drop = Selector::select($columns, $t);
         $keep = array_values(array_diff($t->groups(), $drop));
 
-        return $keep === [] ? $t->ungroup() : $t->groupBy($keep);
+        return Internal::regroup($t, $keep, $t);
     };
 }
 
@@ -317,10 +317,11 @@ function count(mixed ...$args): Closure
         $groups = $t->groups();
         $by = array_values(array_unique([...$groups, ...Selector::select($columns, $t)]));
         $grouped = Internal::regroup($t, $by, $t);
-        $out = $grouped->summarise(Internal::summaries($grouped, [Internal::countName($t, $name) => Internal::tallyOf($wt)], 'count'));
+        $name = Internal::countName($t, $name, $by);
+        $out = $grouped->summarise(Internal::summaries($grouped, [$name => Internal::tallyOf($wt)], 'count'));
         $out = Internal::regroup($out, $groups, $t);
 
-        return $sort ? $out->arrange([[Internal::countName($t, $name), 'desc']]) : $out;
+        return $sort ? $out->arrange([[$name, 'desc']]) : $out;
     };
 }
 
@@ -328,7 +329,7 @@ function count(mixed ...$args): Closure
 function tally(mixed $wt = null, bool $sort = false, ?string $name = null): Closure
 {
     return function (Table $t) use ($wt, $sort, $name) {
-        $name = Internal::countName($t, $name);
+        $name = Internal::countName($t, $name, $t->groups());
         $out = $t->summarise(Internal::summaries($t, [$name => Internal::tallyOf($wt)], 'tally'));
 
         return $sort ? $out->arrange([[$name, 'desc']]) : $out;

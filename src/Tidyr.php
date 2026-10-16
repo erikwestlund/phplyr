@@ -82,17 +82,7 @@ final class Tidyr
         if ($valuesFn === null) {
             $keys = $t->ungroup()->select($namesFrom)->distinct()->toRows();
             if ($namesSort) {
-                usort($keys, function (array $a, array $b) {
-                    foreach ($a as $col => $x) {
-                        $y = $b[$col];
-                        $c = $x === null || $y === null ? ($x === null) <=> ($y === null) : Window::compare($x, $y);
-                        if ($c !== 0) {
-                            return $c;
-                        }
-                    }
-
-                    return 0;
-                });
+                usort($keys, self::nameOrder($t, $namesFrom));
             }
             $spec = [];
             foreach ($valuesFrom as $vc) {
@@ -130,16 +120,7 @@ final class Tidyr
             }
         }
         if ($namesSort) {
-            uasort($colKeys, function (array $a, array $b) {
-                foreach ($a as $j => $x) {
-                    $c = $x === null || $b[$j] === null ? ($x === null) <=> ($b[$j] === null) : Window::compare($x, $b[$j]);
-                    if ($c !== 0) {
-                        return $c;
-                    }
-                }
-
-                return 0;
-            });
+            uasort($colKeys, self::nameOrder($t, $namesFrom));
         }
 
         $out = [];
@@ -177,6 +158,37 @@ final class Tidyr
         return Ops::take($t->select($idCols), $first)->mutate($out);
     }
 
+    /**
+     * names_sort's order for names_from combinations (positional lists or
+     * keyed by column): values ascending, factors by level, NA last.
+     */
+    private static function nameOrder(Table $t, array $namesFrom): Closure
+    {
+        $levels = [];
+        foreach ($namesFrom as $col) {
+            if (($t->types()[$col] ?? null) === Type::Factor) {
+                $levels[$col] = array_flip($t->collect()->levels($col));
+            }
+        }
+
+        return function (array $a, array $b) use ($namesFrom, $levels) {
+            $a = array_values($a);
+            $b = array_values($b);
+            foreach ($namesFrom as $j => $col) {
+                [$x, $y] = [$a[$j], $b[$j]];
+                if (isset($levels[$col]) && $x !== null && $y !== null) {
+                    [$x, $y] = [$levels[$col][$x] ?? -1, $levels[$col][$y] ?? -1];
+                }
+                $c = $x === null || $y === null ? ($x === null) <=> ($y === null) : Window::compare($x, $y);
+                if ($c !== 0) {
+                    return $c;
+                }
+            }
+
+            return 0;
+        };
+    }
+
     /** A pivot_wider() column name, as tidyr builds it. */
     private static function wideName(string $vc, array $parts, array $key, array $namesFrom, array $valuesFrom, string $namesPrefix, string $namesSep, ?string $namesGlue): string
     {
@@ -211,6 +223,12 @@ final class Tidyr
             $keys = Ops::take($g->select($groups), array_fill(0, $exp->nrow(), 0));
             $parts[] = Frame::bindCols([$keys, $exp]);
         }
+        if ($parts === []) {
+            // No groups: the key columns and the expanded columns, with no rows.
+            $exp = self::expandOne($t->ungroup(), $items);
+
+            return Frame::bindCols([Ops::take($t->ungroup()->select($groups), []), Ops::take($exp, [])])->groupBy($groups);
+        }
 
         return Frame::concat($parts)->groupBy($groups);
     }
@@ -233,6 +251,9 @@ final class Tidyr
             }
             $parts[] = $joined;
         }
+        if ($parts === []) {
+            return $t;
+        }
         $out = \count($parts) === 1 ? $parts[0] : Frame::concat($parts);
 
         $present = $out->column(self::PRESENT);
@@ -252,14 +273,19 @@ final class Tidyr
     private static function expandOne(Table $t, array $items): Table
     {
         $sets = [];
+        $names = [];
         foreach ($items as $key => $item) {
             if ($item instanceof Nesting) {
-                $sets[] = self::uniqueRows($t, Selector::select($item->columns, $t));
+                $cols = Selector::select($item->columns, $t);
+                $names = [...$names, ...$cols];
+                $sets[] = self::uniqueRows($t, $cols);
             } elseif (\is_string($key)) {
+                $names[] = $key;
                 $sets[] = array_map(fn ($v) => [$key => $v], self::sortedUnique(array_values((array) $item)));
             } else {
                 // A selection of several columns crosses them one by one.
                 foreach (Selector::select([$item], $t) as $c) {
+                    $names[] = $c;
                     $sets[] = array_map(fn ($v) => [$c => $v], self::levelsOrValues($t, $c));
                 }
             }
@@ -274,7 +300,6 @@ final class Tidyr
             }
             $rows = $next;
         }
-        $names = array_keys($rows[0] ?? []);
         $columns = [];
         foreach ($names as $name) {
             $columns[$name] = array_column($rows, $name);
@@ -381,10 +406,44 @@ final class Tidyr
         return match (true) {
             $v === null => 'NA',
             \is_bool($v) => $v ? 'TRUE' : 'FALSE',
-            \is_float($v) => fmod($v, 1.0) === 0.0 && \abs($v) < 1e15 ? (string) (int) $v : (string) $v,
+            \is_float($v) => self::double($v),
             $v instanceof \DateTimeInterface => $v->format('Y-m-d'),
             default => (string) $v,
         };
+    }
+
+    /**
+     * A double as R's as.character() writes it: 15 significant digits, in
+     * fixed notation unless scientific notation is shorter.
+     */
+    public static function double(float $v): string
+    {
+        if (is_nan($v)) {
+            return 'NaN';
+        }
+        if (is_infinite($v)) {
+            return $v > 0 ? 'Inf' : '-Inf';
+        }
+        if ($v == 0.0) {
+            return '0';
+        }
+        [$mantissa, $exp] = explode('e', sprintf('%.14e', $v));
+        $exp = (int) $exp;
+        $digits = rtrim(\str_replace(['-', '.'], '', $mantissa), '0');
+        $sign = $v < 0 ? '-' : '';
+        $n = \strlen($digits);
+        $sci = $sign.$digits[0].($n > 1 ? '.'.substr($digits, 1) : '')
+            .'e'.($exp < 0 ? '-' : '+').\str_pad((string) \abs($exp), 2, '0', STR_PAD_LEFT);
+        if ($exp >= 0) {
+            $int = $n > $exp + 1 ? substr($digits, 0, $exp + 1) : \str_pad($digits, $exp + 1, '0');
+            $frac = $n > $exp + 1 ? substr($digits, $exp + 1) : '';
+        } else {
+            $int = '0';
+            $frac = str_repeat('0', -$exp - 1).$digits;
+        }
+        $fixed = $sign.$int.($frac === '' ? '' : '.'.$frac);
+
+        return \strlen($fixed) <= \strlen($sci) ? $fixed : $sci;
     }
 
     /** Wrap a bare pattern in delimiters. */
@@ -401,7 +460,8 @@ final class Tidyr
     /** @return list<?string> */
     private static function sepPieces(string $name, string $sep, int $n): array
     {
-        $pieces = preg_split(self::regex($sep), $name, $n);
+        // Extra pieces are dropped, as in tidyr.
+        $pieces = \array_slice(preg_split(self::regex($sep), $name), 0, $n);
 
         return array_pad($pieces, $n, null);
     }

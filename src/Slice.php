@@ -45,7 +45,9 @@ final class Slice
 
     public static function extreme(Table $t, mixed $orderBy, bool $max, ?int $n, ?float $prop, bool $withTies, bool $naRm): Table
     {
-        $values = self::lookup($t, $orderBy);
+        [$orderBy, $reverse] = Internal::direction($orderBy);
+        $max = $max !== $reverse;
+        $values = self::lookup($t, $orderBy, ordinal: true);
 
         return self::byGroup($t, function (array $rows, Closure $group) use ($values, $max, $n, $prop, $withTies, $naRm) {
             $v = $values($rows, $group);
@@ -78,13 +80,19 @@ final class Slice
 
         return self::byGroup($t, function (array $rows, Closure $group) use ($n, $prop, $replace, $weights) {
             $m = \count($rows);
-            $size = $replace && $n !== null ? \max(0, $n) : self::size($m, $n, $prop);
+            $size = $replace
+                ? \max(0, $n ?? ($prop !== null ? (int) \floor($prop * $m) : 1))
+                : self::size($m, $n, $prop);
             if ($m === 0) {
                 return [];
             }
             $w = $weights === null ? array_fill(0, $m, 1.0) : array_map(fn ($x) => (float) ($x ?? 0), $weights($rows, $group));
             $picked = [];
-            $available = range(0, $m - 1);
+            // Rows with zero weight are never drawn, as in R's sample().
+            $available = array_values(array_filter(range(0, $m - 1), fn ($i) => $w[$i] > 0));
+            if ($available === [] && $size > 0 || (! $replace && $size > \count($available))) {
+                throw new \InvalidArgumentException('slice_sample(): too few rows with positive weight to draw '.$size.'.');
+            }
             for ($k = 0; $k < $size && $available !== []; $k++) {
                 $total = 0.0;
                 foreach ($available as $i) {
@@ -129,10 +137,13 @@ final class Slice
      *
      * @return Closure(list<int>, Closure(): Table): list<mixed>
      */
-    private static function lookup(Table $t, mixed $x): Closure
+    private static function lookup(Table $t, mixed $x, bool $ordinal = false): Closure
     {
         if (\is_string($x)) {
             $column = $t->column($x);
+            if ($ordinal) {
+                $column = Internal::ordinal($t, $x, $column);
+            }
 
             return fn (array $rows) => array_map(fn ($i) => $column[$i], $rows);
         }

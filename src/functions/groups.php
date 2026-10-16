@@ -21,7 +21,7 @@ function group_vars(): Closure
 /** The number of groups (1 for an ungrouped table). */
 function n_groups(): Closure
 {
-    return fn (Table $t) => \count(Ops::groupIndex($t)) ?: 1;
+    return fn (Table $t) => \count(Ops::groupIndex($t));
 }
 
 /** Rows in each group, in group order. */
@@ -174,7 +174,7 @@ function bind_cols(Table ...$tables): Closure
             $frames[] = $map === [] ? $t->collect() : $t->collect()->rename($map);
         }
         if (method_exists(Frame::class, 'bindCols')) {
-            return Frame::bindCols($frames)->groupBy($x->groups());
+            return Ops::regroupLike(Frame::bindCols($frames), $x);
         }
         $out = array_shift($frames);
         foreach ($frames as $f) {

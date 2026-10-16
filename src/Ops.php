@@ -147,22 +147,28 @@ final class Ops
      */
     public static function groupRows(Table $t): array
     {
-        $tagged = $t->mutate([self::ROW => range(0, \max(0, $t->nrow() - 1))]);
-        if ($t->nrow() === 0) {
-            return [];
-        }
+        $ungrouped = $t->ungroup();
         $out = [];
-        foreach ($tagged->eachGroup() as ['key' => $key, 'table' => $g]) {
-            $out[] = [
-                'key' => $key,
-                'table' => $g->select(array_values(array_diff($g->columns(), [self::ROW]))),
-                'rows' => $g->column(self::ROW),
-            ];
+        foreach (self::groupIndex($t) as ['key' => $key, 'rows' => $rows]) {
+            $out[] = ['key' => $key, 'table' => self::take($ungrouped, $rows), 'rows' => $rows];
         }
 
         return $out;
     }
 
+    /**
+     * $out regrouped the way $like is grouped: the same columns, rowwise
+     * status and _drop setting, keeping only grouping columns $out still has.
+     */
+    public static function regroupLike(Table $out, Table $like): Table
+    {
+        $groups = array_values(array_intersect($like->groups(), $out->columns()));
+        if (method_exists($like, 'isRowwise') && $like->isRowwise()) {
+            return $out->rowwise($groups);
+        }
+
+        return Internal::regroup($out, $groups, $like);
+    }
     /**
      * Evaluate a per-group closure and put its values back in row order.
      *

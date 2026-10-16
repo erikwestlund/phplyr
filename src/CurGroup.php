@@ -32,22 +32,19 @@ final readonly class CurGroup
     }
 
     /**
-     * A closure for summarise() / reframe() that finds the group from its
-     * key values: the group number, or the group's row numbers.
+     * A closure for summarise() / reframe(). Tables visit groups in
+     * eachGroup() order, so the n-th call is the n-th group: its number, or
+     * its row numbers.
      */
     public function perGroup(\Phibble\Contracts\Table $t): \Closure
     {
-        $groups = $t->groups();
-        $index = [];
-        foreach (Ops::groupIndex($t) as $i => $g) {
-            $key = implode("\x1f", array_map(Internal::key(...), array_values($g['key'])));
-            $index[$key] = $this->kind === 'id' ? $i + 1 : array_map(fn ($r) => $r + 1, $g['rows']);
-        }
+        $groups = Ops::groupIndex($t);
+        $i = 0;
 
-        return function (\Phibble\Contracts\Table $g) use ($groups, $index) {
-            $key = implode("\x1f", array_map(fn ($c) => Internal::key($g->column($c)[0] ?? null), $groups));
+        return function () use ($groups, &$i) {
+            $g = $groups[$i++] ?? null;
 
-            return $index[$key] ?? ($this->kind === 'id' ? 1 : []);
+            return $this->kind === 'id' ? $i : array_map(fn ($r) => $r + 1, $g['rows'] ?? []);
         };
     }
 }

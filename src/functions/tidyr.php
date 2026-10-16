@@ -106,7 +106,7 @@ function fill(mixed ...$cols): Closure
                 $down = function (array $v) {
                     $last = null;
                     foreach ($v as $i => $x) {
-                        $x === null ? $v[$i] = $last : $last = $x;
+                        $x === null || (\is_float($x) && is_nan($x)) ? $v[$i] = $last : $last = $x;
                     }
 
                     return $v;
@@ -135,7 +135,7 @@ function drop_na(mixed ...$cols): Closure
 
         return $t->filter(function ($r) use ($names) {
             foreach ($names as $c) {
-                if ($r[$c] === null) {
+                if ($r[$c] === null || (\is_float($r[$c]) && is_nan($r[$c]))) {
                     return false;
                 }
             }
@@ -151,7 +151,7 @@ function replace_na(array $replace): Closure
     return function (Table $t) use ($replace) {
         $defs = [];
         foreach ($replace as $col => $value) {
-            $defs[$col] = array_map(fn ($v) => $v ?? $value, $t->column($col));
+            $defs[$col] = array_map(fn ($v) => $v === null || (\is_float($v) && is_nan($v)) ? $value : $v, $t->column($col));
         }
 
         return $t->mutate($defs);
@@ -237,14 +237,14 @@ function separate(string $col, array $into, string|int|array $sep = '[^[:alnum:]
             if (\is_string($sep)) {
                 $p = preg_split(Tidyr::regex($sep), $v, $extra === 'merge' ? $k : -1);
             } else {
-                $cuts = array_map(fn ($c) => $c < 0 ? \max(0, \strlen($v) + $c) : $c, (array) $sep);
+                $cuts = array_map(fn ($c) => $c < 0 ? \max(0, mb_strlen($v) + $c) : $c, (array) $sep);
                 $p = [];
                 $start = 0;
                 foreach ($cuts as $cut) {
-                    $p[] = substr($v, $start, \max(0, $cut - $start));
+                    $p[] = mb_substr($v, $start, \max(0, $cut - $start));
                     $start = $cut;
                 }
-                $p[] = substr($v, $start);
+                $p[] = mb_substr($v, $start);
             }
             $p = \array_slice($p, 0, $k);
             if (\count($p) < $k) {
@@ -331,13 +331,13 @@ function separate_wider_position(mixed $cols, array $widths, string $too_few = '
             $new = array_fill_keys(array_filter(array_keys($widths), 'is_string'), []);
             foreach ($t->column($col) as $i => $v) {
                 $v = $v === null ? null : Tidyr::str($v);
-                if ($v !== null && \strlen($v) < $total && $too_few === 'error') {
+                if ($v !== null && mb_strlen($v) < $total && $too_few === 'error') {
                     throw new \UnexpectedValueException("separate_wider_position(): row ".($i + 1)." of '{$col}' is shorter than {$total} characters. Use too_few: 'align_start'.");
                 }
                 $pos = 0;
                 foreach ($widths as $name => $w) {
                     if (\is_string($name)) {
-                        $piece = $v === null ? null : substr($v, $pos, $w);
+                        $piece = $v === null ? null : mb_substr($v, $pos, $w);
                         $new[$name][] = $piece === '' ? null : $piece;
                     }
                     $pos += $w;
@@ -357,20 +357,31 @@ function separate_wider_position(mixed $cols, array $widths, string $too_few = '
  */
 function separate_wider_regex(mixed $cols, array $patterns, string $too_few = 'error', bool $cols_remove = true): Closure
 {
-    $regex = '/^'.implode('', array_map(
-        fn ($name, $p) => \is_string($name) ? '('.\str_replace('/', '\/', $p).')' : '(?:'.\str_replace('/', '\/', $p).')',
-        array_keys($patterns),
-        $patterns,
-    )).'$/u';
-    $names = array_values(array_filter(array_keys($patterns), 'is_string'));
+    $piece = fn ($name, $p) => \is_string($name) ? '('.\str_replace('/', '\/', $p).')' : '(?:'.\str_replace('/', '\/', $p).')';
+    $keys = array_keys($patterns);
+    // The full pattern, then shorter prefixes of it for too_few: 'align_start'.
+    $regexes = [];
+    for ($k = \count($patterns); $k >= 1; $k--) {
+        $regexes[] = '/^'.implode('', array_map($piece, \array_slice($keys, 0, $k), \array_slice($patterns, 0, $k))).'$/u';
+    }
+    $names = array_values(array_filter($keys, 'is_string'));
 
-    return function (Table $t) use ($cols, $regex, $names, $too_few, $cols_remove) {
+    return function (Table $t) use ($cols, $regexes, $names, $too_few, $cols_remove) {
         foreach (Selector::select([$cols], $t) as $col) {
             $new = array_fill_keys($names, []);
             foreach ($t->column($col) as $i => $v) {
                 $m = [];
-                if ($v !== null && preg_match($regex, Tidyr::str($v), $m) !== 1 && $too_few === 'error') {
-                    throw new \UnexpectedValueException("separate_wider_regex(): row ".($i + 1)." of '{$col}' doesn't match. Use too_few: 'align_start'.");
+                if ($v !== null) {
+                    $text = Tidyr::str($v);
+                    foreach ($too_few === 'align_start' ? $regexes : [$regexes[0]] as $regex) {
+                        if (preg_match($regex, $text, $m) === 1) {
+                            break;
+                        }
+                        $m = [];
+                    }
+                    if ($m === [] && $too_few === 'error') {
+                        throw new \UnexpectedValueException('separate_wider_regex(): row '.($i + 1)." of '{$col}' doesn't match. Use too_few: 'align_start'.");
+                    }
                 }
                 foreach ($names as $j => $name) {
                     $new[$name][] = $m[$j + 1] ?? null;
@@ -395,7 +406,7 @@ function separate_longer_delim(mixed $cols, string $delim): Closure
 /** Split columns into rows of $width characters. */
 function separate_longer_position(mixed $cols, int $width): Closure
 {
-    return fn (Table $t) => Internal::longer($t, $cols, fn (string $v) => $v === '' ? [''] : \str_split($v, $width));
+    return fn (Table $t) => Internal::longer($t, $cols, fn (string $v) => $v === '' ? [''] : mb_str_split($v, $width));
 }
 
 /**

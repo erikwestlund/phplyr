@@ -179,7 +179,7 @@ final class Internal
         return match (true) {
             $value === null => "\0NA",
             \is_bool($value) => 'b'.(int) $value,
-            \is_int($value), \is_float($value) => 'n'.var_export((float) $value, true),
+            \is_int($value), \is_float($value) => 'n'.var_export((float) $value == 0.0 ? 0.0 : (float) $value, true),
             \is_string($value) => 's'.$value,
             default => 'o'.serialize($value),
         };
@@ -283,12 +283,13 @@ final class Internal
             $temp[] = $name;
             $sort[] = [$name, $desc ? 'desc' : 'asc'];
         }
-        $out = $work->arrange($sort);
-        if ($temp !== []) {
-            $out = $out->select(array_values(array_diff($out->columns(), $temp)));
+        if ($temp === []) {
+            return $t->arrange($sort);
         }
+        $out = $work->arrange($sort);
+        $out = $out->select(array_values(array_diff($out->columns(), $temp)));
 
-        return $groups === [] ? $out : $out->groupBy($groups);
+        return Ops::regroupLike($out, $t);
     }
 
     /**
@@ -311,6 +312,13 @@ final class Internal
             if (\is_int($key)) {
                 throw new \InvalidArgumentException("{$verb}() needs named arguments, for example {$verb}(total: ...), or across(...).");
             }
+            $expr = $def instanceof Vec ? $def->expr : ($def instanceof Expr\Expr ? $def : null);
+            $refs = $expr === null ? [] : array_values(array_intersect($expr->columns(), array_keys($out)));
+            if ($refs !== []) {
+                $out[$key] = self::dependent($expr, array_intersect_key($out, array_flip($refs)), $key, $verb);
+
+                continue;
+            }
             $out[$key] = match (true) {
                 $def instanceof CurGroup => $def->kind === 'id'
                     ? $def->perGroup($t)
@@ -323,6 +331,34 @@ final class Internal
         }
 
         return $out;
+    }
+
+    /**
+     * A summary that refers to earlier summaries in the same call, such as
+     * summarise(s: sum('x'), t: col('s')->mul(2)). The earlier values are
+     * computed for the group and added as columns before $expr is evaluated.
+     *
+     * @param array<string, Expr\Expr|Closure> $earlier
+     */
+    private static function dependent(Expr\Expr $expr, array $earlier, string $name, string $verb): Closure
+    {
+        return function (Table $g) use ($expr, $earlier, $name, $verb) {
+            $values = [];
+            foreach ($earlier as $col => $def) {
+                $values[$col] = $def instanceof Expr\Expr ? Vec::evaluate($def, $g) : $def($g);
+            }
+            $value = Vec::evaluate($expr, $g->ungroup()->mutate($values));
+            if (! \is_array($value)) {
+                return $value;
+            }
+            $unique = array_unique(array_map(self::key(...), $value));
+
+            return match (true) {
+                $value === [] => null,
+                \count($unique) === 1 => $value[0],
+                default => throw new \LengthException("{$verb}(): '{$name}' must give one value per group, got ".\count($value).'. Use reframe() for several.'),
+            };
+        };
     }
 
     private static function single(Vec|Closure $def, string $name, string $verb): Closure
@@ -346,7 +382,7 @@ final class Internal
         $groups = $t->groups();
         $parts = [];
         $perGroup = [];
-        foreach (Ops::groupRows($t) as ['table' => $g]) {
+        foreach (Ops::groupRows($t) as ['key' => $groupKey, 'table' => $g]) {
             $values = [];
             foreach ($aggregates as $key => $def) {
                 if ($def instanceof Across) {
@@ -366,16 +402,33 @@ final class Internal
                 };
                 $values[$key] = \is_array($values[$key]) ? array_values($values[$key]) : [$values[$key]];
             }
-            $lengths = array_unique(array_map('count', $values));
-            $len = \count($lengths) === 0 ? 1 : \max($lengths);
+            // dplyr's size rule: results of length 0 and 1 combine to 0 rows.
+            $lengths = array_values(array_unique(array_map('count', $values)));
+            $len = match (true) {
+                $lengths === [] => 1,
+                \in_array(0, $lengths, true) && array_all($lengths, fn ($l) => $l <= 1) => 0,
+                default => \max($lengths),
+            };
             foreach ($values as $name => $v) {
                 $values[$name] = Vec::recycle($v, $len, "reframe() result '{$name}'");
             }
-            $keys = Ops::take($g->select($groups), array_fill(0, $len, 0));
+            if ($groups === []) {
+                $parts[] = Frame::fromColumns($values);
+
+                continue;
+            }
+            $keys = $g->nrow() > 0
+                ? Ops::take($g->select($groups), array_fill(0, $len, 0))
+                : Frame::fromColumns(array_map(fn ($v) => array_fill(0, $len, $v), $groupKey), array_intersect_key($t->types(), $groupKey));
             $parts[] = $keys->ungroup()->mutate($values);
         }
         if ($parts === []) {
-            return $t->select($groups)->ungroup()->head(0);
+            $names = [];
+            foreach ($aggregates as $key => $def) {
+                $names = [...$names, ...($def instanceof Across ? array_keys($def->expand($t, 'summarise')) : [$key])];
+            }
+
+            return Ops::take($t->ungroup()->select($groups), [])->mutate(array_fill_keys($names, []));
         }
 
         return Frame::concat($parts)->ungroup();
@@ -404,14 +457,19 @@ final class Internal
         return [$columns, $wt, $sort, $name];
     }
 
-    /** dplyr's default count column: n, or nn... when n is taken. */
-    public static function countName(Table $t, ?string $name): string
+    /**
+     * dplyr's default count column: n, or nn... when n is taken. count()
+     * and tally() only avoid the output's grouping columns ($taken);
+     * add_count() and add_tally() avoid every column.
+     */
+    public static function countName(Table $t, ?string $name, ?array $taken = null): string
     {
         if ($name !== null) {
             return $name;
         }
+        $taken ??= $t->columns();
         $name = 'n';
-        while (\in_array($name, $t->columns(), true)) {
+        while (\in_array($name, $taken, true)) {
             $name .= 'n';
         }
 
@@ -497,6 +555,22 @@ final class Internal
         }
 
         return $t->groupBy($names);
+    }
+    /**
+     * Values for ordering: a factor's labels become level positions, so
+     * factors sort by level as in R. Other columns are returned as given.
+     *
+     * @param list<mixed> $values
+     * @return list<mixed>
+     */
+    public static function ordinal(Table $t, string $column, array $values): array
+    {
+        if (($t->types()[$column] ?? null) !== \Phibble\Type::Factor) {
+            return $values;
+        }
+        $levels = array_flip($t->collect()->levels($column));
+
+        return array_map(fn ($v) => $v === null ? null : ($levels[$v] ?? null), $values);
     }
     /** na_rm as a named option, only when set. */
     public static function naRm(bool $naRm): array
