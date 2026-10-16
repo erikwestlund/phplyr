@@ -5,7 +5,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
-        "erikwestlund/phibble": "dev-main"
+        "erikwestlund/phibble": "^0.1"
     },
     "require-dev": {
         "pestphp/pest": "^4.0"

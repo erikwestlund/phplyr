@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d18fd8444e285df5fd0d5b62ed8482e9",
+    "content-hash": "beb76513bf9f6159849294994ee78537",
     "packages": [
         {
             "name": "erikwestlund/phibble",
-            "version": "dev-main",
+            "version": "v0.1.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:erikwestlund/phibble.git",
-                "reference": "0a272234aade0e146f3ea7cefc33889389058108"
+                "url": "https://github.com/erikwestlund/phibble.git",
+                "reference": "2a6e457f5e9a255f5b3cd8eb9cdef577593248b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/0a272234aade0e146f3ea7cefc33889389058108",
-                "reference": "0a272234aade0e146f3ea7cefc33889389058108",
+                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/2a6e457f5e9a255f5b3cd8eb9cdef577593248b8",
+                "reference": "2a6e457f5e9a255f5b3cd8eb9cdef577593248b8",
                 "shasum": ""
             },
             "require": {
@@ -33,7 +33,6 @@
                 "ext-pdo_sqlite": "Used by the test suite for the PDO source",
                 "illuminate/database": "Laravel integration: Collection::toFrame() and query builder ->phibble() / ->toFrame() macros (auto-discovered)"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -61,7 +60,11 @@
                 "MIT"
             ],
             "description": "A typed, immutable in-memory data frame for PHP.",
-            "time": "2026-10-16T10:11:45+00:00"
+            "support": {
+                "source": "https://github.com/erikwestlund/phibble/tree/v0.1.0",
+                "issues": "https://github.com/erikwestlund/phibble/issues"
+            },
+            "time": "2026-10-16T10:49:25+00:00"
         }
     ],
     "packages-dev": [
@@ -4237,9 +4240,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "erikwestlund/phibble": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
