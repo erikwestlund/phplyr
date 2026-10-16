@@ -1,0 +1,56 @@
+---
+title: "Porting an R script"
+format:
+  html:
+    page-layout: full
+---
+
+This page takes a typical R analysis of the schools data and translates it to
+PHP with phplyr and php-stats. The analysis reads a CSV file, cleans and
+reshapes it, summarises it, and fits a linear, a logistic, and a
+random-intercept model. Both scripts ran when the documentation was built.
+The output under each script is what it printed.
+
+::: {.columns}
+
+::: {.column width="49%"}
+### R
+
+{{< include examples/port/_analysis-r.md >}}
+:::
+
+::: {.column width="2%"}
+:::
+
+::: {.column width="49%"}
+### PHP
+
+{{< include examples/port/_analysis.md >}}
+:::
+
+:::
+
+## What changed in translation
+
+- **Loading.** `read.csv()` becomes `Frame::fromCsv()`. phibble infers column
+  types like readr.
+- **Pipes.** R's `|>` stays `|>`. Each verb returns a closure that the pipe
+  applies.
+- **Column references.** Bare names become strings, or `col('x')` inside
+  expressions. `score - prior_score` becomes `col('score')->sub(col('prior_score'))`.
+  A row closure, `fn ($r) => $r->score - $r->prior_score`, also works.
+- **Conditions.** `case_when(x < 4 ~ "low", .default = "high")` becomes
+  `case_when([col('x')->lt(4), 'low'], default: 'high')`.
+- **Renaming in select.** `select(prior = prior_score)` becomes
+  `select(['prior' => 'prior_score'])`.
+- **Column sets.** `c(prior, final)` becomes `['prior', 'final']`.
+- **Models.** `lm()`, `glm()`, and `lmer()` take the same formulas. They return
+  arrays with `columns` (R's coefficient names), `coefficients`, standard
+  errors, and fit statistics instead of model objects, so `coef()` and
+  `fixef()` become array reads.
+- **Printing.** Frames print in tibble's format. R rounds printed numbers to
+  significant digits; phibble does the same.
+
+Because the PHP pipeline uses `col()` expressions instead of closures, it also
+runs unchanged on a database table from `Phibble\tbl()`. See
+[Databases and expressions](reference/databases.qmd).

@@ -29,6 +29,7 @@ website:
           - reference/models.qmd
           - reference/databases.qmd
       - gallery.qmd
+      - port-r-script.qmd
       - development.qmd
 
 format:

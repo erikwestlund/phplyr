@@ -9,7 +9,11 @@
  * that would shadow a PHP built-in other than count, min and max (examples
  * import round(), abs() and the like themselves).
  *
- * Usage: bin/docs-examples [name ...]   (PHP and PHP_STATS env vars as in bin/test)
+ * R examples (.R files in docs/examples and its subdirectories) run with Rscript the same way and write
+ * _<name>-r.md, for side-by-side comparisons. Examples in a subdirectory are
+ * named <dir>-<file>.
+ *
+ * Usage: bin/docs-examples [name ...]   (PHP and NO_EXT env vars as in bin/test)
  */
 
 declare(strict_types=1);
@@ -32,8 +36,28 @@ $args = is_file($ext) && getenv('NO_EXT') === false ? ['-d', 'extension='.$ext] 
 
 $only = array_slice($argv, 1);
 $failed = 0;
-foreach (glob($root.'/docs/examples/*.php') as $file) {
-    $name = basename($file, '.php');
+$nameOf = fn (string $file, string $ext) => (dirname($file) === $root.'/docs/examples' ? '' : basename(dirname($file)).'-').basename($file, $ext);
+$outDir = fn (string $file) => dirname($file);
+foreach ([...glob($root.'/docs/examples/*.R'), ...glob($root.'/docs/examples/*/*.R')] as $file) {
+    $name = $nameOf($file, '.R');
+    if ($only !== [] && ! in_array($name, $only, true)) {
+        continue;
+    }
+    $proc = proc_open(['Rscript', $file], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, $root.'/docs/data');
+    $out = stream_get_contents($pipes[1]);
+    $err = stream_get_contents($pipes[2]);
+    if (proc_close($proc) !== 0) {
+        fwrite(STDERR, "{$name} (R): failed\n{$out}{$err}\n");
+        $failed++;
+
+        continue;
+    }
+    $code = trim(file_get_contents($file));
+    file_put_contents($outDir($file)."/_".basename($file, '.R').'-r.md', "```r\n{$code}\n```\n\n```{.text .output}\n".rtrim($out)."\n```\n");
+    echo "{$name} (R): ok\n";
+}
+foreach ([...glob($root.'/docs/examples/*.php'), ...glob($root.'/docs/examples/*/*.php')] as $file) {
+    $name = $nameOf($file, '.php');
     if ($only !== [] && ! in_array($name, $only, true)) {
         continue;
     }
@@ -56,7 +80,7 @@ foreach (glob($root.'/docs/examples/*.php') as $file) {
     if (trim($out) !== '') {
         $md .= "```{.text .output}\n".rtrim($out)."\n```\n";
     }
-    file_put_contents($root."/docs/examples/_{$name}.md", $md);
+    file_put_contents($outDir($file).'/_'.basename($file, '.php').'.md', $md);
     echo "{$name}: ok\n";
 }
 exit($failed > 0 ? 1 : 0);
