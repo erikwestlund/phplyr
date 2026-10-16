@@ -437,7 +437,7 @@ final class Internal
                 'float' => '<dbl>', 'int' => '<int>', 'bool' => '<lgl>', 'string' => '<chr>',
                 'factor' => '<fct>', 'date' => '<date>', default => '<'.$types[$name]->value.'>',
             };
-            $prefix = '$ '.str_pad($name, $nameWidth).' '.$abbr.' ';
+            $prefix = '$ '.\str_pad($name, $nameWidth).' '.$abbr.' ';
             $values = [];
             $used = \strlen($prefix);
             foreach ($t->column($name) as $v) {

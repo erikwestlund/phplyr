@@ -395,7 +395,7 @@ function separate_longer_delim(mixed $cols, string $delim): Closure
 /** Split columns into rows of $width characters. */
 function separate_longer_position(mixed $cols, int $width): Closure
 {
-    return fn (Table $t) => Internal::longer($t, $cols, fn (string $v) => $v === '' ? [''] : str_split($v, $width));
+    return fn (Table $t) => Internal::longer($t, $cols, fn (string $v) => $v === '' ? [''] : \str_split($v, $width));
 }
 
 /**

@@ -50,7 +50,7 @@ function matches(string $pattern, bool $ignore_case = true): Selector
 function num_range(string $prefix, int $from, int $to, int $width = 0): Selector
 {
     return new Selector(function (Table $t) use ($prefix, $from, $to, $width) {
-        $wanted = array_map(fn ($i) => $prefix.str_pad((string) $i, $width, '0', STR_PAD_LEFT), range($from, $to));
+        $wanted = array_map(fn ($i) => $prefix.\str_pad((string) $i, $width, '0', STR_PAD_LEFT), range($from, $to));
 
         return array_values(array_intersect($t->columns(), $wanted));
     });
