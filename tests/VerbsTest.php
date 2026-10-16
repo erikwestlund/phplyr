@@ -148,3 +148,11 @@ it('leaves the input table unchanged', function () {
     expect($t->nrow())->toBe(5);
     expect($t->columns())->toBe(['brand', 'store', 'price', 'qty']);
 });
+
+it('keeps factor levels when slicing groups', function () {
+    $t = sales()->asFactor('store', ['y', 'x']);
+    $out = $t |> group_by('brand') |> slice_head(1);
+
+    expect($out->levels('store'))->toBe(['y', 'x']);
+    expect($out |> pull('store'))->toBe(['x', 'x']);
+});

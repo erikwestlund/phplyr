@@ -169,7 +169,7 @@ function head(int $n = 6): Closure
 
 /**
  * First $n rows of each group (of the whole table when ungrouped). Grouped
- * tables are materialised into a Phibble\Frame, ordered by group.
+ * tables are materialised with Phibble\Frame::concat(), ordered by group.
  */
 function slice_head(int $n = 1): Closure
 {
@@ -177,12 +177,12 @@ function slice_head(int $n = 1): Closure
         if ($t->groups() === []) {
             return $t->head($n);
         }
-        $rows = [];
+        $heads = [];
         foreach ($t->eachGroup() as $group) {
-            array_push($rows, ...$group['table']->head($n)->toRows());
+            $heads[] = $group['table']->head($n);
         }
 
-        return $rows === [] ? $t->slice(0, 0) : Frame::fromRows($rows)->groupBy($t->groups());
+        return $heads === [] ? $t->slice(0, 0) : Frame::concat($heads)->groupBy($t->groups());
     };
 }
 

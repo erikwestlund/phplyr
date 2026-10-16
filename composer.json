@@ -4,7 +4,8 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": "^8.5"
+        "php": "^8.5",
+        "erikwestlund/phibble": "@dev"
     },
     "require-dev": {
         "pestphp/pest": "^4.0"
@@ -32,5 +33,13 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [{
+        "name": "phibble",
+        "type": "path",
+        "url": "/Users/erik/.polyscope/clones/4fdf7c2b/topaz-duck",
+        "options": {
+            "symlink": true
+        }
+    }]
 }

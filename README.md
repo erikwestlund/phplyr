@@ -65,4 +65,4 @@ PHP=/path/to/php85 bin/test
 Rscript tests/r/reference.R     # regenerate the dplyr reference outputs
 ```
 
-Until erikwestlund/phibble is installable, tests load a stand-in Frame from `tests/Support/phibble`.
+During development phibble comes from a Composer path repository pointing at a local checkout (see `repositories` in composer.json).

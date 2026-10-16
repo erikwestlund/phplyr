@@ -4,8 +4,47 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "379c8e641e957285b3c70934981eb695",
-    "packages": [],
+    "content-hash": "3ab2bc8ecd351a4cbe3b386ae704037e",
+    "packages": [
+        {
+            "name": "erikwestlund/phibble",
+            "version": "dev-topaz-duck",
+            "dist": {
+                "type": "path",
+                "url": "/Users/erik/.polyscope/clones/4fdf7c2b/topaz-duck",
+                "reference": "34cc7f9a4adf7dce5bacdf49086b7f4cbe23fb9e"
+            },
+            "require": {
+                "ext-pdo": "*",
+                "php": "^8.5"
+            },
+            "require-dev": {
+                "pestphp/pest": "^4.0"
+            },
+            "suggest": {
+                "ext-pdo_sqlite": "Used by the test suite for the PDO source"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Phibble\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "A typed, immutable in-memory data frame for PHP.",
+            "transport-options": {
+                "symlink": true,
+                "relative": false
+            }
+        }
+    ],
     "packages-dev": [
         {
             "name": "brianium/paratest",
@@ -4179,7 +4218,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "erikwestlund/phibble": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
