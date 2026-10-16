@@ -30,6 +30,7 @@ website:
           - reference/databases.qmd
       - gallery.qmd
       - port-r-script.qmd
+      - performance.qmd
       - development.qmd
 
 format:

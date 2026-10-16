@@ -174,6 +174,196 @@
     ]
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "phplyr",
+    "section": "",
+    "text": "phplyr is a port of R’s dplyr and tidyr to PHP. It works on phibble tables and is written for the PHP 8.5 pipe operator, so a pipeline reads like its R equivalent.\nEach verb is a function that returns a closure taking one table. The |&gt; operator passes the table from one verb to the next. Verbs call the methods of phibble’s Table contract, so the same pipeline runs on the in-memory Frame and on other backends that implement the contract.\nResults follow dplyr 1.2 and tidyr 1.3. The test suite runs the same pipelines in R and PHP and compares the output. The reference scripts are in tests/r/.",
+    "crumbs": [
+      "phplyr"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "phplyr",
+    "section": "Install",
+    "text": "Install\nphplyr needs PHP 8.5.\ncomposer require erikwestlund/phplyr\nThe optional php-stats extension speeds up the descriptive helpers and provides lm() and glm().",
+    "crumbs": [
+      "phplyr"
+    ]
+  },
+  {
+    "objectID": "index.html#where-to-go-next",
+    "href": "index.html#where-to-go-next",
+    "title": "phplyr",
+    "section": "Where to go next",
+    "text": "Where to go next\n\nGetting started covers imports, loading data, and how verbs, row closures, and vector helpers fit together.\nComing from dplyr lists the syntax differences and what is not supported.\nThe reference pages document each group of functions with runnable examples.\nThe gallery has longer analyses on small example datasets.",
+    "crumbs": [
+      "phplyr"
+    ]
+  },
+  {
+    "objectID": "index.html#the-family",
+    "href": "index.html#the-family",
+    "title": "phplyr",
+    "section": "The family",
+    "text": "The family\n\nphibble provides the typed data frame, CSV and database sources, and the Table contract.\nphplyr provides the dplyr and tidyr verbs.\nphp-stats is a native extension for statistical models and descriptive statistics.\nphpolars is a planned Polars-backed table that implements the same contract.",
+    "crumbs": [
+      "phplyr"
+    ]
+  },
+  {
+    "objectID": "gallery.html",
+    "href": "gallery.html",
+    "title": "Gallery",
+    "section": "",
+    "text": "These analyses use the small datasets from php-stats’ documentation. Each example ran when the documentation was built, and the output shown is the output it produced. The CSV files are in docs/data.",
+    "crumbs": [
+      "Gallery"
+    ]
+  },
+  {
+    "objectID": "gallery.html#school-value-added",
+    "href": "gallery.html#school-value-added",
+    "title": "Gallery",
+    "section": "School value added",
+    "text": "School value added\nThe schools data has 250 students in 12 schools, with study hours, a prior score, and a final score. A regression on all students gives each student an expected score. Averaging the residuals by school ranks schools by how far their students exceed that expectation.\n// Which schools do better than their students' prior scores predict?\n// Fit one regression on all students, then average each school's residuals.\n$schools = Frame::fromCsv('schools.csv');\n$fit = $schools |&gt; lm('score ~ prior_score + study_hours');\n[$b0, $b_prior, $b_hours] = $fit['coefficients'];\n\necho $schools\n    |&gt; mutate(expected: fn ($r) =&gt; $b0 + $b_prior * $r-&gt;prior_score + $b_hours * $r-&gt;study_hours)\n    |&gt; mutate(residual: fn ($r) =&gt; $r-&gt;score - $r-&gt;expected)\n    |&gt; group_by('school')\n    |&gt; summarise(\n        students: n(),\n        avg_score: mean('score'),\n        avg_residual: mean('residual'),\n        share_above: fn ($g) =&gt; round(\\count(array_filter($g-&gt;column('residual'), fn ($e) =&gt; $e &gt; 0)) / $g-&gt;nrow(), 2),\n    )\n    |&gt; mutate(rank: min_rank(desc('avg_residual')), avg_score: fn ($r) =&gt; round($r-&gt;avg_score, 1), avg_residual: fn ($r) =&gt; round($r-&gt;avg_residual, 2))\n    |&gt; arrange('rank');\n# A tibble: 12 × 6\n   school    students avg_score avg_residual share_above  rank\n   &lt;chr&gt;        &lt;int&gt;     &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;int&gt;\n 1 school-07       19      83.4        11.1         1        1\n 2 school-06       27      76.9         2.28        0.52     2\n 3 school-09       16      74.9         2.25        0.69     3\n 4 school-02       24      72.9         1.7         0.67     4\n 5 school-10       25      71.5         0.66        0.56     5\n 6 school-05       20      73           0.23        0.55     6\n 7 school-11       23      71.2         0.09        0.39     7\n 8 school-01       18      72.9         0.06        0.44     8\n 9 school-03       15      69          -1.85        0.4      9\n10 school-12       20      64          -5.14        0.05    10\n11 school-08       21      64.1        -5.36        0.14    11\n12 school-04       22      69.6        -5.95        0.14    12",
+    "crumbs": [
+      "Gallery"
+    ]
+  },
+  {
+    "objectID": "gallery.html#schools-as-random-intercepts",
+    "href": "gallery.html#schools-as-random-intercepts",
+    "title": "Gallery",
+    "section": "Schools as random intercepts",
+    "text": "Schools as random intercepts\nThe same data as a mixed model: lmer() fits a random intercept for each school. The intraclass correlation is the share of residual variance between schools, and the estimated intercept shifts are shrunk toward zero compared with the raw school means.\n// A random-intercept model: students nested in schools. The fixed effects\n// are shared; each school gets its own intercept shift.\n$schools = Frame::fromCsv('schools.csv');\n$fit = $schools |&gt; lmer('score ~ study_hours + prior_score + (1 | school)');\n\nforeach ($fit['columns'] as $i =&gt; $term) {\n    printf(\"%-12s %8.4f  (se %.4f)\\n\", $term, $fit['coefficients'][$i], $fit['std_errors'][$i]);\n}\n$schoolSd = $fit['theta'][0] * $fit['sigma'];\nprintf(\"school sd %.3f, residual sd %.3f, ICC %.3f\\n\\n\", $schoolSd, $fit['sigma'], $schoolSd ** 2 / ($schoolSd ** 2 + $fit['sigma'] ** 2));\n\n// Compare each school's raw mean with its estimated intercept shift.\n$random = $fit['random'][0];\n$effects = array_combine($random['group_labels'], array_column($random['effects'], 0));\necho $schools\n    |&gt; group_by('school')\n    |&gt; summarise(students: n(), raw_mean: mean('score'))\n    |&gt; mutate(intercept_shift: fn ($r) =&gt; round($effects[$r-&gt;school], 2), raw_mean: fn ($r) =&gt; round($r-&gt;raw_mean, 1))\n    |&gt; arrange(desc('intercept_shift'))\n    |&gt; head(5);\n(Intercept)   46.6627  (se 2.2438)\nstudy_hours    1.6141  (se 0.1609)\nprior_score    0.2453  (se 0.0419)\nschool sd 4.458, residual sd 5.057, ICC 0.437\n\n# A tibble: 5 × 4\n  school    students raw_mean intercept_shift\n  &lt;chr&gt;        &lt;int&gt;    &lt;dbl&gt;           &lt;dbl&gt;\n1 school-07       19     83.4           10.4 \n2 school-06       27     76.9            2.27\n3 school-09       16     74.9            2.12\n4 school-02       24     72.9            1.62\n5 school-10       25     71.5            0.57",
+    "crumbs": [
+      "Gallery"
+    ]
+  },
+  {
+    "objectID": "gallery.html#rent-per-square-meter",
+    "href": "gallery.html#rent-per-square-meter",
+    "title": "Gallery",
+    "section": "Rent per square meter",
+    "text": "Rent per square meter\nThe housing data has eight flats. The first table summarizes area, rent, and rent per square meter by number of bedrooms with across(). The second compares each flat with its bedroom group using _by.\n// Price per square meter by number of bedrooms, with each flat's\n// position relative to its bedroom group.\n$housing = Frame::fromCsv('housing.csv')\n    |&gt; mutate(per_m2: fn ($r) =&gt; round($r-&gt;monthly_rent / $r-&gt;area_m2, 2));\n\necho $housing\n    |&gt; group_by('bedrooms')\n    |&gt; summarise(across(['area_m2', 'monthly_rent', 'per_m2'], ['mean' =&gt; mean(...), 'max' =&gt; max(...)]), flats: n())\n    |&gt; mutate(across(where('double'), fn ($v) =&gt; round($v, 1)));\n\necho \"\\n\", $housing\n    |&gt; mutate(vs_group: fn ($r, $g) =&gt; round($r-&gt;per_m2 - mean('per_m2')($g), 2), _by: 'bedrooms')\n    |&gt; arrange('bedrooms', desc('vs_group'));\n# A tibble: 3 × 8\n  bedrooms area_m2_mean area_m2_max monthly_rent_mean monthly_rent_max\n     &lt;int&gt;        &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;\n1        1         43.9        49.1             1246.            1509.\n2        2         66.1        74.4             1902.            2022.\n3        3         93.2        93.9             2313.            2386.\n# ℹ 3 more variables: per_m2_mean &lt;dbl&gt;, per_m2_max &lt;dbl&gt;, flats &lt;int&gt;\n# A tibble: 8 × 5\n  area_m2 bedrooms monthly_rent per_m2 vs_group\n    &lt;dbl&gt;    &lt;int&gt;        &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1    45.7        1        1509.   33.0     4.76\n2    37          1         960.   25.9    -2.33\n3    49.1        1        1268.   25.8    -2.44\n4    57.4        2        1805.   31.4     2.39\n5    66.4        2        2022.   30.5     1.4 \n6    74.4        2        1879.   25.3    -3.8 \n7    93.9        3        2387.   25.4     0.59\n8    92.4        3        2240.   24.2    -0.59",
+    "crumbs": [
+      "Gallery"
+    ]
+  },
+  {
+    "objectID": "gallery.html#pass-rates-by-study-time",
+    "href": "gallery.html#pass-rates-by-study-time",
+    "title": "Gallery",
+    "section": "Pass rates by study time",
+    "text": "Pass rates by study time\nThe learning data records study hours, a practice score, and whether 80 students passed. ntile() splits students into study-hour quartiles, and a logistic regression estimates the effect of an extra hour.\n// Pass rates by study-hour quartile, then a logistic regression.\n$learning = Frame::fromCsv('learning.csv');\n\necho $learning\n    |&gt; mutate(hours_quartile: ntile('study_hours', 4))\n    |&gt; group_by('hours_quartile')\n    |&gt; summarise(\n        students: n(),\n        min_hours: min('study_hours'),\n        max_hours: max('study_hours'),\n        pass_rate: mean('passed'),\n    );\n\n$fit = $learning |&gt; glm('passed ~ study_hours + practice_score', family: 'binomial');\nprintf(\"\\nOdds ratio per extra study hour: %.3f\\n\", exp($fit['coefficients'][1]));\n# A tibble: 4 × 5\n  hours_quartile students min_hours max_hours pass_rate\n           &lt;int&gt;    &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1              1       20      1.24      3.38      0.25\n2              2       20      3.44      5.98      0.3 \n3              3       20      6         8.83      0.45\n4              4       20      8.87     11.8       0.45\nOdds ratio per extra study hour: 1.066",
+    "crumbs": [
+      "Gallery"
+    ]
+  },
+  {
+    "objectID": "gallery.html#clinic-calls-by-staffing",
+    "href": "gallery.html#clinic-calls-by-staffing",
+    "title": "Gallery",
+    "section": "Clinic calls by staffing",
+    "text": "Clinic calls by staffing\nThe clinic data has visitors, staff, and calls for 120 days. The example bands staffing and visitor volume, averages calls, and widens the result into a cross-tabulation.\n// Calls by staffing level and visitor volume, as a cross-tabulation.\necho Frame::fromCsv('clinic.csv')\n    |&gt; mutate(\n        staffing: case_when([fn ($r) =&gt; $r-&gt;staff &lt; 4, 'low'], [fn ($r) =&gt; $r-&gt;staff &lt; 6, 'mid'], default: 'high'),\n        volume: if_else(fn ($r) =&gt; $r-&gt;visitors &gt;= 250, 'busy', 'quiet'),\n    )\n    |&gt; group_by('staffing', 'volume')\n    |&gt; summarise(mean_calls: mean('calls'), _groups: 'drop')\n    |&gt; mutate(mean_calls: fn ($r) =&gt; round($r-&gt;mean_calls, 2))\n    |&gt; pivot_wider(names_from: 'volume', values_from: 'mean_calls', names_sort: true)\n    |&gt; arrange(fn ($r) =&gt; array_search($r-&gt;staffing, ['low', 'mid', 'high']));\n# A tibble: 3 × 3\n  staffing  busy quiet\n  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 low      NA     1.9 \n2 mid       1.79  1.64\n3 high      1.8  NA",
+    "crumbs": [
+      "Gallery"
+    ]
+  },
+  {
+    "objectID": "coming-from-dplyr.html",
+    "href": "coming-from-dplyr.html",
+    "title": "Coming from dplyr",
+    "section": "",
+    "text": "phplyr keeps dplyr’s function names, argument names, and results. The differences come from PHP syntax.",
+    "crumbs": [
+      "Coming from dplyr"
+    ]
+  },
+  {
+    "objectID": "coming-from-dplyr.html#syntax-translation",
+    "href": "coming-from-dplyr.html#syntax-translation",
+    "title": "Coming from dplyr",
+    "section": "Syntax translation",
+    "text": "Syntax translation\nIn R, verbs are chained with %&gt;% or |&gt;; in PHP 8.5, with |&gt;. The table below shows single calls.\n\n\n\n\n\n\n\ndplyr\nphplyr\n\n\n\n\nfilter(x &gt; 1)\nfilter(fn ($r) =&gt; $r-&gt;x &gt; 1)\n\n\nmutate(z = x * 2)\nmutate(z: fn ($r) =&gt; $r-&gt;x * 2) or mutate(z: col('x')-&gt;mul(2))\n\n\nmutate(z = lag(x))\nmutate(z: lag('x'))\n\n\nsummarise(m = mean(x, na.rm = TRUE))\nsummarise(m: mean('x', na_rm: true))\n\n\nselect(-id)\nselect(except('id'))\n\n\nselect(new = old, everything())\nselect(['new' =&gt; 'old'], everything())\n\n\nrename(new = old)\nrename(new: 'old')\n\n\narrange(desc(x))\narrange(desc('x'))\n\n\nmutate(..., .by = g)\nmutate(..., _by: 'g')\n\n\nsummarise(..., .groups = \"drop\")\nsummarise(..., _groups: 'drop')\n\n\nacross(c(a, b), mean)\nacross(['a', 'b'], mean(...))\n\n\nacross(c(a, b), \\(x) x * 2)\nacross(['a', 'b'], fn ($x) =&gt; $x * 2)\n\n\ncase_when(x &lt; 0 ~ \"neg\", .default = \"pos\")\ncase_when([fn ($r) =&gt; $r-&gt;x &lt; 0, 'neg'], default: 'pos')\n\n\nleft_join(y, by = c(\"a\" = \"b\"))\nleft_join($y, by: ['a' =&gt; 'b'])\n\n\nleft_join(y, by = join_by(a))\nleft_join($y, by: 'a')\n\n\njoin_by(id, t &gt;= start)\njoin_by('id', col('t')-&gt;ge(col('start')))\n\n\njoin_by(closest(t &gt;= start))\njoin_by(closest(col('t')-&gt;ge(col('start'))))\n\n\npivot_longer(-id)\npivot_longer(except('id'))\n\n\nvar(x)\nvariance('x')\n\n\nNA\nnull",
+    "crumbs": [
+      "Coming from dplyr"
+    ]
+  },
+  {
+    "objectID": "coming-from-dplyr.html#conventions",
+    "href": "coming-from-dplyr.html#conventions",
+    "title": "Coming from dplyr",
+    "section": "Conventions",
+    "text": "Conventions\n\nDot-arguments. dplyr’s .by, .keep, .before, .after, .groups, .keep_all, .by_group, .direction, .id, and .remove are written _by, _keep, and so on. A column whose name starts with an underscore cannot be created through a named argument.\nPositions are 1-based, as in R: pull(1) is the first column, pull(-1) the last, and slice(1, 3) the first and third rows of each group.\nvar() is variance(), because var is a reserved word in PHP.\ncount, min, and max shadow PHP’s built-ins in files that import them.\nGroup order follows dplyr: groups are sorted by key, factors by level order, and NA last. _by also sorts groups (dplyr keeps first-appearance order for .by).",
+    "crumbs": [
+      "Coming from dplyr"
+    ]
+  },
+  {
+    "objectID": "coming-from-dplyr.html#across-functions",
+    "href": "coming-from-dplyr.html#across-functions",
+    "title": "Coming from dplyr",
+    "section": "across() functions",
+    "text": "across() functions\nR passes a vector to every across() function. PHP closures have no such convention, so phplyr decides what a function receives:\n\nA phplyr helper passed as a first-class callable, such as mean(...) or lag(...), is called with each column’s name.\nIn summarise(), any other closure receives the column’s values as a list.\nIn mutate(), a closure receives one value at a time. If its first parameter is typed array, it receives the whole column instead.",
+    "crumbs": [
+      "Coming from dplyr"
+    ]
+  },
+  {
+    "objectID": "coming-from-dplyr.html#not-supported",
+    "href": "coming-from-dplyr.html#not-supported",
+    "title": "Coming from dplyr",
+    "section": "Not supported",
+    "text": "Not supported\n\nBare column names and tidy evaluation. Columns are strings, and expressions are closures or phplyr helpers.\nmutate(.keep = \"used\") and .keep = \"unused\" with closures. These work with expression arguments such as col('x')-&gt;mul(2), whose columns can be read. A PHP closure does not expose the columns it reads.\ncur_group(), cur_column(), and cur_data(). cur_group_id() and cur_group_rows() are supported in mutate(), summarise(), and reframe().\nData frame columns, across(.unpack), and nest_join().\nSuperseded functions such as top_n(), sample_n(), the scoped _at, _if, and _all variants, and recode(). Use slice_max(), slice_sample(), across(), and recode_values().",
+    "crumbs": [
+      "Coming from dplyr"
+    ]
+  },
+  {
+    "objectID": "development.html",
+    "href": "development.html",
+    "title": "Development",
+    "section": "",
+    "text": "The tests use Pest and run under PHP 8.5:\ncomposer install\nbin/test                 # loads .ext/libphp_stats.dylib when present\nNO_EXT=1 bin/test        # pure-PHP descriptive statistics\nPHP=/path/to/php85 bin/test\nMost tests compare phplyr with R. The scripts in tests/r/ run the same pipelines with dplyr and tidyr and write JSON fixtures to tests/Fixtures/:\nRscript tests/r/reference.R   # single-table verbs, windows, across, tidyselect\nRscript tests/r/joins.R       # joins and rowwise\nRscript tests/r/tidyr.R       # tidyr verbs\nRscript tests/r/rows.R        # set operations, rows_*(), dplyr 1.2 helpers\nRscript tests/r/models.R      # lm() and glm() coefficients",
+    "crumbs": [
+      "Development"
+    ]
+  },
+  {
+    "objectID": "development.html#tests",
+    "href": "development.html#tests",
+    "title": "Development",
+    "section": "",
+    "text": "The tests use Pest and run under PHP 8.5:\ncomposer install\nbin/test                 # loads .ext/libphp_stats.dylib when present\nNO_EXT=1 bin/test        # pure-PHP descriptive statistics\nPHP=/path/to/php85 bin/test\nMost tests compare phplyr with R. The scripts in tests/r/ run the same pipelines with dplyr and tidyr and write JSON fixtures to tests/Fixtures/:\nRscript tests/r/reference.R   # single-table verbs, windows, across, tidyselect\nRscript tests/r/joins.R       # joins and rowwise\nRscript tests/r/tidyr.R       # tidyr verbs\nRscript tests/r/rows.R        # set operations, rows_*(), dplyr 1.2 helpers\nRscript tests/r/models.R      # lm() and glm() coefficients",
+    "crumbs": [
+      "Development"
+    ]
+  },
+  {
+    "objectID": "development.html#documentation",
+    "href": "development.html#documentation",
+    "title": "Development",
+    "section": "Documentation",
+    "text": "Documentation\nThe site is a Quarto project in docs/. Code examples live in docs/examples/*.php. bin/docs-examples runs each one with docs/data as the working directory and writes docs/examples/_&lt;name&gt;.md with the code and its output, which the pages include. Rendering never executes PHP.\nPHP=/path/to/php85 bin/docs-examples   # refresh example output\nPHP=/path/to/php85 bin/render-docs     # examples, quarto render, publish to docs/\nGitHub Pages serves the rendered site from main:/docs.",
+    "crumbs": [
+      "Development"
+    ]
+  },
+  {
+    "objectID": "development.html#layout",
+    "href": "development.html#layout",
+    "title": "Development",
+    "section": "Layout",
+    "text": "Layout\n\n\n\n\n\n\n\nPath\nContents\n\n\n\n\nsrc/functions/verbs.php\nSingle-table verbs\n\n\nsrc/functions/vectors.php\nSummary, window, and conditional helpers\n\n\nsrc/functions/select.php\ntidyselect helpers and across()\n\n\nsrc/functions/joins.php, rows.php\nJoins, set operations, and rows_*()\n\n\nsrc/functions/groups.php\nGroup utilities, binding, and model adapters\n\n\nsrc/functions/tidyr.php\ntidyr verbs\n\n\nsrc/Vec.php\nThe per-group vector expression behind the helpers\n\n\nsrc/Ops.php\nGroup-vector primitives over the Table contract",
+    "crumbs": [
+      "Development"
+    ]
+  },
+  {
     "objectID": "getting-started.html",
     "href": "getting-started.html",
     "title": "Getting started",
@@ -244,193 +434,53 @@
     ]
   },
   {
-    "objectID": "development.html",
-    "href": "development.html",
-    "title": "Development",
+    "objectID": "performance.html",
+    "href": "performance.html",
+    "title": "Performance",
     "section": "",
-    "text": "The tests use Pest and run under PHP 8.5:\ncomposer install\nbin/test                 # loads .ext/libphp_stats.dylib when present\nNO_EXT=1 bin/test        # pure-PHP descriptive statistics\nPHP=/path/to/php85 bin/test\nMost tests compare phplyr with R. The scripts in tests/r/ run the same pipelines with dplyr and tidyr and write JSON fixtures to tests/Fixtures/:\nRscript tests/r/reference.R   # single-table verbs, windows, across, tidyselect\nRscript tests/r/joins.R       # joins and rowwise\nRscript tests/r/tidyr.R       # tidyr verbs\nRscript tests/r/rows.R        # set operations, rows_*(), dplyr 1.2 helpers\nRscript tests/r/models.R      # lm() and glm() coefficients",
+    "text": "phplyr is a thin layer. Each verb calls one or two methods of the table it is given, so the backend determines how fast a pipeline runs. This page reports timings for phibble’s shared benchmark workloads on two backends and gives guidance on choosing one.",
     "crumbs": [
-      "Development"
+      "Performance"
     ]
   },
   {
-    "objectID": "development.html#tests",
-    "href": "development.html#tests",
-    "title": "Development",
-    "section": "",
-    "text": "The tests use Pest and run under PHP 8.5:\ncomposer install\nbin/test                 # loads .ext/libphp_stats.dylib when present\nNO_EXT=1 bin/test        # pure-PHP descriptive statistics\nPHP=/path/to/php85 bin/test\nMost tests compare phplyr with R. The scripts in tests/r/ run the same pipelines with dplyr and tidyr and write JSON fixtures to tests/Fixtures/:\nRscript tests/r/reference.R   # single-table verbs, windows, across, tidyselect\nRscript tests/r/joins.R       # joins and rowwise\nRscript tests/r/tidyr.R       # tidyr verbs\nRscript tests/r/rows.R        # set operations, rows_*(), dplyr 1.2 helpers\nRscript tests/r/models.R      # lm() and glm() coefficients",
+    "objectID": "performance.html#method",
+    "href": "performance.html#method",
+    "title": "Performance",
+    "section": "Method",
+    "text": "Method\nbench/harness.php runs each workload twice: as a phplyr pipeline, and as the same calls made directly on the table. bench/generate.php writes the data. It is the same generator and seed as phibble’s bin/bench, so the two harnesses time identical data:\n\nevents.csv: 1,000,000 rows of id, key (10,000 distinct values), g (8 labels), x (float, about 2% NA), and t (datetime).\ndims.csv: 100,000 rows of key, label, and w.\n\nphp bench/generate.php 1000000\nphp bench/harness.php --backend=frame --runs=3\nphp bench/harness.php --backend=sqlite --runs=3\nEach timing includes collect(), so lazy backends do their work inside the timer. The numbers below were measured on an Apple Silicon Mac with PHP 8.5, phplyr 3716fc2, and phibble dbd8b1e, before phibble’s planned grouping and evaluation optimizations.",
     "crumbs": [
-      "Development"
+      "Performance"
     ]
   },
   {
-    "objectID": "development.html#documentation",
-    "href": "development.html#documentation",
-    "title": "Development",
-    "section": "Documentation",
-    "text": "Documentation\nThe site is a Quarto project in docs/. Code examples live in docs/examples/*.php. bin/docs-examples runs each one with docs/data as the working directory and writes docs/examples/_&lt;name&gt;.md with the code and its output, which the pages include. Rendering never executes PHP.\nPHP=/path/to/php85 bin/docs-examples   # refresh example output\nPHP=/path/to/php85 bin/render-docs     # examples, quarto render, publish to docs/\nGitHub Pages serves the rendered site from main:/docs.",
+    "objectID": "performance.html#phplyrs-overhead",
+    "href": "performance.html#phplyrs-overhead",
+    "title": "Performance",
+    "section": "phplyr’s overhead",
+    "text": "phplyr’s overhead\nAt 100,000 rows, the phplyr pipeline and the direct calls differed by at most 5% on every workload and backend, which is within run-to-run noise. Grouped slices, pivot_*(), and complete() build on the same table methods and carry the same small overhead.",
     "crumbs": [
-      "Development"
+      "Performance"
     ]
   },
   {
-    "objectID": "development.html#layout",
-    "href": "development.html#layout",
-    "title": "Development",
-    "section": "Layout",
-    "text": "Layout\n\n\n\n\n\n\n\nPath\nContents\n\n\n\n\nsrc/functions/verbs.php\nSingle-table verbs\n\n\nsrc/functions/vectors.php\nSummary, window, and conditional helpers\n\n\nsrc/functions/select.php\ntidyselect helpers and across()\n\n\nsrc/functions/joins.php, rows.php\nJoins, set operations, and rows_*()\n\n\nsrc/functions/groups.php\nGroup utilities, binding, and model adapters\n\n\nsrc/functions/tidyr.php\ntidyr verbs\n\n\nsrc/Vec.php\nThe per-group vector expression behind the helpers\n\n\nsrc/Ops.php\nGroup-vector primitives over the Table contract",
+    "objectID": "performance.html#timings-at-1000000-rows",
+    "href": "performance.html#timings-at-1000000-rows",
+    "title": "Performance",
+    "section": "Timings at 1,000,000 rows",
+    "text": "Timings at 1,000,000 rows\n\n\n\n\n\n\n\n\nWorkload\nFrame (s)\nSQLite (s)\n\n\n\n\nGrouped summarise() of n(), mean(), and sum() by key\n0.97\n0.54\n\n\nThe same with closures\n0.79\n3.70\n\n\nGrouped arrange(t), then mutate() with lag(), cumsum(), and row_number()\n4.34\n6.38\n\n\nfilter(col('x')-&gt;gt(0)-&gt;and(...))\n0.98\n0.49\n\n\nThe same filter as a closure\n0.54\n3.36\n\n\nmutate() with two expressions\n0.94\n3.03\n\n\nleft_join() of 1M × 100k rows on key\n0.33\n3.34\n\n\narrange(desc('x'), 'id')\n1.89\n3.39\n\n\n\nFrame peaked at about 1.3 GB of memory for the 1M-row table and its results.",
     "crumbs": [
-      "Development"
+      "Performance"
     ]
   },
   {
-    "objectID": "coming-from-dplyr.html",
-    "href": "coming-from-dplyr.html",
-    "title": "Coming from dplyr",
-    "section": "",
-    "text": "phplyr keeps dplyr’s function names, argument names, and results. The differences come from PHP syntax.",
+    "objectID": "performance.html#choosing-a-backend",
+    "href": "performance.html#choosing-a-backend",
+    "title": "Performance",
+    "section": "Choosing a backend",
+    "text": "Choosing a backend\n\nIn-memory Frame suits data that fits in memory, up to a few million rows. Joins and closures are fast. Expression filters and summaries are currently slower than the equivalent closures, because phibble evaluates expressions on a copy of each group. That is the target of phibble’s next optimization pass.\nA database table (Phibble\\tbl()) is fastest when a pipeline reduces many rows to a few: filter() and summarise() with expressions run in the database, and only the result reaches PHP. Pipelines that return every row (mutate(), arrange(), joins without a filter) spend most of their time transferring rows to PHP. Here an in-memory frame is faster once the data is loaded.\nClosures on a database table load all rows first and then run in memory. Use col() expressions and phplyr’s helpers to keep the work in SQL.\nSQLite columns need declared types. PDO binds values as strings. In an untyped column, SQLite stores them as text and compares numbers as text.\n\nPolarsTable (phpolars) implements the same contract. Its timings will be added here when its benchmark run is complete.",
     "crumbs": [
-      "Coming from dplyr"
-    ]
-  },
-  {
-    "objectID": "coming-from-dplyr.html#syntax-translation",
-    "href": "coming-from-dplyr.html#syntax-translation",
-    "title": "Coming from dplyr",
-    "section": "Syntax translation",
-    "text": "Syntax translation\nIn R, verbs are chained with %&gt;% or |&gt;; in PHP 8.5, with |&gt;. The table below shows single calls.\n\n\n\n\n\n\n\ndplyr\nphplyr\n\n\n\n\nfilter(x &gt; 1)\nfilter(fn ($r) =&gt; $r-&gt;x &gt; 1)\n\n\nmutate(z = x * 2)\nmutate(z: fn ($r) =&gt; $r-&gt;x * 2) or mutate(z: col('x')-&gt;mul(2))\n\n\nmutate(z = lag(x))\nmutate(z: lag('x'))\n\n\nsummarise(m = mean(x, na.rm = TRUE))\nsummarise(m: mean('x', na_rm: true))\n\n\nselect(-id)\nselect(except('id'))\n\n\nselect(new = old, everything())\nselect(['new' =&gt; 'old'], everything())\n\n\nrename(new = old)\nrename(new: 'old')\n\n\narrange(desc(x))\narrange(desc('x'))\n\n\nmutate(..., .by = g)\nmutate(..., _by: 'g')\n\n\nsummarise(..., .groups = \"drop\")\nsummarise(..., _groups: 'drop')\n\n\nacross(c(a, b), mean)\nacross(['a', 'b'], mean(...))\n\n\nacross(c(a, b), \\(x) x * 2)\nacross(['a', 'b'], fn ($x) =&gt; $x * 2)\n\n\ncase_when(x &lt; 0 ~ \"neg\", .default = \"pos\")\ncase_when([fn ($r) =&gt; $r-&gt;x &lt; 0, 'neg'], default: 'pos')\n\n\nleft_join(y, by = c(\"a\" = \"b\"))\nleft_join($y, by: ['a' =&gt; 'b'])\n\n\nleft_join(y, by = join_by(a))\nleft_join($y, by: 'a')\n\n\njoin_by(id, t &gt;= start)\njoin_by('id', col('t')-&gt;ge(col('start')))\n\n\njoin_by(closest(t &gt;= start))\njoin_by(closest(col('t')-&gt;ge(col('start'))))\n\n\npivot_longer(-id)\npivot_longer(except('id'))\n\n\nvar(x)\nvariance('x')\n\n\nNA\nnull",
-    "crumbs": [
-      "Coming from dplyr"
-    ]
-  },
-  {
-    "objectID": "coming-from-dplyr.html#conventions",
-    "href": "coming-from-dplyr.html#conventions",
-    "title": "Coming from dplyr",
-    "section": "Conventions",
-    "text": "Conventions\n\nDot-arguments. dplyr’s .by, .keep, .before, .after, .groups, .keep_all, .by_group, .direction, .id, and .remove are written _by, _keep, and so on. A column whose name starts with an underscore cannot be created through a named argument.\nPositions are 1-based, as in R: pull(1) is the first column, pull(-1) the last, and slice(1, 3) the first and third rows of each group.\nvar() is variance(), because var is a reserved word in PHP.\ncount, min, and max shadow PHP’s built-ins in files that import them.\nGroup order follows dplyr: groups are sorted by key, factors by level order, and NA last. _by also sorts groups (dplyr keeps first-appearance order for .by).",
-    "crumbs": [
-      "Coming from dplyr"
-    ]
-  },
-  {
-    "objectID": "coming-from-dplyr.html#across-functions",
-    "href": "coming-from-dplyr.html#across-functions",
-    "title": "Coming from dplyr",
-    "section": "across() functions",
-    "text": "across() functions\nR passes a vector to every across() function. PHP closures have no such convention, so phplyr decides what a function receives:\n\nA phplyr helper passed as a first-class callable, such as mean(...) or lag(...), is called with each column’s name.\nIn summarise(), any other closure receives the column’s values as a list.\nIn mutate(), a closure receives one value at a time. If its first parameter is typed array, it receives the whole column instead.",
-    "crumbs": [
-      "Coming from dplyr"
-    ]
-  },
-  {
-    "objectID": "coming-from-dplyr.html#not-supported",
-    "href": "coming-from-dplyr.html#not-supported",
-    "title": "Coming from dplyr",
-    "section": "Not supported",
-    "text": "Not supported\n\nBare column names and tidy evaluation. Columns are strings, and expressions are closures or phplyr helpers.\nmutate(.keep = \"used\") and .keep = \"unused\" with closures. These work with expression arguments such as col('x')-&gt;mul(2), whose columns can be read. A PHP closure does not expose the columns it reads.\ncur_group(), cur_column(), and cur_data(). cur_group_id() and cur_group_rows() are supported in mutate(), summarise(), and reframe().\nData frame columns, across(.unpack), and nest_join().\nSuperseded functions such as top_n(), sample_n(), the scoped _at, _if, and _all variants, and recode(). Use slice_max(), slice_sample(), across(), and recode_values().",
-    "crumbs": [
-      "Coming from dplyr"
-    ]
-  },
-  {
-    "objectID": "gallery.html",
-    "href": "gallery.html",
-    "title": "Gallery",
-    "section": "",
-    "text": "These analyses use the small datasets from php-stats’ documentation. Each example ran when the documentation was built, and the output shown is the output it produced. The CSV files are in docs/data.",
-    "crumbs": [
-      "Gallery"
-    ]
-  },
-  {
-    "objectID": "gallery.html#school-value-added",
-    "href": "gallery.html#school-value-added",
-    "title": "Gallery",
-    "section": "School value added",
-    "text": "School value added\nThe schools data has 250 students in 12 schools, with study hours, a prior score, and a final score. A regression on all students gives each student an expected score. Averaging the residuals by school ranks schools by how far their students exceed that expectation.\n// Which schools do better than their students' prior scores predict?\n// Fit one regression on all students, then average each school's residuals.\n$schools = Frame::fromCsv('schools.csv');\n$fit = $schools |&gt; lm('score ~ prior_score + study_hours');\n[$b0, $b_prior, $b_hours] = $fit['coefficients'];\n\necho $schools\n    |&gt; mutate(expected: fn ($r) =&gt; $b0 + $b_prior * $r-&gt;prior_score + $b_hours * $r-&gt;study_hours)\n    |&gt; mutate(residual: fn ($r) =&gt; $r-&gt;score - $r-&gt;expected)\n    |&gt; group_by('school')\n    |&gt; summarise(\n        students: n(),\n        avg_score: mean('score'),\n        avg_residual: mean('residual'),\n        share_above: fn ($g) =&gt; round(\\count(array_filter($g-&gt;column('residual'), fn ($e) =&gt; $e &gt; 0)) / $g-&gt;nrow(), 2),\n    )\n    |&gt; mutate(rank: min_rank(desc('avg_residual')), avg_score: fn ($r) =&gt; round($r-&gt;avg_score, 1), avg_residual: fn ($r) =&gt; round($r-&gt;avg_residual, 2))\n    |&gt; arrange('rank');\n# A tibble: 12 × 6\n   school    students avg_score avg_residual share_above  rank\n   &lt;chr&gt;        &lt;int&gt;     &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;int&gt;\n 1 school-07       19      83.4        11.1         1        1\n 2 school-06       27      76.9         2.28        0.52     2\n 3 school-09       16      74.9         2.25        0.69     3\n 4 school-02       24      72.9         1.7         0.67     4\n 5 school-10       25      71.5         0.66        0.56     5\n 6 school-05       20      73           0.23        0.55     6\n 7 school-11       23      71.2         0.09        0.39     7\n 8 school-01       18      72.9         0.06        0.44     8\n 9 school-03       15      69          -1.85        0.4      9\n10 school-12       20      64          -5.14        0.05    10\n11 school-08       21      64.1        -5.36        0.14    11\n12 school-04       22      69.6        -5.95        0.14    12",
-    "crumbs": [
-      "Gallery"
-    ]
-  },
-  {
-    "objectID": "gallery.html#schools-as-random-intercepts",
-    "href": "gallery.html#schools-as-random-intercepts",
-    "title": "Gallery",
-    "section": "Schools as random intercepts",
-    "text": "Schools as random intercepts\nThe same data as a mixed model: lmer() fits a random intercept for each school. The intraclass correlation is the share of residual variance between schools, and the estimated intercept shifts are shrunk toward zero compared with the raw school means.\n// A random-intercept model: students nested in schools. The fixed effects\n// are shared; each school gets its own intercept shift.\n$schools = Frame::fromCsv('schools.csv');\n$fit = $schools |&gt; lmer('score ~ study_hours + prior_score + (1 | school)');\n\nforeach ($fit['columns'] as $i =&gt; $term) {\n    printf(\"%-12s %8.4f  (se %.4f)\\n\", $term, $fit['coefficients'][$i], $fit['std_errors'][$i]);\n}\n$schoolSd = $fit['theta'][0] * $fit['sigma'];\nprintf(\"school sd %.3f, residual sd %.3f, ICC %.3f\\n\\n\", $schoolSd, $fit['sigma'], $schoolSd ** 2 / ($schoolSd ** 2 + $fit['sigma'] ** 2));\n\n// Compare each school's raw mean with its estimated intercept shift.\n$random = $fit['random'][0];\n$effects = array_combine($random['group_labels'], array_column($random['effects'], 0));\necho $schools\n    |&gt; group_by('school')\n    |&gt; summarise(students: n(), raw_mean: mean('score'))\n    |&gt; mutate(intercept_shift: fn ($r) =&gt; round($effects[$r-&gt;school], 2), raw_mean: fn ($r) =&gt; round($r-&gt;raw_mean, 1))\n    |&gt; arrange(desc('intercept_shift'))\n    |&gt; head(5);\n(Intercept)   46.6627  (se 2.2438)\nstudy_hours    1.6141  (se 0.1609)\nprior_score    0.2453  (se 0.0419)\nschool sd 4.458, residual sd 5.057, ICC 0.437\n\n# A tibble: 5 × 4\n  school    students raw_mean intercept_shift\n  &lt;chr&gt;        &lt;int&gt;    &lt;dbl&gt;           &lt;dbl&gt;\n1 school-07       19     83.4           10.4 \n2 school-06       27     76.9            2.27\n3 school-09       16     74.9            2.12\n4 school-02       24     72.9            1.62\n5 school-10       25     71.5            0.57",
-    "crumbs": [
-      "Gallery"
-    ]
-  },
-  {
-    "objectID": "gallery.html#rent-per-square-meter",
-    "href": "gallery.html#rent-per-square-meter",
-    "title": "Gallery",
-    "section": "Rent per square meter",
-    "text": "Rent per square meter\nThe housing data has eight flats. The first table summarizes area, rent, and rent per square meter by number of bedrooms with across(). The second compares each flat with its bedroom group using _by.\n// Price per square meter by number of bedrooms, with each flat's\n// position relative to its bedroom group.\n$housing = Frame::fromCsv('housing.csv')\n    |&gt; mutate(per_m2: fn ($r) =&gt; round($r-&gt;monthly_rent / $r-&gt;area_m2, 2));\n\necho $housing\n    |&gt; group_by('bedrooms')\n    |&gt; summarise(across(['area_m2', 'monthly_rent', 'per_m2'], ['mean' =&gt; mean(...), 'max' =&gt; max(...)]), flats: n())\n    |&gt; mutate(across(where('double'), fn ($v) =&gt; round($v, 1)));\n\necho \"\\n\", $housing\n    |&gt; mutate(vs_group: fn ($r, $g) =&gt; round($r-&gt;per_m2 - mean('per_m2')($g), 2), _by: 'bedrooms')\n    |&gt; arrange('bedrooms', desc('vs_group'));\n# A tibble: 3 × 8\n  bedrooms area_m2_mean area_m2_max monthly_rent_mean monthly_rent_max\n     &lt;int&gt;        &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;\n1        1         43.9        49.1             1246.            1509.\n2        2         66.1        74.4             1902.            2022.\n3        3         93.2        93.9             2313.            2386.\n# ℹ 3 more variables: per_m2_mean &lt;dbl&gt;, per_m2_max &lt;dbl&gt;, flats &lt;int&gt;\n# A tibble: 8 × 5\n  area_m2 bedrooms monthly_rent per_m2 vs_group\n    &lt;dbl&gt;    &lt;int&gt;        &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;\n1    45.7        1        1509.   33.0     4.76\n2    37          1         960.   25.9    -2.33\n3    49.1        1        1268.   25.8    -2.44\n4    57.4        2        1805.   31.4     2.39\n5    66.4        2        2022.   30.5     1.4 \n6    74.4        2        1879.   25.3    -3.8 \n7    93.9        3        2387.   25.4     0.59\n8    92.4        3        2240.   24.2    -0.59",
-    "crumbs": [
-      "Gallery"
-    ]
-  },
-  {
-    "objectID": "gallery.html#pass-rates-by-study-time",
-    "href": "gallery.html#pass-rates-by-study-time",
-    "title": "Gallery",
-    "section": "Pass rates by study time",
-    "text": "Pass rates by study time\nThe learning data records study hours, a practice score, and whether 80 students passed. ntile() splits students into study-hour quartiles, and a logistic regression estimates the effect of an extra hour.\n// Pass rates by study-hour quartile, then a logistic regression.\n$learning = Frame::fromCsv('learning.csv');\n\necho $learning\n    |&gt; mutate(hours_quartile: ntile('study_hours', 4))\n    |&gt; group_by('hours_quartile')\n    |&gt; summarise(\n        students: n(),\n        min_hours: min('study_hours'),\n        max_hours: max('study_hours'),\n        pass_rate: mean('passed'),\n    );\n\n$fit = $learning |&gt; glm('passed ~ study_hours + practice_score', family: 'binomial');\nprintf(\"\\nOdds ratio per extra study hour: %.3f\\n\", exp($fit['coefficients'][1]));\n# A tibble: 4 × 5\n  hours_quartile students min_hours max_hours pass_rate\n           &lt;int&gt;    &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1              1       20      1.24      3.38      0.25\n2              2       20      3.44      5.98      0.3 \n3              3       20      6         8.83      0.45\n4              4       20      8.87     11.8       0.45\nOdds ratio per extra study hour: 1.066",
-    "crumbs": [
-      "Gallery"
-    ]
-  },
-  {
-    "objectID": "gallery.html#clinic-calls-by-staffing",
-    "href": "gallery.html#clinic-calls-by-staffing",
-    "title": "Gallery",
-    "section": "Clinic calls by staffing",
-    "text": "Clinic calls by staffing\nThe clinic data has visitors, staff, and calls for 120 days. The example bands staffing and visitor volume, averages calls, and widens the result into a cross-tabulation.\n// Calls by staffing level and visitor volume, as a cross-tabulation.\necho Frame::fromCsv('clinic.csv')\n    |&gt; mutate(\n        staffing: case_when([fn ($r) =&gt; $r-&gt;staff &lt; 4, 'low'], [fn ($r) =&gt; $r-&gt;staff &lt; 6, 'mid'], default: 'high'),\n        volume: if_else(fn ($r) =&gt; $r-&gt;visitors &gt;= 250, 'busy', 'quiet'),\n    )\n    |&gt; group_by('staffing', 'volume')\n    |&gt; summarise(mean_calls: mean('calls'), _groups: 'drop')\n    |&gt; mutate(mean_calls: fn ($r) =&gt; round($r-&gt;mean_calls, 2))\n    |&gt; pivot_wider(names_from: 'volume', values_from: 'mean_calls', names_sort: true)\n    |&gt; arrange(fn ($r) =&gt; array_search($r-&gt;staffing, ['low', 'mid', 'high']));\n# A tibble: 3 × 3\n  staffing  busy quiet\n  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;\n1 low      NA     1.9 \n2 mid       1.79  1.64\n3 high      1.8  NA",
-    "crumbs": [
-      "Gallery"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "phplyr",
-    "section": "",
-    "text": "phplyr is a port of R’s dplyr and tidyr to PHP. It works on phibble tables and is written for the PHP 8.5 pipe operator, so a pipeline reads like its R equivalent.\nEach verb is a function that returns a closure taking one table. The |&gt; operator passes the table from one verb to the next. Verbs call the methods of phibble’s Table contract, so the same pipeline runs on the in-memory Frame and on other backends that implement the contract.\nResults follow dplyr 1.2 and tidyr 1.3. The test suite runs the same pipelines in R and PHP and compares the output. The reference scripts are in tests/r/.",
-    "crumbs": [
-      "phplyr"
-    ]
-  },
-  {
-    "objectID": "index.html#install",
-    "href": "index.html#install",
-    "title": "phplyr",
-    "section": "Install",
-    "text": "Install\nphplyr needs PHP 8.5.\ncomposer require erikwestlund/phplyr\nThe optional php-stats extension speeds up the descriptive helpers and provides lm() and glm().",
-    "crumbs": [
-      "phplyr"
-    ]
-  },
-  {
-    "objectID": "index.html#where-to-go-next",
-    "href": "index.html#where-to-go-next",
-    "title": "phplyr",
-    "section": "Where to go next",
-    "text": "Where to go next\n\nGetting started covers imports, loading data, and how verbs, row closures, and vector helpers fit together.\nComing from dplyr lists the syntax differences and what is not supported.\nThe reference pages document each group of functions with runnable examples.\nThe gallery has longer analyses on small example datasets.",
-    "crumbs": [
-      "phplyr"
-    ]
-  },
-  {
-    "objectID": "index.html#the-family",
-    "href": "index.html#the-family",
-    "title": "phplyr",
-    "section": "The family",
-    "text": "The family\n\nphibble provides the typed data frame, CSV and database sources, and the Table contract.\nphplyr provides the dplyr and tidyr verbs.\nphp-stats is a native extension for statistical models and descriptive statistics.\nphpolars is a planned Polars-backed table that implements the same contract.",
-    "crumbs": [
-      "phplyr"
+      "Performance"
     ]
   },
   {
