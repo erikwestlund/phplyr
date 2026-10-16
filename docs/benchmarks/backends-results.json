@@ -1,6 +1,6 @@
 {
     "schema": "phplyr-backends/1",
-    "generated_at": "2026-10-16T08:29:04Z",
+    "generated_at": "2026-10-16T09:57:21Z",
     "method": {
         "statistic": "best",
         "repeats": 3,
@@ -17,12 +17,12 @@
         },
         "php": "8.5.10",
         "versions": {
-            "phplyr": "3836131",
-            "phibble": "042ebb8",
+            "phplyr": "e71e0ea",
+            "phibble": "9655e2a",
             "phpolars": {
-                "sha": "f97eaeb",
+                "sha": "27099f7",
                 "extension": "0.1.0",
-                "polars": null,
+                "polars": "0.55.2",
                 "profile": "release"
             },
             "sqlite": "3.53.4"
@@ -60,11 +60,11 @@
             "backend": "Frame",
             "rows_in": 100000,
             "rows_out": 50,
-            "seconds": 0.0796,
+            "seconds": 0.0772,
             "seconds_all": [
-                0.0854,
-                0.0806,
-                0.0796
+                0.0824,
+                0.0781,
+                0.0772
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -75,11 +75,11 @@
             "backend": "PolarsTable",
             "rows_in": 100000,
             "rows_out": 50,
-            "seconds": 0.0073,
+            "seconds": 0.0067,
             "seconds_all": [
-                0.0117,
-                0.0073,
-                0.0075
+                0.0602,
+                0.0069,
+                0.0067
             ],
             "fallbacks": 0,
             "matches_frame": true,
@@ -90,11 +90,11 @@
             "backend": "SqlTable(SQLite)",
             "rows_in": 100000,
             "rows_out": 50,
-            "seconds": 0.1293,
+            "seconds": 0.0446,
             "seconds_all": [
-                0.1294,
-                0.1296,
-                0.1293
+                0.0477,
+                0.0446,
+                0.0462
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -105,11 +105,11 @@
             "backend": "Frame",
             "rows_in": 100000,
             "rows_out": 100000,
-            "seconds": 0.1029,
+            "seconds": 0.0972,
             "seconds_all": [
-                0.1076,
-                0.1029,
-                0.1096
+                0.1047,
+                0.1007,
+                0.0972
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -120,11 +120,11 @@
             "backend": "PolarsTable",
             "rows_in": 100000,
             "rows_out": 100000,
-            "seconds": 0.0456,
+            "seconds": 0.044,
             "seconds_all": [
-                0.046,
-                0.0456,
-                0.0456
+                0.0528,
+                0.044,
+                0.0444
             ],
             "fallbacks": 0,
             "matches_frame": true,
@@ -135,11 +135,11 @@
             "backend": "SqlTable(SQLite)",
             "rows_in": 100000,
             "rows_out": 100000,
-            "seconds": 0.3524,
+            "seconds": 0.323,
             "seconds_all": [
-                0.3542,
-                0.3558,
-                0.3524
+                0.323,
+                0.3299,
+                0.3256
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -150,11 +150,11 @@
             "backend": "Frame",
             "rows_in": 100000,
             "rows_out": 50,
-            "seconds": 0.1073,
+            "seconds": 0.1014,
             "seconds_all": [
-                0.116,
-                0.1073,
-                0.1173
+                0.1043,
+                0.1014,
+                0.1131
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -165,11 +165,11 @@
             "backend": "PolarsTable",
             "rows_in": 100000,
             "rows_out": 50,
-            "seconds": 0.0822,
+            "seconds": 0.0812,
             "seconds_all": [
                 0.0844,
-                0.0953,
-                0.0822
+                0.0897,
+                0.0812
             ],
             "fallbacks": 1,
             "matches_frame": true,
@@ -180,11 +180,11 @@
             "backend": "SqlTable(SQLite)",
             "rows_in": 100000,
             "rows_out": 50,
-            "seconds": 0.2253,
+            "seconds": 0.1894,
             "seconds_all": [
-                0.2317,
-                0.2253,
-                0.2341
+                0.1923,
+                0.1894,
+                0.1968
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -195,11 +195,11 @@
             "backend": "Frame",
             "rows_in": 1000000,
             "rows_out": 50,
-            "seconds": 0.6302,
+            "seconds": 0.6178,
             "seconds_all": [
-                0.6424,
-                0.6302,
-                0.6384
+                0.6203,
+                0.6406,
+                0.6178
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -210,11 +210,11 @@
             "backend": "PolarsTable",
             "rows_in": 1000000,
             "rows_out": 50,
-            "seconds": 0.0539,
+            "seconds": 0.056,
             "seconds_all": [
-                0.07,
-                0.0569,
-                0.0539
+                0.0824,
+                0.0584,
+                0.056
             ],
             "fallbacks": 0,
             "matches_frame": true,
@@ -225,11 +225,11 @@
             "backend": "SqlTable(SQLite)",
             "rows_in": 1000000,
             "rows_out": 50,
-            "seconds": 1.3311,
+            "seconds": 0.4693,
             "seconds_all": [
-                1.3448,
-                1.3311,
-                1.4087
+                0.4734,
+                0.4693,
+                0.5108
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -240,11 +240,11 @@
             "backend": "Frame",
             "rows_in": 1000000,
             "rows_out": 1000000,
-            "seconds": 1.3215,
+            "seconds": 1.3197,
             "seconds_all": [
-                1.3471,
-                1.3325,
-                1.3215
+                1.3952,
+                1.3622,
+                1.3197
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -255,11 +255,11 @@
             "backend": "PolarsTable",
             "rows_in": 1000000,
             "rows_out": 1000000,
-            "seconds": 0.4235,
+            "seconds": 0.433,
             "seconds_all": [
-                0.4235,
-                0.4404,
-                0.4366
+                0.4335,
+                0.4429,
+                0.433
             ],
             "fallbacks": 0,
             "matches_frame": true,
@@ -270,11 +270,11 @@
             "backend": "SqlTable(SQLite)",
             "rows_in": 1000000,
             "rows_out": 1000000,
-            "seconds": 3.6816,
+            "seconds": 3.515,
             "seconds_all": [
-                3.7617,
-                3.6915,
-                3.6816
+                3.515,
+                3.5721,
+                3.6275
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -285,11 +285,11 @@
             "backend": "Frame",
             "rows_in": 1000000,
             "rows_out": 50,
-            "seconds": 1.0233,
+            "seconds": 1.0912,
             "seconds_all": [
-                1.1495,
-                1.0233,
-                1.2292
+                1.2909,
+                1.0912,
+                1.1963
             ],
             "fallbacks": null,
             "matches_frame": true,
@@ -300,11 +300,11 @@
             "backend": "PolarsTable",
             "rows_in": 1000000,
             "rows_out": 50,
-            "seconds": 0.8756,
+            "seconds": 0.8919,
             "seconds_all": [
-                0.8918,
-                1.0215,
-                0.8756
+                0.8919,
+                0.9943,
+                0.9049
             ],
             "fallbacks": 1,
             "matches_frame": true,
@@ -315,11 +315,11 @@
             "backend": "SqlTable(SQLite)",
             "rows_in": 1000000,
             "rows_out": 50,
-            "seconds": 2.1698,
+            "seconds": 1.9667,
             "seconds_all": [
-                2.3059,
-                2.1698,
-                2.3444
+                1.9667,
+                1.9668,
+                2.1445
             ],
             "fallbacks": null,
             "matches_frame": true,

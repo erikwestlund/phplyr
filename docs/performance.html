@@ -388,7 +388,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>B:</strong> grouped <code>lag(order_by:)</code>, <code>cumsum()</code>, and a share of the group total over all rows.</li>
 <li><strong>C:</strong> pipeline A with a closure in <code>filter()</code>.</li>
 </ul>
-<p>Times are the best of three runs through <code>collect()</code>, on an Apple M5 Ultra with Homebrew PHP 8.5, phibble 042ebb8, and Polars at two threads. In every case the three backends returned the same rows. The full results, with all repeat timings and version details, are in <a href="benchmarks/backends-results.json"><code>benchmarks/backends-results.json</code></a>.</p>
+<p>Times are the best of three runs through <code>collect()</code>, on an Apple M5 Ultra with Homebrew PHP 8.5, phibble 9655e2a, and Polars 0.55.2 at two threads. In every case the three backends returned the same rows. The full results, with all repeat timings and version details, are in <a href="benchmarks/backends-results.json"><code>benchmarks/backends-results.json</code></a>.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -401,21 +401,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>A: reduce to a ranked summary</td>
-<td style="text-align: right;">0.63</td>
-<td style="text-align: right;">0.05</td>
-<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.47</td>
 </tr>
 <tr class="even">
 <td>B: windows over every row</td>
 <td style="text-align: right;">1.32</td>
-<td style="text-align: right;">0.42</td>
-<td style="text-align: right;">3.68</td>
+<td style="text-align: right;">0.43</td>
+<td style="text-align: right;">3.52</td>
 </tr>
 <tr class="odd">
 <td>C: A with a closure</td>
-<td style="text-align: right;">1.02</td>
-<td style="text-align: right;">0.88</td>
-<td style="text-align: right;">2.17</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">0.89</td>
+<td style="text-align: right;">1.97</td>
 </tr>
 </tbody>
 </table>

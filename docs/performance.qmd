@@ -85,16 +85,16 @@ from phpolars' benchmark script. The pipelines are:
 - **C:** pipeline A with a closure in `filter()`.
 
 Times are the best of three runs through `collect()`, on an Apple M5 Ultra with
-Homebrew PHP 8.5, phibble 042ebb8, and Polars at two threads. In every case the
+Homebrew PHP 8.5, phibble 9655e2a, and Polars 0.55.2 at two threads. In every case the
 three backends returned the same rows. The full results, with all repeat
 timings and version details, are in
 [`benchmarks/backends-results.json`](benchmarks/backends-results.json).
 
 | Pipeline, 1M rows | Frame (s) | PolarsTable (s) | SQLite (s) |
 | --- | --: | --: | --: |
-| A: reduce to a ranked summary | 0.63 | 0.05 | 1.33 |
-| B: windows over every row | 1.32 | 0.42 | 3.68 |
-| C: A with a closure | 1.02 | 0.88 | 2.17 |
+| A: reduce to a ranked summary | 0.62 | 0.06 | 0.47 |
+| B: windows over every row | 1.32 | 0.43 | 3.52 |
+| C: A with a closure | 1.09 | 0.89 | 1.97 |
 The verbs themselves are fast in Polars. Most of PolarsTable's time goes to
 converting results back to PHP values: about 0.2 seconds per million rows of
 plain columns, plus about 0.5 seconds per million values of a datetime column,

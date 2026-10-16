@@ -20,7 +20,7 @@ echo $query |> collect();
 ```
 
 ```{.text .output}
-SELECT "school", "students", "avg_score" FROM (SELECT * FROM (SELECT "school", "students", "avg_score", ROW_NUMBER() OVER (ORDER BY ("school" IS NULL), "school") AS "__phibble_row" FROM (SELECT "school", COUNT(*) AS "students", (CASE WHEN COUNT(*) > COUNT("score") THEN NULL ELSE AVG(CAST("score" AS REAL)) END) AS "avg_score" FROM (SELECT * FROM (SELECT *, ROW_NUMBER() OVER () AS "__phibble_row" FROM (SELECT * FROM "schools") AS phibble_source) AS q1 WHERE ("study_hours" >= ?)) AS q2 GROUP BY "school") AS q3) AS q4 WHERE ("students" >= ?)) AS q5 ORDER BY ("avg_score" IS NULL), "avg_score" DESC, ("__phibble_row" IS NULL), "__phibble_row"
+SELECT "school", "students", "avg_score" FROM (SELECT * FROM (SELECT "school", "students", "avg_score", ROW_NUMBER() OVER (ORDER BY ("school" IS NULL), "school") AS "__phibble_row" FROM (SELECT "school", COUNT(*) AS "students", (CASE WHEN COUNT(*) > COUNT("score") THEN NULL ELSE AVG(CAST("score" AS REAL)) END) AS "avg_score" FROM (SELECT * FROM (SELECT *, rowid AS "__phibble_row" FROM "schools") AS q1 WHERE ("study_hours" >= ?)) AS q2 GROUP BY "school") AS q3) AS q4 WHERE ("students" >= ?)) AS q5 ORDER BY ("avg_score" IS NULL), "avg_score" DESC, ("__phibble_row" IS NULL), "__phibble_row"
 
 # A tibble: 9 × 3
   school    students avg_score
