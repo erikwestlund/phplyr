@@ -6,29 +6,6 @@ use Phibble\Frame;
 
 use function Phplyr\{arrange, count, desc, distinct, filter, group_by, max, mean, median, min, mutate, n, quantile, rename, sd, select, summarise, ungroup, variance};
 
-function reference(string $key): array
-{
-    static $json;
-    $json ??= json_decode(file_get_contents(fixturePath('dplyr-reference.json')), true);
-
-    return $json[$key];
-}
-
-function expectRowsClose(array $actual, array $expected): void
-{
-    expect(\count($actual))->toBe(\count($expected));
-    foreach ($expected as $i => $row) {
-        expect(array_keys($actual[$i]))->toBe(array_keys($row));
-        foreach ($row as $col => $value) {
-            if (is_float($value) || is_float($actual[$i][$col])) {
-                expect($actual[$i][$col])->toEqualWithDelta($value, 1e-9 * \max(1.0, abs($value)));
-            } else {
-                expect($actual[$i][$col])->toBe($value);
-            }
-        }
-    }
-}
-
 it('matches dplyr for a grouped summary', function () {
     bothBackends(function () {
         $out = Frame::fromCsv(fixturePath('schools.csv'))

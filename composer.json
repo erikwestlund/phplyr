@@ -18,7 +18,11 @@
             "Phplyr\\": "src/"
         },
         "files": [
-            "src/functions.php"
+            "src/functions/verbs.php",
+            "src/functions/vectors.php",
+            "src/functions/select.php",
+            "src/functions/groups.php",
+            "src/functions/joins.php"
         ]
     },
     "autoload-dev": {
@@ -34,9 +38,11 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "repositories": [{
-        "name": "phibble",
-        "type": "vcs",
-        "url": "https://github.com/erikwestlund/phibble"
-    }]
+    "repositories": [
+        {
+            "name": "phibble",
+            "type": "vcs",
+            "url": "https://github.com/erikwestlund/phibble"
+        }
+    ]
 }

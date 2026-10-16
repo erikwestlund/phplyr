@@ -75,7 +75,7 @@ it('selects, renames and pulls', function () {
     $t = sales() |> select('price', 'brand') |> rename(cost: 'price');
     expect($t->columns())->toBe(['cost', 'brand']);
     expect($t |> pull())->toBe(['a', 'b', 'a', 'b', 'a']);
-    expect($t |> pull(0))->toBe([10.0, 0.0, 30.0, 20.0, 50.0]);
+    expect($t |> pull(1))->toBe([10.0, 0.0, 30.0, 20.0, 50.0]);
 });
 
 it('arranges by several keys', function () {
@@ -135,7 +135,7 @@ it('slices the head of each group', function () {
 
     expect(sales() |> slice_head(2) |> pull('price'))->toBe([10.0, 0.0]);
     expect(sales() |> group_by('brand') |> head(3) |> pull('price'))->toBe([10.0, 0.0, 30.0]);
-    expect(sales() |> slice(1, 2) |> pull('price'))->toBe([0.0, 30.0]);
+    expect(sales() |> slice(2, 3) |> pull('price'))->toBe([0.0, 30.0]);
 });
 
 it('ungroups', function () {
