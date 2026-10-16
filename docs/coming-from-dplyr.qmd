@@ -1,0 +1,73 @@
+---
+title: "Coming from dplyr"
+---
+
+phplyr keeps dplyr's function names, argument names, and results. The
+differences come from PHP syntax.
+
+## Syntax translation
+
+In R, verbs are chained with `%>%` or `|>`; in PHP 8.5, with `|>`. The table
+below shows single calls.
+
+| dplyr | phplyr |
+| --- | --- |
+| `filter(x > 1)` | `filter(fn ($r) => $r->x > 1)` |
+| `mutate(z = x * 2)` | `mutate(z: fn ($r) => $r->x * 2)` |
+| `mutate(z = lag(x))` | `mutate(z: lag('x'))` |
+| `summarise(m = mean(x, na.rm = TRUE))` | `summarise(m: mean('x', na_rm: true))` |
+| `select(-id)` | `select(except('id'))` |
+| `select(new = old, everything())` | `select(['new' => 'old'], everything())` |
+| `rename(new = old)` | `rename(new: 'old')` |
+| `arrange(desc(x))` | `arrange(desc('x'))` |
+| `mutate(..., .by = g)` | `mutate(..., _by: 'g')` |
+| `summarise(..., .groups = "drop")` | `summarise(..., _groups: 'drop')` |
+| `across(c(a, b), mean)` | `across(['a', 'b'], mean(...))` |
+| `across(c(a, b), \(x) x * 2)` | `across(['a', 'b'], fn ($x) => $x * 2)` |
+| `case_when(x < 0 ~ "neg", .default = "pos")` | `case_when([fn ($r) => $r->x < 0, 'neg'], default: 'pos')` |
+| `left_join(y, by = c("a" = "b"))` | `left_join($y, by: ['a' => 'b'])` |
+| `left_join(y, by = join_by(a))` | `left_join($y, by: 'a')` |
+| `pivot_longer(-id)` | `pivot_longer(except('id'))` |
+| `var(x)` | `variance('x')` |
+| `NA` | `null` |
+
+## Conventions
+
+- **Dot-arguments.** dplyr's `.by`, `.keep`, `.before`, `.after`, `.groups`,
+  `.keep_all`, `.by_group`, `.direction`, `.id`, and `.remove` are written
+  `_by`, `_keep`, and so on. A column whose name starts with an underscore
+  cannot be created through a named argument.
+- **Positions are 1-based**, as in R: `pull(1)` is the first column, `pull(-1)`
+  the last, and `slice(1, 3)` the first and third rows of each group.
+- **`var()` is `variance()`**, because `var` is a reserved word in PHP.
+- **`count`, `min`, and `max`** shadow PHP's built-ins in files that import
+  them.
+- **Group order** follows dplyr: groups are sorted by key, factors by level
+  order, and NA last. `_by` also sorts groups (dplyr keeps first-appearance
+  order for `.by`).
+
+## `across()` functions
+
+R passes a vector to every `across()` function. PHP closures have no such
+convention, so phplyr decides what a function receives:
+
+- A phplyr helper passed as a first-class callable, such as `mean(...)` or
+  `lag(...)`, is called with each column's name.
+- In `summarise()`, any other closure receives the column's values as a list.
+- In `mutate()`, a closure receives one value at a time. If its first parameter
+  is typed `array`, it receives the whole column instead.
+
+## Not supported
+
+- **Bare column names and tidy evaluation.** Columns are strings, and
+  expressions are closures or phplyr helpers.
+- **`mutate(.keep = "used")` and `.keep = "unused"`.** These need to know which
+  columns an expression reads, which a PHP closure does not expose.
+- **Inequality and rolling joins** (`join_by(a >= b)`, `closest()`).
+- **`group_by(.drop = FALSE)`**, which keeps empty factor-level groups.
+- **`cur_group_id()` and the other `cur_*()` functions.** Use `group_indices()`
+  or the group table passed to closures.
+- **Data frame columns**, `across(.unpack)`, and `nest_join()`.
+- **Superseded functions** such as `top_n()`, `sample_n()`, the scoped `_at`,
+  `_if`, and `_all` variants, and `recode()`. Use `slice_max()`,
+  `slice_sample()`, `across()`, and `recode_values()`.

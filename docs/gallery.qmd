@@ -1,0 +1,40 @@
+---
+title: "Gallery"
+---
+
+These analyses use the small datasets from php-stats' documentation. Each
+example ran when the documentation was built, and the output shown is the
+output it produced. The CSV files are in [`docs/data`](https://github.com/erikwestlund/phplyr/tree/main/docs/data).
+
+## School value added
+
+The schools data has 250 students in 12 schools, with study hours, a prior
+score, and a final score. A regression on all students gives each student an
+expected score. Averaging the residuals by school ranks schools by how far
+their students exceed that expectation.
+
+{{< include examples/_gallery-schools.md >}}
+
+## Rent per square meter
+
+The housing data has eight flats. The first table summarizes area, rent, and
+rent per square meter by number of bedrooms with `across()`. The second
+compares each flat with its bedroom group using `_by`.
+
+{{< include examples/_gallery-housing.md >}}
+
+## Pass rates by study time
+
+The learning data records study hours, a practice score, and whether 80
+students passed. `ntile()` splits students into study-hour quartiles, and a
+logistic regression estimates the effect of an extra hour.
+
+{{< include examples/_gallery-learning.md >}}
+
+## Clinic calls by staffing
+
+The clinic data has visitors, staff, and calls for 120 days. The example bands
+staffing and visitor volume, averages calls, and widens the result into a
+cross-tabulation.
+
+{{< include examples/_gallery-clinic.md >}}

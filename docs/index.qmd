@@ -1,0 +1,49 @@
+---
+title: "phplyr"
+subtitle: "dplyr and tidyr for PHP 8.5"
+---
+
+phplyr is a port of R's dplyr and tidyr to PHP. It works on
+[phibble](https://github.com/erikwestlund/phibble) tables and is written for the
+PHP 8.5 pipe operator, so a pipeline reads like its R equivalent.
+
+{{< include examples/_first-pipeline.md >}}
+
+Each verb is a function that returns a closure taking one table. The `|>`
+operator passes the table from one verb to the next. Verbs call the methods of
+phibble's `Table` contract, so the same pipeline runs on the in-memory `Frame`
+and on other backends that implement the contract.
+
+Results follow dplyr 1.2 and tidyr 1.3. The test suite runs the same
+pipelines in R and PHP and compares the output. The reference scripts are in
+`tests/r/`.
+
+## Install
+
+phplyr needs PHP 8.5.
+
+```bash
+composer require erikwestlund/phplyr
+```
+
+The optional [php-stats](https://github.com/erikwestlund/php-stats) extension
+speeds up the descriptive helpers and provides `lm()` and `glm()`.
+
+## Where to go next
+
+- [Getting started](getting-started.qmd) covers imports, loading data, and how
+  verbs, row closures, and vector helpers fit together.
+- [Coming from dplyr](coming-from-dplyr.qmd) lists the syntax differences and
+  what is not supported.
+- The reference pages document each group of functions with runnable examples.
+- The [gallery](gallery.qmd) has longer analyses on small example datasets.
+
+## The family
+
+- **phibble** provides the typed data frame, CSV and database sources, and the
+  `Table` contract.
+- **phplyr** provides the dplyr and tidyr verbs.
+- **php-stats** is a native extension for statistical models and descriptive
+  statistics.
+- **phpolars** is a planned Polars-backed table that implements the same
+  contract.

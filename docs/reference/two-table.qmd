@@ -1,0 +1,70 @@
+---
+title: "Two-table verbs"
+---
+
+## Joins
+
+The join verbs take the right-hand table as their first argument. The piped
+table is the left-hand table `x`.
+
+| Function | Rows kept |
+| --- | --- |
+| `inner_join($y)` | Rows of x with a match in y |
+| `left_join($y)` | All rows of x |
+| `right_join($y)` | All rows of y |
+| `full_join($y)` | All rows of both |
+| `semi_join($y)` | Rows of x with a match, x's columns only |
+| `anti_join($y)` | Rows of x without a match |
+| `cross_join($y)` | Every combination |
+
+`by:` names the key columns. A string or list joins on columns with the same
+name in both tables, and an associative array maps differing names:
+`by: ['school' => 'school_id']`. The forms mix, as in
+`['id', 'code' => 'country_code']`. Without `by:`, the tables join on every
+column they share.
+
+{{< include ../examples/_joins.md >}}
+
+The options follow dplyr 1.1:
+
+- `suffix:` renames clashing non-key columns, `['.x', '.y']` by default.
+- `keep: true` keeps y's key columns.
+- `na_matches: 'never'` stops NA keys from matching. By default NA matches NA.
+- `multiple:` is `'all'`, `'any'`, `'first'`, or `'last'`.
+- `unmatched: 'error'` throws when rows would be dropped.
+- `relationship:` checks `'one-to-one'`, `'one-to-many'`, `'many-to-one'`, or
+  `'many-to-many'`. An unexpected many-to-many join raises dplyr's warning.
+
+{{< include ../examples/_join-options.md >}}
+
+Joins keep x's grouping, except for a grouping column that the join renames.
+
+## Binding
+
+`bind_rows()` stacks tables under the piped one, matching columns by name and
+filling missing columns with NA. `_id:` adds a column with each row's source.
+`bind_cols()` puts tables side by side and renames duplicate names as
+`name...position`.
+
+{{< include ../examples/_bind.md >}}
+
+## Set operations and row updates
+
+`union()`, `union_all()`, `intersect()`, `setdiff()`, and `symdiff()` compare
+whole rows. `setequal()` returns true when both tables hold the same distinct
+rows.
+
+The `rows_*()` functions modify the piped table using another table's rows,
+matched on `by:` (y's first column by default):
+
+- `rows_insert()` adds rows with new keys; `conflict: 'ignore'` skips existing
+  keys.
+- `rows_append()` adds all rows.
+- `rows_update()` overwrites values for matching keys.
+- `rows_patch()` fills only NA values for matching keys.
+- `rows_upsert()` updates matching keys and inserts new ones.
+- `rows_delete()` removes matching keys.
+
+`unmatched: 'ignore'` allows y keys that x lacks.
+
+{{< include ../examples/_set-rows.md >}}

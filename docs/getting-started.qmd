@@ -1,0 +1,87 @@
+---
+title: "Getting started"
+---
+
+## Imports
+
+phplyr's verbs and helpers are namespaced functions. Import the ones a file
+uses with `use function`:
+
+```php
+use Phibble\Frame;
+use function Phplyr\{filter, mutate, group_by, summarise, arrange, desc, n, mean};
+```
+
+Three phplyr functions share names with PHP built-ins: `count`, `min`, and
+`max`. In a file that imports them, a bare `count($array)` calls phplyr's
+`count()`. Write `\count()`, `\min()`, and `\max()` for the built-ins.
+
+## Loading data
+
+phibble reads CSV files, PDO queries, and query builders, and builds frames from
+PHP arrays:
+
+```php
+$schools = Frame::fromCsv('schools.csv');
+$rows = Frame::fromRows([['id' => 1, 'x' => 2.5], ['id' => 2, 'x' => null]]);
+$cols = Frame::fromColumns(['id' => [1, 2], 'x' => [2.5, null]]);
+```
+
+`null` is NA. Frames are immutable, and every verb returns a new frame.
+`echo $frame` prints the first rows in tibble's format.
+
+## Verbs and the pipe
+
+A verb such as `filter(...)` returns a closure. The pipe operator calls that
+closure with the table on its left:
+
+```php
+$out = $schools |> filter(fn ($r) => $r->score > 80);
+// is the same as
+$out = filter(fn ($r) => $r->score > 80)($schools);
+```
+
+Columns are named with strings: write `'score'` where dplyr takes a bare
+`score`.
+
+## Row closures and vector helpers
+
+phplyr accepts two kinds of expressions.
+
+A **row closure** is an ordinary PHP closure. It receives the row as a
+`Phibble\Row` (read columns as `$r->score` or `$r['score']`) and, as a second
+argument, the table of the row's group:
+
+```php
+mutate(gap: fn ($r) => $r->score - $r->prior_score)
+filter(fn ($r, $group) => $r->score > mean('score')($group))
+```
+
+A **vector helper** is one of phplyr's functions, such as `lag('x')`,
+`cumsum('x')`, `min_rank('x')`, or `mean('x')`. It is evaluated once per group
+on whole columns, with dplyr's semantics. A summary helper used in `mutate()`
+returns one value per group, which is recycled to every row of the group:
+
+{{< include examples/_grouping.md >}}
+
+Vector helpers take a column name as their first argument. That argument can
+also be `col('x')`, another helper, or a row closure. Later arguments are
+values, so a string there is a literal. Wrap it in `col()` to refer to a
+column.
+
+## Named arguments and options
+
+Verbs that create columns name them with PHP named arguments:
+`mutate(total: ...)`, `summarise(n: n())`. dplyr's dot-prefixed options are
+written with a leading underscore, because PHP named arguments cannot start with
+a dot: `_by`, `_keep`, `_before`, `_after`, `_groups`, `_keep_all`, and
+`_by_group`.
+
+PHP does not allow positional arguments after named ones. Put `across()` and
+other positional arguments first: `summarise(across(...), n: n())`.
+
+## Printing and inspecting
+
+`echo` prints a frame. `glimpse()` prints one line per column and passes the
+table through, so it can sit inside a pipeline. `pull('x')` returns a column as
+a PHP list, and `$frame->toRows()` returns all rows as arrays.

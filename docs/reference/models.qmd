@@ -1,0 +1,18 @@
+---
+title: "Models"
+---
+
+`lm()` and `glm()` pass the piped table to the php-stats extension's
+`stats_lm()` and `stats_glm()`. The extension reads factor levels from the
+table, builds the model matrix, and returns coefficients, standard errors, and
+fit statistics in the same order as R.
+
+```php
+$table |> lm('y ~ x + group');
+$table |> glm('passed ~ hours', family: 'binomial');   // also 'poisson', link:
+```
+
+Both need php-stats with the formula functions. Without the extension they
+throw an exception that says so.
+
+{{< include ../examples/_models.md >}}

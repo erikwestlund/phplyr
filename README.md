@@ -129,3 +129,5 @@ Rscript tests/r/reference.R     # regenerate the dplyr reference outputs
 ```
 
 phibble is installed from GitHub (`dev-main`) through a VCS repository in composer.json.
+
+The documentation site is in `docs/` (Quarto). `bin/render-docs` refreshes the example output and renders it; see `docs/development.qmd`.

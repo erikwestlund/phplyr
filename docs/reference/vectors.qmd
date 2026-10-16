@@ -1,0 +1,62 @@
+---
+title: "Vector helpers"
+---
+
+Vector helpers are evaluated once per group on whole columns. Use them as
+`mutate()`, `filter()`, and `summarise()` arguments. They follow R's NA rules:
+a summary returns NA when its input has an NA unless `na_rm: true`, ranks keep
+NA, and cumulative functions stay NA after the first NA.
+
+The first argument is the input column. A string there is a column name. It can
+also be `col('x')`, another helper, or a row closure. Later arguments are
+values. `->map(fn ($value, $r) => ...)` transforms a helper's result row by
+row.
+
+## Summaries
+
+| Helper | Value |
+| --- | --- |
+| `n()` | Rows in the group |
+| `n_distinct('x', 'y')` | Distinct values or combinations |
+| `sum`, `mean`, `median` | As in R |
+| `sd`, `variance` | Sample statistics (n − 1) |
+| `quantile('x', 0.9)`, `iqr('x')` | Type 7 quantiles, R's default |
+| `min`, `max` | Smallest and largest values |
+| `first`, `last`, `nth('x', 2)` | Values by position, with `default:` |
+| `any`, `all` | Logical summaries with NA logic |
+
+With the php-stats extension loaded, `mean`, `sd`, `variance`, `median`, and
+`quantile` use it. Without it they run in PHP and give the same results.
+
+## Window functions
+
+| Helper | Value |
+| --- | --- |
+| `lag('x', n:, default:, order_by:)`, `lead(...)` | Shifted values |
+| `row_number()`, `row_number('x')` | Row numbers, or ranks with ties broken by position |
+| `min_rank`, `dense_rank` | Ranks; wrap the column in `desc()` to reverse |
+| `percent_rank`, `cume_dist` | Ranks scaled to [0, 1] |
+| `ntile('x', 4)` | Buckets of near-equal size |
+| `cumsum`, `cumprod`, `cummin`, `cummax`, `cummean` | Running values |
+| `cumall`, `cumany` | Running logical values |
+| `consecutive_id('x')` | A new id each time the value changes |
+
+{{< include ../examples/_windows.md >}}
+
+## Conditionals and NA
+
+| Helper | Use |
+| --- | --- |
+| `if_else(cond, yes, no, missing:)` | Vectorized if/else |
+| `case_when([cond, value], ..., default:)` | The first true condition wins |
+| `replace_when('x', [cond, value], ...)` | `case_when()` that keeps `x` where nothing matches |
+| `recode_values('x', [from, to], ..., default:)` | Map values; also `from:` / `to:` lookup lists |
+| `replace_values('x', [from, to], ...)` | `recode_values()` that keeps unmatched values |
+| `case_match('x', [from, to], ..., default:)` | dplyr's deprecated form of `recode_values()` |
+| `when_any(...)`, `when_all(...)` | Elementwise OR and AND across conditions |
+| `coalesce('x', 0)` | The first non-NA value |
+| `na_if('x', value)` | NA where `x` equals the value |
+| `between('x', lo, hi)` | Inclusive range test |
+| `near('x', y)` | Equality within floating-point tolerance |
+
+{{< include ../examples/_conditionals.md >}}

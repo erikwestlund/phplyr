@@ -1,0 +1,46 @@
+---
+title: "tidyselect and across()"
+---
+
+## Selectors
+
+Selectors pick columns by name, pattern, or type. They work in `select()`,
+`relocate()`, `rename_with()`, `arrange()`, `distinct()`, `group_by()`,
+`count()`, `across()`, `pick()`, and the tidyr verbs.
+
+| Selector | Columns |
+| --- | --- |
+| `'x'`, `['x', 'y']` | By name |
+| `starts_with('x')`, `ends_with()`, `contains()` | By name fragment; case-insensitive unless `ignore_case: false` |
+| `matches('^x\\d+$')` | By regular expression |
+| `num_range('x', 1, 3)` | `x1`, `x2`, `x3` |
+| `everything()`, `last_col()` | All columns, the last column |
+| `all_of([...])`, `any_of([...])` | Names from a list, strict or lenient |
+| `where('numeric')`, `where(fn ($values, $type, $name) => ...)` | By type or predicate |
+| `group_cols()` | The grouping columns |
+| `except(...)` | Everything but these (dplyr's `-x`) |
+| `any_selected(...)`, `all_selected(...)` | Union and intersection |
+
+`where()` accepts `'numeric'`, `'integer'`, `'double'`, `'character'`,
+`'logical'`, `'factor'`, and `'date'`, or a `Phibble\Type`.
+
+## across()
+
+`across(cols, fns, names:)` applies functions to several columns inside
+`mutate()` or `summarise()`. Grouping columns are never selected. `fns` is one
+function or an associative array of named functions. Output names default to
+`{col}` for one function and `{col}_{fn}` for several.
+
+{{< include ../examples/_across.md >}}
+
+What each function receives:
+
+- A phplyr helper passed as a first-class callable, such as `mean(...)`, is
+  called with the column name.
+- In `summarise()`, other closures receive the column's values as a list.
+- In `mutate()`, other closures receive one value at a time, or the whole
+  column if the first parameter is typed `array`.
+
+`if_any(cols, fn)` and `if_all(cols, fn)` test a predicate across columns for
+use in `filter()`. `pick(...)` returns the selected columns of the current group
+as a table, for use inside closures.

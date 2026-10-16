@@ -1,0 +1,57 @@
+---
+title: "tidyr"
+---
+
+The tidyr verbs use tidyr's argument names. Arguments that start with a dot in
+tidyr start with an underscore here.
+
+## Pivoting
+
+`pivot_longer()` turns columns into rows of names and values. `names_prefix`
+strips a regular expression from the start of each name. `names_sep` or
+`names_pattern` split names into several `names_to` columns, and the special
+name `'.value'` takes the value column's name from that part.
+`values_drop_na: true` drops rows whose values are all NA.
+
+`pivot_wider()` spreads names and values into columns. `id_cols` identify the
+rows (by default every other column). `values_fill` fills missing cells,
+`values_fn` combines duplicate cells, and `names_prefix`, `names_sep`,
+`names_glue`, and `names_sort` control the new names. Without `values_fn`,
+duplicate cells throw an error.
+
+{{< include ../examples/_pivot.md >}}
+
+## Missing combinations and values
+
+`complete()` adds missing combinations of the given columns and fills other
+columns with NA, or with values from `fill:`. A column name expands to its
+unique values (a factor to its levels), `nesting()` keeps only combinations
+that occur, and a named list supplies the values. It works within groups.
+`expand()` returns only the combinations, and `crossing()` and `expand_grid()`
+build a new table from lists.
+
+{{< include ../examples/_complete.md >}}
+
+`fill()` carries values down or up over NA within groups
+(`_direction: 'down' | 'up' | 'downup' | 'updown'`). `drop_na()` drops rows
+with NA in the given columns, and `replace_na()` replaces NA per column.
+
+{{< include ../examples/_fill.md >}}
+
+## Splitting and combining
+
+| Function | Use |
+| --- | --- |
+| `separate_wider_delim(col, delim, names:)` | Split on a fixed string into columns |
+| `separate_wider_position(col, widths)` | Split by character widths |
+| `separate_wider_regex(col, patterns)` | Split with named regular expressions |
+| `separate_longer_delim(col, delim)` | Split into rows |
+| `separate_longer_position(col, width)` | Split into rows of fixed width |
+| `separate(col, into, sep:)` | The superseded splitter, with `extra`, `fill`, and `convert` |
+| `unite(col, ...cols, sep:)` | Paste columns together |
+| `uncount('n', _id:)` | Repeat rows by a weight column |
+| `nest(data: [...])`, `unnest('data')` | List-columns of tables |
+
+`too_few` and `too_many` handle pieces that don't fit, as in tidyr.
+
+{{< include ../examples/_separate.md >}}

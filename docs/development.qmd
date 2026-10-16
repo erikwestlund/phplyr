@@ -1,0 +1,52 @@
+---
+title: "Development"
+---
+
+## Tests
+
+The tests use Pest and run under PHP 8.5:
+
+```bash
+composer install
+bin/test                 # loads .ext/libphp_stats.dylib when present
+NO_EXT=1 bin/test        # pure-PHP descriptive statistics
+PHP=/path/to/php85 bin/test
+```
+
+Most tests compare phplyr with R. The scripts in `tests/r/` run the same
+pipelines with dplyr and tidyr and write JSON fixtures to `tests/Fixtures/`:
+
+```bash
+Rscript tests/r/reference.R   # single-table verbs, windows, across, tidyselect
+Rscript tests/r/joins.R       # joins and rowwise
+Rscript tests/r/tidyr.R       # tidyr verbs
+Rscript tests/r/rows.R        # set operations, rows_*(), dplyr 1.2 helpers
+Rscript tests/r/models.R      # lm() and glm() coefficients
+```
+
+## Documentation
+
+The site is a Quarto project in `docs/`. Code examples live in
+`docs/examples/*.php`. `bin/docs-examples` runs each one with `docs/data` as the
+working directory and writes `docs/examples/_<name>.md` with the code and its
+output, which the pages include. Rendering never executes PHP.
+
+```bash
+PHP=/path/to/php85 bin/docs-examples   # refresh example output
+PHP=/path/to/php85 bin/render-docs     # examples, quarto render, publish to docs/
+```
+
+GitHub Pages serves the rendered site from `main:/docs`.
+
+## Layout
+
+| Path | Contents |
+| --- | --- |
+| `src/functions/verbs.php` | Single-table verbs |
+| `src/functions/vectors.php` | Summary, window, and conditional helpers |
+| `src/functions/select.php` | tidyselect helpers and `across()` |
+| `src/functions/joins.php`, `rows.php` | Joins, set operations, and `rows_*()` |
+| `src/functions/groups.php` | Group utilities, binding, and model adapters |
+| `src/functions/tidyr.php` | tidyr verbs |
+| `src/Vec.php` | The per-group vector expression behind the helpers |
+| `src/Ops.php` | Group-vector primitives over the Table contract |

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Gallery – phplyr</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bb62276ab45c84d9efd712f51ff97b5a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f3d0b6f838474b91d97a23e0a7eb39d8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./gallery.html">Gallery</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">phplyr</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">phplyr</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./getting-started.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting started</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./coming-from-dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Coming from dplyr</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/single-table.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single-table verbs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/two-table.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Two-table verbs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/grouping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Grouping</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/vectors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Vector helpers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/tidyselect.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">tidyselect and across()</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/tidyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">tidyr</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reference/models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Models</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./gallery.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Gallery</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./development.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Development</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#school-value-added" id="toc-school-value-added" class="nav-link active" data-scroll-target="#school-value-added">School value added</a></li>
+  <li><a href="#rent-per-square-meter" id="toc-rent-per-square-meter" class="nav-link" data-scroll-target="#rent-per-square-meter">Rent per square meter</a></li>
+  <li><a href="#pass-rates-by-study-time" id="toc-pass-rates-by-study-time" class="nav-link" data-scroll-target="#pass-rates-by-study-time">Pass rates by study time</a></li>
+  <li><a href="#clinic-calls-by-staffing" id="toc-clinic-calls-by-staffing" class="nav-link" data-scroll-target="#clinic-calls-by-staffing">Clinic calls by staffing</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Gallery</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>These analyses use the small datasets from php-stats’ documentation. Each example ran when the documentation was built, and the output shown is the output it produced. The CSV files are in <a href="https://github.com/erikwestlund/phplyr/tree/main/docs/data"><code>docs/data</code></a>.</p>
+<section id="school-value-added" class="level2">
+<h2 class="anchored" data-anchor-id="school-value-added">School value added</h2>
+<p>The schools data has 250 students in 12 schools, with study hours, a prior score, and a final score. A regression on all students gives each student an expected score. Averaging the residuals by school ranks schools by how far their students exceed that expectation.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Which schools do better than their students' prior scores predict?</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Fit one regression on all students, then average each school's residuals.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">$schools</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'schools.csv'</span>)<span class="ot">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> <span class="va">$schools</span> <span class="op">|&gt;</span> lm(<span class="st">'score ~ prior_score + study_hours'</span>)<span class="ot">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>[<span class="va">$b0</span><span class="ot">,</span> <span class="va">$b_prior</span><span class="ot">,</span> <span class="va">$b_hours</span>] <span class="op">=</span> <span class="va">$fit</span>[<span class="st">'coefficients'</span>]<span class="ot">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$schools</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(expected<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$b0</span> <span class="op">+</span> <span class="va">$b_prior</span> <span class="op">*</span> <span class="va">$r</span>-&gt;prior_score <span class="op">+</span> <span class="va">$b_hours</span> <span class="op">*</span> <span class="va">$r</span>-&gt;study_hours)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(residual<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;score <span class="op">-</span> <span class="va">$r</span>-&gt;expected)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'school'</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        students<span class="ot">:</span> n()<span class="ot">,</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        avg_score<span class="ot">:</span> mean(<span class="st">'score'</span>)<span class="ot">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        avg_residual<span class="ot">:</span> mean(<span class="st">'residual'</span>)<span class="ot">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        share_above<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$g</span>) =&gt; <span class="fu">round</span>(\<span class="fu">count</span>(<span class="fu">array_filter</span>(<span class="va">$g</span>-&gt;column(<span class="st">'residual'</span>)<span class="ot">,</span> <span class="kw">fn</span> (<span class="va">$e</span>) =&gt; <span class="va">$e</span> <span class="op">&gt;</span> <span class="dv">0</span>)) <span class="op">/</span> <span class="va">$g</span>-&gt;nrow()<span class="ot">,</span> <span class="dv">2</span>)<span class="ot">,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(rank<span class="ot">:</span> min_rank(desc(<span class="st">'avg_residual'</span>))<span class="ot">,</span> avg_score<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;avg_score<span class="ot">,</span> <span class="dv">1</span>)<span class="ot">,</span> avg_residual<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;avg_residual<span class="ot">,</span> <span class="dv">2</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="st">'rank'</span>)<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A phibble: 12 × 6
+   school    students avg_score avg_residual share_above rank
+   &lt;chr&gt;     &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;       &lt;int&gt;
+1  school-07 19       83.4      11.13        1           1
+2  school-06 27       76.9      2.28         0.52        2
+3  school-09 16       74.9      2.25         0.69        3
+4  school-02 24       72.9      1.7          0.67        4
+5  school-10 25       71.5      0.66         0.56        5
+6  school-05 20       73        0.23         0.55        6
+7  school-11 23       71.2      0.09         0.39        7
+8  school-01 18       72.9      0.06         0.44        8
+9  school-03 15       69        -1.85        0.4         9
+10 school-12 20       64        -5.14        0.05        10
+# ℹ 2 more rows</code></pre>
+</section>
+<section id="rent-per-square-meter" class="level2">
+<h2 class="anchored" data-anchor-id="rent-per-square-meter">Rent per square meter</h2>
+<p>The housing data has eight flats. The first table summarizes area, rent, and rent per square meter by number of bedrooms with <code>across()</code>. The second compares each flat with its bedroom group using <code>_by</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Price per square meter by number of bedrooms, with each flat's</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// position relative to its bedroom group.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="va">$housing</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'housing.csv'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(per_m2<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;monthly_rent <span class="op">/</span> <span class="va">$r</span>-&gt;area_m2<span class="ot">,</span> <span class="dv">2</span>))<span class="ot">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$housing</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'bedrooms'</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(across([<span class="st">'area_m2'</span><span class="ot">,</span> <span class="st">'monthly_rent'</span><span class="ot">,</span> <span class="st">'per_m2'</span>]<span class="ot">,</span> [<span class="st">'mean'</span> =&gt; mean(...)<span class="ot">,</span> <span class="st">'max'</span> =&gt; <span class="fu">max</span>(...)])<span class="ot">,</span> flats<span class="ot">:</span> n())</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(across(where(<span class="st">'double'</span>)<span class="ot">,</span> <span class="kw">fn</span> (<span class="va">$v</span>) =&gt; <span class="fu">round</span>(<span class="va">$v</span><span class="ot">,</span> <span class="dv">1</span>)))<span class="ot">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="va">$housing</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(vs_group<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span><span class="ot">,</span> <span class="va">$g</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;per_m2 <span class="op">-</span> mean(<span class="st">'per_m2'</span>)(<span class="va">$g</span>)<span class="ot">,</span> <span class="dv">2</span>)<span class="ot">,</span> _by<span class="ot">:</span> <span class="st">'bedrooms'</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="st">'bedrooms'</span><span class="ot">,</span> desc(<span class="st">'vs_group'</span>))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A phibble: 3 × 8
+  bedrooms area_m2_mean area_m2_max monthly_rent_mean monthly_rent_max per_m2_mean per_m2_max flats
+  &lt;int&gt;    &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;       &lt;dbl&gt;      &lt;int&gt;
+1 1        43.9         49.1        1245.5            1509.2           28.3        33         3
+2 2        66.1         74.4        1902.2            2022.3           29.1        31.5       3
+3 3        93.2         93.9        2313.3            2386.5           24.8        25.4       2
+# A phibble: 8 × 5
+  area_m2 bedrooms monthly_rent per_m2 vs_group
+  &lt;dbl&gt;   &lt;int&gt;    &lt;dbl&gt;        &lt;dbl&gt;  &lt;dbl&gt;
+1 45.7    1        1509.24      33.02  4.76
+2 37      1        959.51       25.93  -2.33
+3 49.1    1        1267.85      25.82  -2.44
+4 57.4    2        1805.03      31.45  2.39
+5 66.4    2        2022.29      30.46  1.4
+6 74.4    2        1879.25      25.26  -3.8
+7 93.9    3        2386.54      25.42  0.59
+8 92.4    3        2240.1       24.24  -0.59</code></pre>
+</section>
+<section id="pass-rates-by-study-time" class="level2">
+<h2 class="anchored" data-anchor-id="pass-rates-by-study-time">Pass rates by study time</h2>
+<p>The learning data records study hours, a practice score, and whether 80 students passed. <code>ntile()</code> splits students into study-hour quartiles, and a logistic regression estimates the effect of an extra hour.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Pass rates by study-hour quartile, then a logistic regression.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="va">$learning</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'learning.csv'</span>)<span class="ot">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$learning</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(hours_quartile<span class="ot">:</span> ntile(<span class="st">'study_hours'</span><span class="ot">,</span> <span class="dv">4</span>))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'hours_quartile'</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        students<span class="ot">:</span> n()<span class="ot">,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        min_hours<span class="ot">:</span> <span class="fu">min</span>(<span class="st">'study_hours'</span>)<span class="ot">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        max_hours<span class="ot">:</span> <span class="fu">max</span>(<span class="st">'study_hours'</span>)<span class="ot">,</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        pass_rate<span class="ot">:</span> mean(<span class="st">'passed'</span>)<span class="ot">,</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    )<span class="ot">;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> <span class="va">$learning</span> <span class="op">|&gt;</span> glm(<span class="st">'passed ~ study_hours + practice_score'</span><span class="ot">,</span> family<span class="ot">:</span> <span class="st">'binomial'</span>)<span class="ot">;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="fu">printf</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Odds ratio per extra study hour: %.3f</span><span class="sc">\n</span><span class="st">"</span><span class="ot">,</span> <span class="fu">exp</span>(<span class="va">$fit</span>[<span class="st">'coefficients'</span>][<span class="dv">1</span>]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A phibble: 4 × 5
+  hours_quartile students min_hours max_hours pass_rate
+  &lt;int&gt;          &lt;int&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 1              20       1.24      3.38      0.25
+2 2              20       3.44      5.98      0.3
+3 3              20       6         8.83      0.45
+4 4              20       8.87      11.77     0.45
+Odds ratio per extra study hour: 1.066</code></pre>
+</section>
+<section id="clinic-calls-by-staffing" class="level2">
+<h2 class="anchored" data-anchor-id="clinic-calls-by-staffing">Clinic calls by staffing</h2>
+<p>The clinic data has visitors, staff, and calls for 120 days. The example bands staffing and visitor volume, averages calls, and widens the result into a cross-tabulation.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Calls by staffing level and visitor volume, as a cross-tabulation.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> Frame::fromCsv(<span class="st">'clinic.csv'</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        staffing<span class="ot">:</span> case_when([<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;staff <span class="op">&lt;</span> <span class="dv">4</span><span class="ot">,</span> <span class="st">'low'</span>]<span class="ot">,</span> [<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;staff <span class="op">&lt;</span> <span class="dv">6</span><span class="ot">,</span> <span class="st">'mid'</span>]<span class="ot">,</span> <span class="cf">default</span><span class="ot">:</span> <span class="st">'high'</span>)<span class="ot">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        volume<span class="ot">:</span> if_else(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="va">$r</span>-&gt;visitors <span class="op">&gt;=</span> <span class="dv">250</span><span class="ot">,</span> <span class="st">'busy'</span><span class="ot">,</span> <span class="st">'quiet'</span>)<span class="ot">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> group_by(<span class="st">'staffing'</span><span class="ot">,</span> <span class="st">'volume'</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> summarise(mean_calls<span class="ot">:</span> mean(<span class="st">'calls'</span>)<span class="ot">,</span> _groups<span class="ot">:</span> <span class="st">'drop'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> mutate(mean_calls<span class="ot">:</span> <span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">round</span>(<span class="va">$r</span>-&gt;mean_calls<span class="ot">,</span> <span class="dv">2</span>))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> pivot_wider(names_from<span class="ot">:</span> <span class="st">'volume'</span><span class="ot">,</span> values_from<span class="ot">:</span> <span class="st">'mean_calls'</span><span class="ot">,</span> names_sort<span class="ot">:</span> <span class="kw">true</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> arrange(<span class="kw">fn</span> (<span class="va">$r</span>) =&gt; <span class="fu">array_search</span>(<span class="va">$r</span>-&gt;staffing<span class="ot">,</span> [<span class="st">'low'</span><span class="ot">,</span> <span class="st">'mid'</span><span class="ot">,</span> <span class="st">'high'</span>]))<span class="ot">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre class="text output"><code># A phibble: 3 × 3
+  staffing busy  quiet
+  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;
+1 low      NA    1.9
+2 mid      1.79  1.64
+3 high     1.8   NA</code></pre>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/erikwestlund\.github\.io\/phplyr\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,95 @@
+---
+title: "Single-table verbs"
+---
+
+## Rows
+
+`filter()` keeps rows where every condition is true. Conditions are row
+closures, vector helpers such as `between()` or `if_any()`, or the name of a
+logical column. NA counts as false. `filter_out()` drops the rows where every
+condition is true and keeps rows where a condition is NA, so `filter()` and
+`filter_out()` with the same conditions split a table without overlap.
+
+{{< include ../examples/_filter.md >}}
+
+In a grouped table, the second closure argument is the row's group, and vector
+helpers are evaluated per group:
+
+{{< include ../examples/_filter-grouped.md >}}
+
+`arrange()` sorts rows. It is stable and puts NA last. Keys are column names,
+`desc()`, or expressions, which are evaluated over the whole table. It ignores
+grouping unless you pass `_by_group: true`.
+
+{{< include ../examples/_arrange.md >}}
+
+`distinct()` keeps unique rows over the given columns, or over all columns.
+Named arguments add computed columns first, and `_keep_all: true` keeps every
+column from the first row of each combination.
+
+The slice family picks rows within each group:
+
+| Function | Rows |
+| --- | --- |
+| `slice(1, 3)`, `slice(-1)` | By 1-based position; negative positions drop rows. |
+| `slice_head(n:)`, `slice_tail(n:)` | The first or last rows. |
+| `slice_min(x, n:)`, `slice_max(x, n:)` | The rows with the smallest or largest values, with ties kept unless `with_ties: false`. |
+| `slice_sample(n:, replace:, weight_by:)` | Random rows. Seed with `mt_srand()`. |
+| `head(n)` | The first rows of the whole table, ignoring groups. |
+
+Each takes `prop:` in place of `n:`, and `_by:`.
+
+{{< include ../examples/_slice.md >}}
+
+## Columns
+
+`select()` keeps columns by name or with [tidyselect helpers](tidyselect.qmd).
+An associative array renames while selecting. `rename()` renames with
+`new: 'old'` arguments, `rename_with()` applies a function to selected names,
+and `relocate()` moves columns to the front or `_before` / `_after` another
+column.
+
+{{< include ../examples/_select.md >}}
+
+`mutate()` adds or replaces columns. A value can be a row closure, a vector
+helper, a list with one value per row, a scalar, or `null` to drop the column.
+Later arguments see the columns made by earlier ones.
+
+{{< include ../examples/_mutate.md >}}
+
+`mutate()` takes dplyr's options: `_by` groups for one call, `_keep: 'none'`
+keeps only the grouping and new columns, and `_before` or `_after` place the
+new columns. `transmute()` is `mutate()` that keeps only the new columns.
+
+{{< include ../examples/_mutate-options.md >}}
+
+`pull()` returns one column as a PHP list. It takes a name or a position
+(1-based, negative from the end, the last column by default) and an optional
+`name:` column whose values become the keys.
+
+{{< include ../examples/_distinct-pull.md >}}
+
+## Summaries
+
+`summarise()` returns one row per group. Each named argument is a summary
+helper or a closure that receives the group's table and returns one value.
+With several grouping columns, the result drops the last one, as in dplyr.
+`_groups` accepts `'drop_last'`, `'drop'`, `'keep'`, and `'rowwise'`.
+
+{{< include ../examples/_summarise.md >}}
+
+`reframe()` is `summarise()` for summaries that return several values. Results
+are recycled to a common length within each group, and the output is
+ungrouped.
+
+{{< include ../examples/_reframe.md >}}
+
+`count()` counts rows per combination of columns within any existing groups and
+keeps the original grouping. `wt:` sums a column instead, `sort: true` orders by
+the count, and `name:` names the count column. `tally()` counts within the
+current groups, and `add_count()` and `add_tally()` add the count as a column.
+
+{{< include ../examples/_count.md >}}
+
+`glimpse()` prints a compact summary of each column and returns the table
+unchanged.

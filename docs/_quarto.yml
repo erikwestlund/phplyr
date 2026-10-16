@@ -1,0 +1,38 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - "*.qmd"
+    - "reference/*.qmd"
+  resources:
+    - data/*.csv
+
+website:
+  site-url: "https://erikwestlund.github.io/phplyr/"
+  title: "phplyr"
+  repo-url: "https://github.com/erikwestlund/phplyr"
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - index.qmd
+      - getting-started.qmd
+      - coming-from-dplyr.qmd
+      - section: "Reference"
+        contents:
+          - reference/single-table.qmd
+          - reference/two-table.qmd
+          - reference/grouping.qmd
+          - reference/vectors.qmd
+          - reference/tidyselect.qmd
+          - reference/tidyr.qmd
+          - reference/models.qmd
+      - gallery.qmd
+      - development.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-copy: true
+    highlight-style: github

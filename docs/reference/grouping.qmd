@@ -1,0 +1,36 @@
+---
+title: "Grouping"
+---
+
+`group_by()` sets the grouping columns. Selectors work, named arguments group
+by a computed column, and `_add: true` adds to the existing groups.
+`ungroup()` removes grouping, or only the named columns.
+
+Groups are ordered like dplyr's: sorted by key, factors by level order, and NA
+last. `filter()`, `mutate()`, `summarise()`, and the slice functions work
+within groups. `_by:` groups for a single call and returns an ungrouped table.
+
+{{< include ../examples/_grouping.md >}}
+
+## Group utilities
+
+| Function | Returns |
+| --- | --- |
+| `group_vars()` | The grouping column names |
+| `n_groups()` | The number of groups |
+| `group_size()` | Rows per group |
+| `group_indices()` | Each row's 1-based group number |
+| `group_keys()` | A table of group keys |
+| `group_split(_keep:)` | A list of tables, one per group |
+| `group_map(fn ($table, $key))` | A list of the function's results |
+| `group_modify(fn ($table, $key))` | A grouped table built from the returned tables |
+| `group_walk(fn ($table, $key))` | The table, after calling the function per group |
+| `group_cols()` | A selector for the grouping columns |
+
+## Row-wise operations
+
+`rowwise()` makes each row its own group. Closures in `summarise()` and vector
+helpers then see one row at a time. Optional id columns stay as groups in the
+result of `summarise()`.
+
+{{< include ../examples/_rowwise.md >}}
