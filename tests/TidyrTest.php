@@ -72,8 +72,21 @@ it('matches tidyr', function (string $key, Closure $pipeline) {
 })->with('tidyr');
 
 it('errors on ambiguous widening and ragged splits', function () {
-    expect(fn () => tidyFixture('long.csv') |> pivot_wider(id_cols: 'id', names_from: 'key', values_from: 'val'))
-        ->toThrow(UnexpectedValueException::class, 'values_fn');
+    // Duplicate cells become list-columns with tidyr's warning.
+    $warnings = [];
+    set_error_handler(function (int $level, string $message) use (&$warnings) {
+        $warnings[] = $message;
+
+        return true;
+    }, E_USER_WARNING);
+    try {
+        $wide = tidyFixture('long.csv') |> pivot_wider(id_cols: 'id', names_from: 'key', values_from: 'val');
+    } finally {
+        restore_error_handler();
+    }
+    expect($warnings[0] ?? '')->toStartWith('Values from `val` are not uniquely identified; output will contain list-cols.');
+    expect($wide->toRows()[2]['z'])->toBe([5.0, 6.0]);
+    expect($wide->toRows()[0]['x'])->toBe([1.5]);
     expect(fn () => tidyFixture('strings.csv') |> separate_wider_delim('s', '-', names: ['a', 'b']))
         ->toThrow(UnexpectedValueException::class, 'too_many');
 });

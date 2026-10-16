@@ -33,7 +33,6 @@ final class Tidyr
 
         // Parse each source column name into name parts and a value column.
         $groups = [];
-        $valueNames = [];
         foreach ($cols as $col) {
             $name = $namesPrefix === null ? $col : (string) preg_replace(self::regex('^(?:'.$namesPrefix.')'), '', $col);
             $pieces = match (true) {
@@ -53,42 +52,19 @@ final class Tidyr
             $key = serialize($parts);
             $groups[$key] ??= ['parts' => $parts, 'cols' => []];
             $groups[$key]['cols'][$valueName] = $col;
-            $valueNames[$valueName] = true;
         }
         $groups = array_values($groups);
-        $valueNames = array_keys($valueNames);
 
-        $source = array_map(fn ($c) => $t->column($c), array_combine($cols, $cols));
-        $index = [];
-        $out = [];
-        foreach (array_keys(reset($groups)['parts']) as $to) {
-            $out[$to] = [];
-        }
-        foreach ($valueNames as $v) {
-            $out[$v] = [];
-        }
-        for ($i = 0, $n = $t->nrow(); $i < $n; $i++) {
-            foreach ($groups as $g) {
-                $values = [];
-                foreach ($valueNames as $v) {
-                    $values[$v] = isset($g['cols'][$v]) ? $source[$g['cols'][$v]][$i] : null;
-                }
-                if ($valuesDropNa && array_all($values, fn ($x) => $x === null)) {
-                    continue;
-                }
-                $index[] = $i;
-                foreach ($g['parts'] as $to => $part) {
-                    $out[$to][] = $part;
-                }
-                foreach ($values as $v => $x) {
-                    $out[$v][] = $x;
-                }
+        // The table runs tidyr's pivot_longer_spec().
+        $spec = [];
+        foreach ($groups as $g) {
+            foreach ($g['cols'] as $valueName => $col) {
+                $spec[] = ['.name' => $col, '.value' => $valueName] + $g['parts'];
             }
         }
 
-        return Ops::take($t->select($ids), $index)->mutate($out);
+        return $t->pivotLongerSpec($spec, $valuesDropNa);
     }
-
     /**
      * @param list<string> $namesFrom
      * @param list<string> $valuesFrom
@@ -100,6 +76,37 @@ final class Tidyr
         $idCols = $idCols === null
             ? array_values(array_diff($t->columns(), $namesFrom, $valuesFrom))
             : Selector::select([$idCols], $t);
+
+        // The table runs tidyr's pivot_wider_spec(). values_fn is applied here,
+        // in PHP, keeping tidyr's first-appearance row order.
+        if ($valuesFn === null) {
+            $keys = $t->ungroup()->select($namesFrom)->distinct()->toRows();
+            if ($namesSort) {
+                usort($keys, function (array $a, array $b) {
+                    foreach ($a as $col => $x) {
+                        $y = $b[$col];
+                        $c = $x === null || $y === null ? ($x === null) <=> ($y === null) : Window::compare($x, $y);
+                        if ($c !== 0) {
+                            return $c;
+                        }
+                    }
+
+                    return 0;
+                });
+            }
+            $spec = [];
+            foreach ($valuesFrom as $vc) {
+                foreach ($keys as $key) {
+                    $parts = array_values($key);
+                    $spec[] = ['.name' => self::wideName($vc, $parts, $key, $namesFrom, $valuesFrom, $namesPrefix, $namesSep, $namesGlue), '.value' => $vc] + $key;
+                }
+            }
+            $fill = \is_array($valuesFill)
+                ? $valuesFill
+                : ($valuesFill === null ? [] : array_fill_keys($valuesFrom, $valuesFill));
+
+            return $t->pivotWiderSpec($spec, $idCols, $fill);
+        }
 
         $idVectors = array_map(fn ($c) => $t->column($c), $idCols);
         $nameVectors = array_map(fn ($c) => $t->column($c), $namesFrom);
@@ -137,34 +144,49 @@ final class Tidyr
 
         $out = [];
         $nRows = \count($first);
+        // Like tidyr, duplicate cells (without values_fn) turn that value column
+        // into list-columns, with tidyr's warning.
+        $listCols = [];
+        foreach ($valuesFrom as $vc) {
+            $fn = \is_array($valuesFn) ? ($valuesFn[$vc] ?? null) : $valuesFn;
+            $listCols[$vc] = $fn === null && array_any($cells[$vc] ?? [], fn ($row) => array_any($row, fn ($cell) => \count($cell) > 1));
+            if ($listCols[$vc]) {
+                trigger_error("Values from `{$vc}` are not uniquely identified; output will contain list-cols.", E_USER_WARNING);
+            }
+        }
         foreach ($valuesFrom as $vc) {
             $fn = \is_array($valuesFn) ? ($valuesFn[$vc] ?? null) : $valuesFn;
             $fill = \is_array($valuesFill) ? ($valuesFill[$vc] ?? null) : $valuesFill;
             foreach ($colKeys as $ck => $parts) {
-                $label = implode($namesSep, array_map(fn ($p) => self::str($p), $parts));
-                $name = match (true) {
-                    $namesGlue !== null => self::glue($namesGlue, array_combine($namesFrom, $parts) + ['.value' => $vc]),
-                    \count($valuesFrom) > 1 => $vc.$namesSep.$namesPrefix.$label,
-                    default => $namesPrefix.$label,
-                };
+                $name = self::wideName($vc, $parts, array_combine($namesFrom, $parts), $namesFrom, $valuesFrom, $namesPrefix, $namesSep, $namesGlue);
+
                 $values = [];
                 for ($r = 0; $r < $nRows; $r++) {
                     $cell = $cells[$vc][$r][$ck] ?? null;
-                    if ($cell === null) {
-                        $values[] = $fill;
-                    } elseif ($fn !== null) {
-                        $values[] = $fn($cell);
-                    } elseif (\count($cell) > 1) {
-                        throw new \UnexpectedValueException("pivot_wider(): values in '{$vc}' are not uniquely identified; pass values_fn to summarise duplicates.");
-                    } else {
-                        $values[] = $cell[0];
-                    }
+                    $values[] = match (true) {
+                        $cell === null => $listCols[$vc] ? null : $fill,
+                        $fn !== null => $fn($cell),
+                        $listCols[$vc] => $cell,
+                        default => $cell[0],
+                    };
                 }
                 $out[$name] = $values;
             }
         }
 
         return Ops::take($t->select($idCols), $first)->mutate($out);
+    }
+
+    /** A pivot_wider() column name, as tidyr builds it. */
+    private static function wideName(string $vc, array $parts, array $key, array $namesFrom, array $valuesFrom, string $namesPrefix, string $namesSep, ?string $namesGlue): string
+    {
+        $label = implode($namesSep, array_map(fn ($p) => self::str($p), $parts));
+
+        return match (true) {
+            $namesGlue !== null => self::glue($namesGlue, $key + ['.value' => $vc]),
+            \count($valuesFrom) > 1 => $vc.$namesSep.$namesPrefix.$label,
+            default => $namesPrefix.$label,
+        };
     }
 
     // -----------------------------------------------------------------

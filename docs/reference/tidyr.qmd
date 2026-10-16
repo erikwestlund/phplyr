@@ -17,7 +17,12 @@ name `'.value'` takes the value column's name from that part.
 rows (by default every other column). `values_fill` fills missing cells,
 `values_fn` combines duplicate cells, and `names_prefix`, `names_sep`,
 `names_glue`, and `names_sort` control the new names. Without `values_fn`,
-duplicate cells throw an error.
+duplicate cells turn the value column into list-columns and raise tidyr's
+warning.
+
+Both verbs build tidyr's pivot spec in phplyr and pass it to the table's
+`pivotLongerSpec()` or `pivotWiderSpec()`, so a backend can run the pivot
+natively.
 
 {{< include ../examples/_pivot.md >}}
 
