@@ -75,25 +75,26 @@ Frame peaked at about 1.5 GB of memory for the 1M-row table and its results.
 
 ## PolarsTable
 
-phpolars' `bench/phplyr.php` times three phplyr pipelines on Frame,
-PolarsTable, and SQLite, and checks that all three backends return the same
-rows. The pipelines are:
+`bench/backends.php` times three phplyr pipelines on Frame, PolarsTable, and
+SQLite, and checks that all three backends return the same rows. It is adapted
+from phpolars' benchmark script. The pipelines are:
 
 - **A:** filter, join a store lookup, two-key summarise, then a ranking window.
 - **B:** grouped `lag(order_by:)`, `cumsum()`, and a share of the group total
   over all rows.
-- **C:** pipeline A with closures in place of expressions.
+- **C:** pipeline A with a closure in `filter()`.
 
-These timings come from phpolars' run on an Apple M5 Ultra with Polars at two
-threads and an earlier phibble (dbd8b1e), so the Frame column is slower than in
-the table above. Times are the best of three, through `collect()`.
+Times are the best of three runs through `collect()`, on an Apple M5 Ultra with
+Homebrew PHP 8.5, phibble 042ebb8, and Polars at two threads. In every case the
+three backends returned the same rows. The full results, with all repeat
+timings and version details, are in
+[`benchmarks/backends-results.json`](benchmarks/backends-results.json).
 
 | Pipeline, 1M rows | Frame (s) | PolarsTable (s) | SQLite (s) |
 | --- | --: | --: | --: |
-| A: reduce to a ranked summary | 1.52 | 0.06 | 0.46 |
-| B: windows over every row | 2.68 | 0.44 | 3.57 |
-| C: A with closures | 1.67 | 0.91 | 2.88 |
-
+| A: reduce to a ranked summary | 0.63 | 0.05 | 1.33 |
+| B: windows over every row | 1.32 | 0.42 | 3.68 |
+| C: A with a closure | 1.02 | 0.88 | 2.17 |
 The verbs themselves are fast in Polars. Most of PolarsTable's time goes to
 converting results back to PHP values: about 0.2 seconds per million rows of
 plain columns, plus about 0.5 seconds per million values of a datetime column,
@@ -104,7 +105,7 @@ returning 1M rows took 1.3 seconds on PolarsTable against 0.3 seconds on
 Frame.
 
 A closure makes PolarsTable convert the data to a Frame and back, which costs
-about a second per million rows. Pipeline C ran one closure step in memory.
+about a second per million rows. Pipeline C runs its closure step that way.
 
 Use PolarsTable when a pipeline reduces the data before collecting
 (summaries, filters, `distinct()`, or a join followed by a summary), when it

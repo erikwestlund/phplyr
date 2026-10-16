@@ -382,13 +382,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="polarstable" class="level2">
 <h2 class="anchored" data-anchor-id="polarstable">PolarsTable</h2>
-<p>phpolars’ <code>bench/phplyr.php</code> times three phplyr pipelines on Frame, PolarsTable, and SQLite, and checks that all three backends return the same rows. The pipelines are:</p>
+<p><code>bench/backends.php</code> times three phplyr pipelines on Frame, PolarsTable, and SQLite, and checks that all three backends return the same rows. It is adapted from phpolars’ benchmark script. The pipelines are:</p>
 <ul>
 <li><strong>A:</strong> filter, join a store lookup, two-key summarise, then a ranking window.</li>
 <li><strong>B:</strong> grouped <code>lag(order_by:)</code>, <code>cumsum()</code>, and a share of the group total over all rows.</li>
-<li><strong>C:</strong> pipeline A with closures in place of expressions.</li>
+<li><strong>C:</strong> pipeline A with a closure in <code>filter()</code>.</li>
 </ul>
-<p>These timings come from phpolars’ run on an Apple M5 Ultra with Polars at two threads and an earlier phibble (dbd8b1e), so the Frame column is slower than in the table above. Times are the best of three, through <code>collect()</code>.</p>
+<p>Times are the best of three runs through <code>collect()</code>, on an Apple M5 Ultra with Homebrew PHP 8.5, phibble 042ebb8, and Polars at two threads. In every case the three backends returned the same rows. The full results, with all repeat timings and version details, are in <a href="benchmarks/backends-results.json"><code>benchmarks/backends-results.json</code></a>.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -401,26 +401,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>A: reduce to a ranked summary</td>
-<td style="text-align: right;">1.52</td>
-<td style="text-align: right;">0.06</td>
-<td style="text-align: right;">0.46</td>
+<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">1.33</td>
 </tr>
 <tr class="even">
 <td>B: windows over every row</td>
-<td style="text-align: right;">2.68</td>
-<td style="text-align: right;">0.44</td>
-<td style="text-align: right;">3.57</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">0.42</td>
+<td style="text-align: right;">3.68</td>
 </tr>
 <tr class="odd">
-<td>C: A with closures</td>
-<td style="text-align: right;">1.67</td>
-<td style="text-align: right;">0.91</td>
-<td style="text-align: right;">2.88</td>
+<td>C: A with a closure</td>
+<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: right;">2.17</td>
 </tr>
 </tbody>
 </table>
 <p>The verbs themselves are fast in Polars. Most of PolarsTable’s time goes to converting results back to PHP values: about 0.2 seconds per million rows of plain columns, plus about 0.5 seconds per million values of a datetime column, because each value becomes a PHP <code>DateTimeImmutable</code>. A pipeline that returns every row of a table with a datetime column can therefore be slower on PolarsTable than on Frame. In phibble’s harness, <code>mutate()</code> and <code>left_join()</code> returning 1M rows took 1.3 seconds on PolarsTable against 0.3 seconds on Frame.</p>
-<p>A closure makes PolarsTable convert the data to a Frame and back, which costs about a second per million rows. Pipeline C ran one closure step in memory.</p>
+<p>A closure makes PolarsTable convert the data to a Frame and back, which costs about a second per million rows. Pipeline C runs its closure step that way.</p>
 <p>Use PolarsTable when a pipeline reduces the data before collecting (summaries, filters, <code>distinct()</code>, or a join followed by a summary), when it chains several steps, or when the data starts in Polars: <code>PolarsTable::fromPolars(Phpolars\read_csv($path))</code> skips phibble’s CSV parse. Keep the pipeline in expressions so every step stays in Polars.</p>
 
 

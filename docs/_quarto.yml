@@ -6,6 +6,7 @@ project:
     - "reference/*.qmd"
   resources:
     - data/*.csv
+    - benchmarks/*.json
 
 website:
   site-url: "https://erikwestlund.github.io/phplyr/"
