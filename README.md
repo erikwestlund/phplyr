@@ -57,13 +57,17 @@ Each verb returns a closure that takes one `Phibble\Contracts\Table`, and verbs 
 | Joins | `$x \|> left_join($y, by: ['id' => 'key'], suffix: ['.x', '.y'], keep:, na_matches:, multiple:, unmatched:, relationship:)`. Also `inner_join`, `right_join`, `full_join`, `semi_join`, `anti_join` and `cross_join`. |
 | `rowwise` | `rowwise('id')`. Each row becomes its own group. |
 
-**Group utilities:** `group_vars`, `n_groups`, `group_size`, `group_indices`, `group_keys`, `group_split`, `group_map`, `group_modify`, `group_walk`.
+| `filter_out` | `filter_out(fn ($r) => $r->status === 'test')`. Drops rows where every condition is true, keeping NA rows (dplyr 1.2). |
+| Set operations | `union`, `union_all`, `intersect`, `setdiff`, `symdiff`, `setequal` |
+| `rows_*` | `rows_insert`, `rows_append`, `rows_update`, `rows_patch`, `rows_upsert`, `rows_delete`, with `by:`, `conflict:` and `unmatched:` |
+
+**Group utilities:** `group_cols()` (a selector), `group_vars`, `n_groups`, `group_size`, `group_indices`, `group_keys`, `group_split`, `group_map`, `group_modify`, `group_walk`.
 
 ## Vector helpers
 
 - **Summaries:** `n`, `n_distinct`, `sum`, `mean`, `median`, `sd`, `variance`, `quantile(x, p)`, `iqr`, `min`, `max`, `first`, `last`, `nth(x, n)`, `any`, `all`.
 - **Windows:** `lag`, `lead` (with `default:` and `order_by:`), `row_number`, `min_rank`, `dense_rank`, `percent_rank`, `cume_dist`, `ntile`, `cumsum`, `cumprod`, `cummin`, `cummax`, `cummean`, `cumall`, `cumany`, `consecutive_id`.
-- **Conditionals and NA:** `if_else`, `case_when([cond, value], ..., default: ...)`, `coalesce`, `na_if`, `between`, `near`.
+- **Conditionals and NA:** `if_else`, `case_when([cond, value], ..., default: ...)`, `replace_when`, `case_match`, `recode_values` / `replace_values` (cases or `from:` / `to:` lookup tables), `when_any` / `when_all`, `coalesce`, `na_if`, `between`, `near`.
 - **Building blocks:** `col('x')`, `vec(fn ($r) => ...)`, and `->map(fn ($value, $r) => ...)` on any helper.
 
 `sd` and `variance` use n - 1, and `quantile` uses R's type 7. The variance helper is called `variance()` because `var` is a reserved word in PHP. When the `php_stats` extension is loaded, the descriptive helpers use it; otherwise they fall back to pure PHP.

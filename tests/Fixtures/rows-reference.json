@@ -1,0 +1,504 @@
+{
+  "union_all": [
+    {
+      "id": 1,
+      "v": "a"
+    },
+    {
+      "id": 2,
+      "v": "b"
+    },
+    {
+      "id": 3,
+      "v": "c"
+    },
+    {
+      "id": 3,
+      "v": "c"
+    },
+    {
+      "id": null,
+      "v": "n"
+    },
+    {
+      "id": 3,
+      "v": "c"
+    },
+    {
+      "id": 4,
+      "v": "d"
+    },
+    {
+      "id": null,
+      "v": "n"
+    }
+  ],
+  "union": [
+    {
+      "id": 1,
+      "v": "a"
+    },
+    {
+      "id": 2,
+      "v": "b"
+    },
+    {
+      "id": 3,
+      "v": "c"
+    },
+    {
+      "id": null,
+      "v": "n"
+    },
+    {
+      "id": 4,
+      "v": "d"
+    }
+  ],
+  "intersect": [
+    {
+      "id": 3,
+      "v": "c"
+    },
+    {
+      "id": null,
+      "v": "n"
+    }
+  ],
+  "setdiff": [
+    {
+      "id": 1,
+      "v": "a"
+    },
+    {
+      "id": 2,
+      "v": "b"
+    }
+  ],
+  "symdiff": [
+    {
+      "id": 1,
+      "v": "a"
+    },
+    {
+      "id": 2,
+      "v": "b"
+    },
+    {
+      "id": 4,
+      "v": "d"
+    }
+  ],
+  "insert": [
+    {
+      "id": 1,
+      "v": "a",
+      "w": 10
+    },
+    {
+      "id": 2,
+      "v": null,
+      "w": 20
+    },
+    {
+      "id": 3,
+      "v": "c",
+      "w": 30
+    },
+    {
+      "id": 4,
+      "v": "D",
+      "w": null
+    }
+  ],
+  "append": [
+    {
+      "id": 1,
+      "v": "a",
+      "w": 10
+    },
+    {
+      "id": 2,
+      "v": null,
+      "w": 20
+    },
+    {
+      "id": 3,
+      "v": "c",
+      "w": 30
+    },
+    {
+      "id": 2,
+      "v": "B",
+      "w": null
+    },
+    {
+      "id": 4,
+      "v": "D",
+      "w": null
+    }
+  ],
+  "update": [
+    {
+      "id": 1,
+      "v": "a",
+      "w": 10
+    },
+    {
+      "id": 2,
+      "v": "B",
+      "w": 20
+    },
+    {
+      "id": 3,
+      "v": "c",
+      "w": 30
+    }
+  ],
+  "patch": [
+    {
+      "id": 1,
+      "v": "a",
+      "w": 10
+    },
+    {
+      "id": 2,
+      "v": "B",
+      "w": 20
+    },
+    {
+      "id": 3,
+      "v": "c",
+      "w": 30
+    }
+  ],
+  "upsert": [
+    {
+      "id": 1,
+      "v": "a",
+      "w": 10
+    },
+    {
+      "id": 2,
+      "v": "B",
+      "w": 20
+    },
+    {
+      "id": 3,
+      "v": "c",
+      "w": 30
+    },
+    {
+      "id": 4,
+      "v": "D",
+      "w": null
+    }
+  ],
+  "delete": [
+    {
+      "id": 1,
+      "v": "a",
+      "w": 10
+    },
+    {
+      "id": 3,
+      "v": "c",
+      "w": 30
+    }
+  ],
+  "case_match": [
+    {
+      "id": 1,
+      "kind": "xy"
+    },
+    {
+      "id": 2,
+      "kind": "xy"
+    },
+    {
+      "id": 3,
+      "kind": "xy"
+    },
+    {
+      "id": 4,
+      "kind": "zed"
+    },
+    {
+      "id": 5,
+      "kind": "xy"
+    },
+    {
+      "id": 6,
+      "kind": "xy"
+    },
+    {
+      "id": 7,
+      "kind": "xy"
+    },
+    {
+      "id": 8,
+      "kind": "zed"
+    },
+    {
+      "id": 9,
+      "kind": "zed"
+    },
+    {
+      "id": 10,
+      "kind": "xy"
+    },
+    {
+      "id": 11,
+      "kind": "xy"
+    },
+    {
+      "id": 12,
+      "kind": "xy"
+    }
+  ],
+  "group_cols": ["g", "label", "score"],
+  "filter_out": [
+    {
+      "id": 1
+    },
+    {
+      "id": 2
+    },
+    {
+      "id": 3
+    },
+    {
+      "id": 5
+    },
+    {
+      "id": 6
+    },
+    {
+      "id": 7
+    },
+    {
+      "id": 8
+    },
+    {
+      "id": 10
+    },
+    {
+      "id": 12
+    }
+  ],
+  "filter_when_any": [
+    {
+      "id": 4
+    },
+    {
+      "id": 5
+    },
+    {
+      "id": 7
+    },
+    {
+      "id": 9
+    },
+    {
+      "id": 11
+    }
+  ],
+  "when": [
+    {
+      "id": 1,
+      "any": false,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 2,
+      "any": true,
+      "all": null,
+      "all_rm": true
+    },
+    {
+      "id": 3,
+      "any": false,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 4,
+      "any": true,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 5,
+      "any": true,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 6,
+      "any": false,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 7,
+      "any": true,
+      "all": null,
+      "all_rm": true
+    },
+    {
+      "id": 8,
+      "any": true,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 9,
+      "any": true,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 10,
+      "any": false,
+      "all": false,
+      "all_rm": false
+    },
+    {
+      "id": 11,
+      "any": true,
+      "all": true,
+      "all_rm": true
+    },
+    {
+      "id": 12,
+      "any": true,
+      "all": false,
+      "all_rm": false
+    }
+  ],
+  "recode": [
+    {
+      "id": 1,
+      "r": "ex",
+      "lk": "three"
+    },
+    {
+      "id": 2,
+      "r": "late",
+      "lk": null
+    },
+    {
+      "id": 3,
+      "r": "ex",
+      "lk": "three"
+    },
+    {
+      "id": 4,
+      "r": "late",
+      "lk": null
+    },
+    {
+      "id": 5,
+      "r": "ex",
+      "lk": null
+    },
+    {
+      "id": 6,
+      "r": "late",
+      "lk": "two"
+    },
+    {
+      "id": 7,
+      "r": "late",
+      "lk": null
+    },
+    {
+      "id": 8,
+      "r": "late",
+      "lk": "one"
+    },
+    {
+      "id": 9,
+      "r": "late",
+      "lk": null
+    },
+    {
+      "id": 10,
+      "r": "ex",
+      "lk": null
+    },
+    {
+      "id": 11,
+      "r": "late",
+      "lk": null
+    },
+    {
+      "id": 12,
+      "r": "ex",
+      "lk": null
+    }
+  ],
+  "replace": [
+    {
+      "id": 1,
+      "rv": "x",
+      "rw": 3
+    },
+    {
+      "id": 2,
+      "rv": "y",
+      "rw": 7
+    },
+    {
+      "id": 3,
+      "rv": "x",
+      "rw": 3
+    },
+    {
+      "id": 4,
+      "rv": "zed",
+      "rw": 5
+    },
+    {
+      "id": 5,
+      "rv": "x",
+      "rw": 7
+    },
+    {
+      "id": 6,
+      "rv": "y",
+      "rw": 2
+    },
+    {
+      "id": 7,
+      "rv": "y",
+      "rw": 7
+    },
+    {
+      "id": 8,
+      "rv": "zed",
+      "rw": 1
+    },
+    {
+      "id": 9,
+      "rv": "zed",
+      "rw": 4
+    },
+    {
+      "id": 10,
+      "rv": "x",
+      "rw": 4
+    },
+    {
+      "id": 11,
+      "rv": "y",
+      "rw": 6
+    },
+    {
+      "id": 12,
+      "rv": "x",
+      "rw": 7
+    }
+  ]
+}

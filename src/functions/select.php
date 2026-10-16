@@ -181,3 +181,9 @@ function pick(mixed ...$columns): Closure
 {
     return fn (Table $g) => $g->select(Selector::select($columns, $g));
 }
+
+/** The grouping columns. */
+function group_cols(): Selector
+{
+    return new Selector(fn (Table $t) => $t->groups());
+}

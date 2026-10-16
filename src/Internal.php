@@ -419,6 +419,65 @@ final class Internal
         return Ops::take($t, $index)->mutate($out);
     }
 
+    /** when_any() / when_all() with R's three-valued logic. */
+    public static function when(array $conditions, bool $naRm, bool $any): Vec
+    {
+        return new Vec(function (Table $g) use ($conditions, $naRm, $any) {
+            $out = array_fill(0, $g->nrow(), ! $any);
+            foreach ($conditions as $c) {
+                foreach (Vec::values($c, $g, true) as $i => $v) {
+                    if ($v === null && $naRm) {
+                        continue;
+                    }
+                    $cur = $out[$i];
+                    $out[$i] = $any
+                        ? ($cur === true || $v === true ? true : ($cur === null || $v === null ? null : false))
+                        : ($cur === false || $v === false ? false : ($cur === null || $v === null ? null : true));
+                }
+            }
+
+            return $out;
+        });
+    }
+
+    /** recode_values() / replace_values(). */
+    public static function recode(mixed $x, array $cases, bool $replace): Vec
+    {
+        $from = $cases['from'] ?? null;
+        $to = $cases['to'] ?? null;
+        $default = $cases['default'] ?? null;
+        $unmatched = $cases['unmatched'] ?? 'default';
+        unset($cases['from'], $cases['to'], $cases['default'], $cases['unmatched']);
+        if ($from !== null) {
+            if ($cases !== []) {
+                throw new \InvalidArgumentException('Give cases or from/to, not both.');
+            }
+            $to = \is_array($to) ? array_values($to) : array_fill(0, \count($from), $to);
+            $cases = array_map(fn ($f, $t) => [$f, $t], array_values($from), $to);
+        }
+
+        return new Vec(function (Table $g) use ($x, $cases, $default, $unmatched, $replace) {
+            $values = Vec::values($x, $g, true);
+            $out = $replace ? $values : Vec::values($default, $g);
+            $done = array_fill(0, \count($values), false);
+            foreach ($cases as [$match, $result]) {
+                $keys = array_flip(array_map(self::key(...), \is_array($match) ? $match : [$match]));
+                $results = Vec::values($result, $g);
+                foreach ($values as $i => $v) {
+                    if (! $done[$i] && isset($keys[self::key($v)])) {
+                        $out[$i] = $results[$i];
+                        $done[$i] = true;
+                    }
+                }
+            }
+            if (! $replace && $unmatched === 'error' && \in_array(false, $done, true)) {
+                $i = array_search(false, $done, true);
+                throw new \UnexpectedValueException('recode_values(): value at row '.($i + 1).' is unmatched.');
+            }
+
+            return $out;
+        });
+    }
     public static function callStats(string $function, mixed ...$args): mixed
     {
         if (! \function_exists($function)) {

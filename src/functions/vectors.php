@@ -422,3 +422,80 @@ function cumany(mixed $x): Vec
         return $out;
     });
 }
+
+/**
+ * Match values like a switch: case_match('code', [['a', 'b'], 'vowel'], ['z', 'last'], default: 'other').
+ * Each case is [value or list of values, result]; NA matches null.
+ */
+function case_match(mixed $x, mixed ...$cases): Vec
+{
+    $default = null;
+    if (\array_key_exists('default', $cases)) {
+        $default = $cases['default'];
+        unset($cases['default']);
+    }
+
+    return new Vec(function (Table $g) use ($x, $cases, $default) {
+        $values = Vec::values($x, $g, true);
+        $out = Vec::values($default, $g);
+        $done = array_fill(0, \count($values), false);
+        foreach ($cases as [$match, $result]) {
+            $keys = array_flip(array_map(Internal::key(...), \is_array($match) ? $match : [$match]));
+            $results = Vec::values($result, $g);
+            foreach ($values as $i => $v) {
+                if (! $done[$i] && isset($keys[Internal::key($v)])) {
+                    $out[$i] = $results[$i];
+                    $done[$i] = true;
+                }
+            }
+        }
+
+        return $out;
+    });
+}
+
+/**
+ * Elementwise any() across conditions (x | y | z): when_any(fn ($r) => ..., 'flag').
+ * With na_rm, NA inputs are ignored.
+ */
+function when_any(mixed ...$conditions): Vec
+{
+    $naRm = (bool) ($conditions['na_rm'] ?? false);
+    unset($conditions['na_rm']);
+
+    return Internal::when($conditions, $naRm, any: true);
+}
+
+/** Elementwise all() across conditions (x & y & z). */
+function when_all(mixed ...$conditions): Vec
+{
+    $naRm = (bool) ($conditions['na_rm'] ?? false);
+    unset($conditions['na_rm']);
+
+    return Internal::when($conditions, $naRm, any: false);
+}
+
+/**
+ * Map values to new values (dplyr 1.2): recode_values('state', ['NC', 'North Carolina'], [['NY', 'NYC'], 'New York'], default: 'other'),
+ * or with a lookup table: recode_values('score', from: [1, 2, 3], to: ['low', 'mid', 'high']).
+ * Unmatched values get default (NA by default); unmatched: 'error' throws instead.
+ */
+function recode_values(mixed $x, mixed ...$cases): Vec
+{
+    return Internal::recode($x, $cases, replace: false);
+}
+
+/** Like recode_values(), but unmatched values keep their original value. */
+function replace_values(mixed $x, mixed ...$cases): Vec
+{
+    return Internal::recode($x, $cases, replace: true);
+}
+
+/**
+ * Like case_when(), but rows matching no case keep x's value:
+ * replace_when('score', [fn ($r) => $r->score > 8, 8]).
+ */
+function replace_when(mixed $x, array ...$cases): Vec
+{
+    return case_when(...$cases, default: $x instanceof Vec || ! \is_string($x) ? $x : col($x));
+}

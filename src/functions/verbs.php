@@ -66,6 +66,27 @@ function filter(mixed ...$conditions): Closure
 }
 
 /**
+ * Drop rows where every condition is true (dplyr 1.2). NA counts as false,
+ * so rows with NA conditions are kept: filter() and filter_out() together
+ * see every row exactly once. Option: _by.
+ */
+function filter_out(mixed ...$conditions): Closure
+{
+    [$conditions, $o] = Internal::options($conditions, ['_by' => null], 'filter_out');
+    $conditions = array_values($conditions);
+
+    return fn (Table $t) => Internal::withBy($t, $o['_by'], fn (Table $t) => Ops::filterGroups($t, function (Table $g) use ($conditions) {
+        $drop = array_fill(0, $g->nrow(), true);
+        foreach ($conditions as $c) {
+            foreach (Vec::values($c, $g, true) as $i => $v) {
+                $drop[$i] = $drop[$i] && $v === true;
+            }
+        }
+
+        return array_map(fn ($d) => ! $d, $drop);
+    }));
+}
+/**
  * Keep or drop columns: names, lists of names, selectors such as
  * starts_with('x') or except('id'). Named arguments rename: select(id: 'ID').
  */
