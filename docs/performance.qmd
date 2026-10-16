@@ -25,9 +25,8 @@ php bench/harness.php --backend=sqlite --runs=3
 ```
 
 Each timing includes `collect()`, so lazy backends do their work inside the
-timer. The numbers below were measured on an Apple Silicon Mac with PHP 8.5,
-phplyr 3716fc2, and phibble dbd8b1e, before phibble's planned grouping and
-evaluation optimizations.
+timer. The numbers below are medians of three runs on an Apple Silicon Mac with
+PHP 8.5 and phibble fa978f6.
 
 ## phplyr's overhead
 
@@ -40,30 +39,31 @@ the same small overhead.
 
 | Workload | Frame (s) | SQLite (s) |
 | --- | --: | --: |
-| Grouped `summarise()` of `n()`, `mean()`, and `sum()` by `key` | 0.97 | 0.54 |
-| The same with closures | 0.79 | 3.70 |
-| Grouped `arrange(t)`, then `mutate()` with `lag()`, `cumsum()`, and `row_number()` | 4.34 | 6.38 |
-| `filter(col('x')->gt(0)->and(...))` | 0.98 | 0.49 |
-| The same filter as a closure | 0.54 | 3.36 |
-| `mutate()` with two expressions | 0.94 | 3.03 |
-| `left_join()` of 1M × 100k rows on `key` | 0.33 | 3.34 |
-| `arrange(desc('x'), 'id')` | 1.89 | 3.39 |
-
-Frame peaked at about 1.3 GB of memory for the 1M-row table and its results.
+| Grouped `summarise()` of `n()`, `mean()`, and `sum()` by `key` | 0.13 | 0.39 |
+| The same with closures | 0.58 | 2.11 |
+| Grouped `arrange(t)`, then `mutate()` with `lag()`, `cumsum()`, and `row_number()` | 0.99 | 4.78 |
+| `filter(col('x')->gt(0)->and(...))` | 0.47 | 0.34 |
+| The same filter as a closure | 0.51 | 2.32 |
+| `mutate()` with two expressions | 0.26 | 2.29 |
+| `left_join()` of 1M × 100k rows on `key` | 0.33 | 2.44 |
+| `arrange(desc('x'), 'id')` | 0.67 | 2.33 |
+Frame peaked at about 1.5 GB of memory for the 1M-row table and its results.
 
 ## Choosing a backend
 
 - **In-memory `Frame`** suits data that fits in memory, up to a few million
-  rows. Joins and closures are fast. Expression filters and summaries are
-  currently slower than the equivalent closures, because phibble evaluates
-  expressions on a copy of each group. That is the target of phibble's next
-  optimization pass.
-- **A database table (`Phibble\tbl()`)** is fastest when a pipeline reduces
-  many rows to a few: `filter()` and `summarise()` with expressions run in the
-  database, and only the result reaches PHP. Pipelines that return every row
-  (`mutate()`, `arrange()`, joins without a filter) spend most of their time
-  transferring rows to PHP. Here an in-memory frame is faster once the data is
-  loaded.
+  rows. Expression arguments are the fastest form: a grouped summary with
+  `mean('x')` runs about four times faster than the same summary written as
+  closures, because phibble computes it in one pass without building a table
+  per group.
+- **A database table (`Phibble\tbl()`)** avoids loading the data into PHP.
+  With expressions, `filter()` and `summarise()` run in the database, and only
+  the result reaches PHP, so memory stays small. This is the right choice when
+  the data lives in a database or doesn't fit in memory. For data already in
+  memory, a frame is faster: these timings exclude loading, and reading the 1M-row
+  CSV into a frame takes about 1.4 seconds. Pipelines that return every row
+  (`mutate()`, `arrange()`, unfiltered joins) spend most of their database time
+  transferring rows to PHP.
 - **Closures on a database table** load all rows first and then run in memory.
   Use `col()` expressions and phplyr's helpers to keep the work in SQL.
 - **SQLite columns need declared types.** PDO binds values as strings. In an

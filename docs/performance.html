@@ -297,7 +297,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">php</span> bench/generate.php 1000000</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">php</span> bench/harness.php <span class="at">--backend</span><span class="op">=</span>frame <span class="at">--runs</span><span class="op">=</span>3</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">php</span> bench/harness.php <span class="at">--backend</span><span class="op">=</span>sqlite <span class="at">--runs</span><span class="op">=</span>3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Each timing includes <code>collect()</code>, so lazy backends do their work inside the timer. The numbers below were measured on an Apple Silicon Mac with PHP 8.5, phplyr 3716fc2, and phibble dbd8b1e, before phibble’s planned grouping and evaluation optimizations.</p>
+<p>Each timing includes <code>collect()</code>, so lazy backends do their work inside the timer. The numbers below are medians of three runs on an Apple Silicon Mac with PHP 8.5 and phibble fa978f6.</p>
 </section>
 <section id="phplyrs-overhead" class="level2">
 <h2 class="anchored" data-anchor-id="phplyrs-overhead">phplyr’s overhead</h2>
@@ -321,53 +321,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>Grouped <code>summarise()</code> of <code>n()</code>, <code>mean()</code>, and <code>sum()</code> by <code>key</code></td>
-<td style="text-align: right;">0.97</td>
-<td style="text-align: right;">0.54</td>
+<td style="text-align: right;">0.13</td>
+<td style="text-align: right;">0.39</td>
 </tr>
 <tr class="even">
 <td>The same with closures</td>
-<td style="text-align: right;">0.79</td>
-<td style="text-align: right;">3.70</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">2.11</td>
 </tr>
 <tr class="odd">
 <td>Grouped <code>arrange(t)</code>, then <code>mutate()</code> with <code>lag()</code>, <code>cumsum()</code>, and <code>row_number()</code></td>
-<td style="text-align: right;">4.34</td>
-<td style="text-align: right;">6.38</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">4.78</td>
 </tr>
 <tr class="even">
 <td><code>filter(col('x')-&gt;gt(0)-&gt;and(...))</code></td>
-<td style="text-align: right;">0.98</td>
-<td style="text-align: right;">0.49</td>
+<td style="text-align: right;">0.47</td>
+<td style="text-align: right;">0.34</td>
 </tr>
 <tr class="odd">
 <td>The same filter as a closure</td>
-<td style="text-align: right;">0.54</td>
-<td style="text-align: right;">3.36</td>
+<td style="text-align: right;">0.51</td>
+<td style="text-align: right;">2.32</td>
 </tr>
 <tr class="even">
 <td><code>mutate()</code> with two expressions</td>
-<td style="text-align: right;">0.94</td>
-<td style="text-align: right;">3.03</td>
+<td style="text-align: right;">0.26</td>
+<td style="text-align: right;">2.29</td>
 </tr>
 <tr class="odd">
 <td><code>left_join()</code> of 1M × 100k rows on <code>key</code></td>
 <td style="text-align: right;">0.33</td>
-<td style="text-align: right;">3.34</td>
+<td style="text-align: right;">2.44</td>
 </tr>
 <tr class="even">
 <td><code>arrange(desc('x'), 'id')</code></td>
-<td style="text-align: right;">1.89</td>
-<td style="text-align: right;">3.39</td>
+<td style="text-align: right;">0.67</td>
+<td style="text-align: right;">2.33</td>
 </tr>
 </tbody>
 </table>
-<p>Frame peaked at about 1.3 GB of memory for the 1M-row table and its results.</p>
+<p>Frame peaked at about 1.5 GB of memory for the 1M-row table and its results.</p>
 </section>
 <section id="choosing-a-backend" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-a-backend">Choosing a backend</h2>
 <ul>
-<li><strong>In-memory <code>Frame</code></strong> suits data that fits in memory, up to a few million rows. Joins and closures are fast. Expression filters and summaries are currently slower than the equivalent closures, because phibble evaluates expressions on a copy of each group. That is the target of phibble’s next optimization pass.</li>
-<li><strong>A database table (<code>Phibble\tbl()</code>)</strong> is fastest when a pipeline reduces many rows to a few: <code>filter()</code> and <code>summarise()</code> with expressions run in the database, and only the result reaches PHP. Pipelines that return every row (<code>mutate()</code>, <code>arrange()</code>, joins without a filter) spend most of their time transferring rows to PHP. Here an in-memory frame is faster once the data is loaded.</li>
+<li><strong>In-memory <code>Frame</code></strong> suits data that fits in memory, up to a few million rows. Expression arguments are the fastest form: a grouped summary with <code>mean('x')</code> runs about four times faster than the same summary written as closures, because phibble computes it in one pass without building a table per group.</li>
+<li><strong>A database table (<code>Phibble\tbl()</code>)</strong> avoids loading the data into PHP. With expressions, <code>filter()</code> and <code>summarise()</code> run in the database, and only the result reaches PHP, so memory stays small. This is the right choice when the data lives in a database or doesn’t fit in memory. For data already in memory, a frame is faster: these timings exclude loading, and reading the 1M-row CSV into a frame takes about 1.4 seconds. Pipelines that return every row (<code>mutate()</code>, <code>arrange()</code>, unfiltered joins) spend most of their database time transferring rows to PHP.</li>
 <li><strong>Closures on a database table</strong> load all rows first and then run in memory. Use <code>col()</code> expressions and phplyr’s helpers to keep the work in SQL.</li>
 <li><strong>SQLite columns need declared types.</strong> PDO binds values as strings. In an untyped column, SQLite stores them as text and compares numbers as text.</li>
 </ul>
