@@ -126,3 +126,12 @@ it('drops grouping when bind_cols() renames a grouping column', function () {
     $out = $df |> bind_cols(Frame::fromColumns(['g' => [1, 2]]));
     expect($out->columns())->toBe(['g...1', 'w', 'g...3'])->and($out->groups())->toBe([]);
 });
+
+it('ranks factors by level and divides to doubles (phibble 0a27223)', function () {
+    $f = Frame::fromColumns(['k' => ['lo', 'hi', 'mid']])->asFactor('k', ['lo', 'mid', 'hi']);
+    expect($f |> mutate(r: Phplyr\min_rank('k')) |> Phplyr\pull('r'))->toBe([1, 3, 2]);
+    expect($f |> mutate(r: Phplyr\min_rank(desc('k'))) |> Phplyr\pull('r'))->toBe([3, 1, 2]);
+    $df = Frame::fromColumns(['g' => ['a', 'b', 'a'], 'x' => [1, 2, 3]]);
+    $out = $df |> group_by('g') |> summarise(s: sum('x'), u: sum('x')->div(col('s')));
+    expect($out |> Phplyr\pull('u'))->toBe([1.0, 1.0]);
+});

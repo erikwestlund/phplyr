@@ -11,13 +11,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/erikwestlund/phibble.git",
-                "reference": "9655e2a0220d525bacc51509c6fce0a6d4eeaf81"
+                "url": "git@github.com:erikwestlund/phibble.git",
+                "reference": "0a272234aade0e146f3ea7cefc33889389058108"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/9655e2a0220d525bacc51509c6fce0a6d4eeaf81",
-                "reference": "9655e2a0220d525bacc51509c6fce0a6d4eeaf81",
+                "url": "https://api.github.com/repos/erikwestlund/phibble/zipball/0a272234aade0e146f3ea7cefc33889389058108",
+                "reference": "0a272234aade0e146f3ea7cefc33889389058108",
                 "shasum": ""
             },
             "require": {
@@ -61,11 +61,7 @@
                 "MIT"
             ],
             "description": "A typed, immutable in-memory data frame for PHP.",
-            "support": {
-                "source": "https://github.com/erikwestlund/phibble/tree/main",
-                "issues": "https://github.com/erikwestlund/phibble/issues"
-            },
-            "time": "2026-10-16T09:56:11+00:00"
+            "time": "2026-10-16T10:11:45+00:00"
         }
     ],
     "packages-dev": [
