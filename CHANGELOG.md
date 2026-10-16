@@ -2,7 +2,7 @@
 
 All notable changes to phplyr are recorded here. Versions follow semantic versioning; before 1.0, minor versions may change behavior.
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-10-16
 
 The first release: a port of dplyr 1.2 and tidyr 1.3 to PHP 8.5, working on phibble 0.1 tables through the `|>` pipe operator. Results are checked against R; the reference scripts are in `tests/r/`.
 
