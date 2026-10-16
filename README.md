@@ -54,8 +54,8 @@ Each verb returns a closure that takes one `Phibble\Contracts\Table`, and verbs 
 | `pull` | `pull('x')`, `pull()` (the last column), `pull('x', name: 'id')` |
 | `bind_rows` / `bind_cols` | `$a \|> bind_rows($b, _id: 'src')`, `$a \|> bind_cols($b)` |
 | `glimpse` | `$t \|> glimpse()`. Prints a summary and passes the table on. |
-| Joins | `inner_join`, `left_join`, `right_join`, `full_join`, `semi_join`, `anti_join`, `cross_join`. These need phibble's Table contract v1. |
-| `rowwise` | `rowwise('id')`. Needs phibble's Table contract v1. |
+| Joins | `$x \|> left_join($y, by: ['id' => 'key'], suffix: ['.x', '.y'], keep:, na_matches:, multiple:, unmatched:, relationship:)`. Also `inner_join`, `right_join`, `full_join`, `semi_join`, `anti_join` and `cross_join`. |
+| `rowwise` | `rowwise('id')`. Each row becomes its own group. |
 
 **Group utilities:** `group_vars`, `n_groups`, `group_size`, `group_indices`, `group_keys`, `group_split`, `group_map`, `group_modify`, `group_walk`.
 

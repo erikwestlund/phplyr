@@ -236,15 +236,9 @@ function summarise(mixed ...$aggregates): Closure
     Internal::assertNamed($aggregates, 'summarise');
 
     return fn (Table $t) => Internal::withBy($t, $o['_by'], function (Table $t) use ($aggregates, $o) {
-        $out = $t->summarise(Internal::summaries($t, $aggregates, 'summarise'));
+        $aggregates = Internal::summaries($t, $aggregates, 'summarise');
 
-        return match ($o['_groups']) {
-            null, 'drop_last' => $out,
-            'drop' => $out->ungroup(),
-            'keep' => $t->groups() === [] ? $out : $out->groupBy($t->groups()),
-            'rowwise' => (rowwise(...$t->groups()))($out->ungroup()),
-            default => throw new \InvalidArgumentException("summarise(): unknown _groups '{$o['_groups']}'."),
-        };
+        return $o['_groups'] === null ? $t->summarise($aggregates) : $t->summarise($aggregates, $o['_groups']);
     });
 }
 

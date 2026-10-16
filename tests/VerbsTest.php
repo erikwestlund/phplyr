@@ -91,8 +91,8 @@ it('summarises with several groups, dropping the last level', function () {
     expect($out->groups())->toBe(['brand']);
     expect($out->toRows())->toBe([
         ['brand' => 'a', 'store' => 'x', 'qty' => 6, 'revenue' => 60.0],
-        ['brand' => 'b', 'store' => 'x', 'qty' => 3, 'revenue' => 0.0],
         ['brand' => 'a', 'store' => 'y', 'qty' => 2, 'revenue' => 30.0],
+        ['brand' => 'b', 'store' => 'x', 'qty' => 3, 'revenue' => 0.0],
         ['brand' => 'b', 'store' => 'y', 'qty' => 0, 'revenue' => 20.0],
     ]);
     expect((sales() |> summarize(n: n()))->toRows())->toBe([['n' => 5]]);
@@ -120,8 +120,8 @@ it('counts within existing groups and keeps them', function () {
     expect($out->groups())->toBe(['brand']);
     expect($out->toRows())->toBe([
         ['brand' => 'a', 'store' => 'x', 'rows' => 2],
-        ['brand' => 'b', 'store' => 'x', 'rows' => 1],
         ['brand' => 'a', 'store' => 'y', 'rows' => 1],
+        ['brand' => 'b', 'store' => 'x', 'rows' => 1],
         ['brand' => 'b', 'store' => 'y', 'rows' => 1],
     ]);
     expect((sales() |> count())->toRows())->toBe([['n' => 5]]);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phibble\Frame;
 
-use function Phplyr\{bind_cols, bind_rows, glimpse, group_by, group_map, group_modify, group_split, group_vars, group_walk, inner_join, lag, mutate, n, pick, rowwise, slice_sample, summarise, ungroup, vec};
+use function Phplyr\{bind_cols, bind_rows, glimpse, group_by, group_map, group_modify, group_split, group_vars, group_walk, lag, mutate, n, pick, slice_sample, summarise, ungroup, vec};
 
 function small(): Frame
 {
@@ -88,11 +88,6 @@ it('glimpses a table and passes it through', function () {
     expect($out->nrow())->toBe(3);
     expect($text)->toContain('Rows: 3')->toContain('$ g <chr> "a", "b", "a"')->toContain('$ x <int> 1, 2, 3');
 });
-
-it('explains when joins or rowwise need contract v1', function () {
-    expect(fn () => small() |> inner_join(small()))->toThrow(LogicException::class, 'join');
-    expect(fn () => small() |> rowwise())->toThrow(LogicException::class, 'rowwise');
-})->skip(fn () => method_exists(Frame::class, 'join'), 'the table supports joins');
 
 it('rejects unknown options', function () {
     expect(fn () => mutate(x: 1, _nope: true))->toThrow(InvalidArgumentException::class, '_nope');
