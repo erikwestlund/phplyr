@@ -24,6 +24,7 @@ website:
           - reference/two-table.qmd
           - reference/grouping.qmd
           - reference/vectors.qmd
+          - reference/strings-dates.qmd
           - reference/tidyselect.qmd
           - reference/tidyr.qmd
           - reference/models.qmd

@@ -199,6 +199,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/strings-dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Strings and dates</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/tidyselect.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">tidyselect and across()</span></a>
   </div>
@@ -290,7 +296,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>filter(col(<span class="st">'price'</span>)-&gt;mul(<span class="fl">1.1</span>)-&gt;gt(<span class="dv">100</span>)<span class="ot">,</span> col(<span class="st">'brand'</span>)-&gt;isIn([<span class="st">'a'</span><span class="ot">,</span> <span class="st">'b'</span>]))</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mutate(margin<span class="ot">:</span> col(<span class="st">'price'</span>)-&gt;sub(col(<span class="st">'cost'</span>))-&gt;div(col(<span class="st">'price'</span>)))</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>mutate(dev<span class="ot">:</span> col(<span class="st">'score'</span>)-&gt;sub(mean(<span class="st">'score'</span>)))      <span class="co">// mean() recycles per group</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The operator methods are <code>add</code>, <code>sub</code>, <code>mul</code>, <code>div</code>, <code>mod</code>, <code>pow</code>, <code>neg</code>, <code>eq</code>, <code>ne</code>, <code>lt</code>, <code>le</code>, <code>gt</code>, <code>ge</code>, <code>and</code>, <code>or</code>, <code>not</code>, <code>isNa</code>, <code>isIn</code>, <code>between</code>, and <code>desc</code>. Scalar helpers include <code>round</code>, <code>abs</code>, <code>sqrt</code>, <code>exp</code>, <code>log</code>, <code>log10</code>, <code>floor</code>, <code>ceiling</code>, <code>is_na</code>, <code>as_int</code>, <code>as_float</code>, <code>as_string</code>, <code>as_bool</code>, <code>paste</code>, <code>paste0</code>, and the <code>str_*</code> functions (<code>str_upper</code>, <code>str_sub</code>, <code>str_detect</code>, <code>str_replace</code>, and others). Several of these names shadow PHP built-ins in files that import them.</p>
+<p>The operator methods are <code>add</code>, <code>sub</code>, <code>mul</code>, <code>div</code>, <code>mod</code>, <code>pow</code>, <code>neg</code>, <code>eq</code>, <code>ne</code>, <code>lt</code>, <code>le</code>, <code>gt</code>, <code>ge</code>, <code>and</code>, <code>or</code>, <code>not</code>, <code>isNa</code>, <code>isIn</code>, <code>between</code>, and <code>desc</code>. Scalar helpers include <code>round</code>, <code>abs</code>, <code>sqrt</code>, <code>exp</code>, <code>log</code>, <code>log10</code>, <code>floor</code>, <code>ceiling</code>, <code>is_na</code>, <code>as_int</code>, <code>as_float</code>, <code>as_string</code>, <code>as_bool</code>, <code>paste</code>, and <code>paste0</code>. Several of these names shadow PHP built-ins in files that import them. The <a href="../reference/strings-dates.html">string and date helpers</a> are expressions too.</p>
 <p>An expression is a <code>Phibble\Expr</code> tree. Verbs pass it to the table. The in-memory <code>Frame</code> evaluates it with dplyr’s semantics, and a database table compiles it to SQL. A helper given a PHP closure still works, but it is evaluated in PHP.</p>
 <p><code>mutate(_keep: 'used')</code> and <code>_keep: 'unused'</code> need expression arguments, because phplyr reads the columns an expression uses from the tree.</p>
 </section>

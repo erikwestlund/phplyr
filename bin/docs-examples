@@ -28,7 +28,13 @@ $functions = array_values(array_filter(
 $names = array_map(fn (string $f) => (new ReflectionFunction($f))->getShortName(), $functions);
 $names = array_values(array_filter($names, fn (string $n) => ! function_exists('\\'.$n) || in_array($n, ['count', 'min', 'max'], true)));
 sort($names);
-$prelude = "use Phibble\\Frame;\nuse Phplyr\\Stats;\nuse function Phibble\\tbl;\nuse function Phplyr\\{".implode(', ', $names)."};\n";
+$preludeFor = function (string $code) use ($names): string {
+    // Leave out names the example imports itself.
+    preg_match_all('/use function Phplyr\\\\\{([^}]*)\}/', $code, $m);
+    $own = array_map('trim', explode(',', implode(',', $m[1])));
+
+    return "use Phibble\\Frame;\nuse Phplyr\\Stats;\nuse function Phibble\\tbl;\nuse function Phplyr\\{".implode(', ', array_diff($names, $own))."};\n";
+};
 
 $php = getenv('PHP') ?: PHP_BINARY;
 $ext = $root.'/.ext/libphp_stats.dylib';
@@ -63,7 +69,7 @@ foreach ([...glob($root.'/docs/examples/*.php'), ...glob($root.'/docs/examples/*
     }
     $code = trim((string) preg_replace('/^<\?php\s*(declare\(strict_types=1\);\s*)?/', '', file_get_contents($file)));
     $script = tempnam(sys_get_temp_dir(), 'phplyr-doc').'.php';
-    file_put_contents($script, "<?php\n\ndeclare(strict_types=1);\n\nrequire ".var_export($root.'/vendor/autoload.php', true).";\n\n".$prelude."\n".$code."\n");
+    file_put_contents($script, "<?php\n\ndeclare(strict_types=1);\n\nrequire ".var_export($root.'/vendor/autoload.php', true).";\n\n".$preludeFor($code)."\n".$code."\n");
     $cmd = array_merge([$php], $args, [$script]);
     $proc = proc_open($cmd, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, $root.'/docs/data');
     $out = stream_get_contents($pipes[1]);

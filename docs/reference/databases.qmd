@@ -18,9 +18,9 @@ The operator methods are `add`, `sub`, `mul`, `div`, `mod`, `pow`, `neg`, `eq`,
 `ne`, `lt`, `le`, `gt`, `ge`, `and`, `or`, `not`, `isNa`, `isIn`, `between`,
 and `desc`. Scalar helpers include `round`, `abs`, `sqrt`, `exp`, `log`,
 `log10`, `floor`, `ceiling`, `is_na`, `as_int`, `as_float`, `as_string`,
-`as_bool`, `paste`, `paste0`, and the `str_*` functions (`str_upper`,
-`str_sub`, `str_detect`, `str_replace`, and others). Several of these names
-shadow PHP built-ins in files that import them.
+`as_bool`, `paste`, and `paste0`. Several of these names shadow PHP built-ins
+in files that import them. The [string and date helpers](strings-dates.qmd)
+are expressions too.
 
 An expression is a `Phibble\Expr` tree. Verbs pass it to the table. The
 in-memory `Frame` evaluates it with dplyr's semantics, and a database table

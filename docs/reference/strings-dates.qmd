@@ -1,0 +1,52 @@
+---
+title: "Strings and dates"
+---
+
+phplyr re-exports phibble's stringr and lubridate functions. They build
+expressions, so they work in memory and, where a SQL translation exists, on
+database tables. Their results are checked against stringr 1.6.0 and lubridate
+1.9.5.
+
+{{< include ../examples/_strings-dates.md >}}
+
+## Strings
+
+As in stringr, a pattern is a regular expression. `fixed('a.b')` matches the
+text literally, and `regex('ab', ignore_case: true)` sets options.
+
+| Function | Value |
+| --- | --- |
+| `str_detect(x, p, negate:)`, `str_starts`, `str_ends` | Whether the pattern matches |
+| `str_count(x, p)` | Number of matches |
+| `str_extract(x, p)` | The first match, or NA |
+| `str_extract_all(x, p)`, `str_split(x, p)` | A list per row (a list-column) |
+| `str_split_i(x, p, i)` | The i-th piece; negative counts from the end |
+| `str_replace(x, p, r)`, `str_replace_all` | Replace the first or every match; `\1` refers to a group |
+| `str_pad(x, width, side:, pad:)` | Pad to a width |
+| `str_trunc(x, width, side:, ellipsis:)` | Truncate with an ellipsis |
+| `str_to_title`, `str_to_upper`, `str_to_lower` | Change case |
+| `str_squish`, `str_trim(x, side)` | Remove whitespace |
+| `str_length`, `str_sub(x, start, end)` | Length and substrings |
+
+`str_replace`, `str_pad`, and `str_split` shadow PHP built-ins in files that
+import them.
+
+## Dates and times
+
+| Function | Value |
+| --- | --- |
+| `ymd`, `dmy`, `mdy`, `ymd_hms`, `dmy_hms`, `mdy_hms` (`tz:`) | Parse text; failures give NA |
+| `parse_date_time(x, ['Ymd HMS', 'dmY HMS'])` | Parse with lubridate orders |
+| `year`, `month`, `day`, `yday`, `quarter`, `hour`, `minute`, `second` | Parts |
+| `wday(x, week_start:)` | Day of the week; Sunday is 1 unless `week_start: 1` |
+| `floor_date(x, unit)`, `ceiling_date`, `round_date` | Round to `'hour'`, `'15 minutes'`, `'week'`, `'month'`, and so on |
+| `seconds(n)` … `years(n)` | Periods: `col('d')->add(months(1))` |
+| `difftime(x, y, units:)` | The difference as a number |
+| `with_tz(x, tz)`, `force_tz(x, tz)` | Change the displayed zone, or the zone itself |
+| `today(tz:)`, `now(tz:)` | The current date or time |
+
+Month and year arithmetic that lands on a date that doesn't exist, such as
+January 31 plus one month, gives NA, as in lubridate. Subtracting dates gives
+days, and subtracting datetimes gives seconds. Date columns stay dates through
+these functions. `Phibble\Expr\Clock::freeze()` fixes `today()` and `now()`
+in tests.

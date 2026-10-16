@@ -25,7 +25,9 @@
             "src/functions/joins.php",
             "src/functions/tidyr.php",
             "src/functions/rows.php",
-            "src/functions/scalar.php"
+            "src/functions/scalar.php",
+            "src/functions/strings.php",
+            "src/functions/dates.php"
         ]
     },
     "autoload-dev": {

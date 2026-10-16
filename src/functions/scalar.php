@@ -6,8 +6,8 @@ declare(strict_types=1);
  * Scalar expression helpers, re-exported from Phibble\Expr's registry so a
  * pipeline can stay inspectable: mutate(z: round(col('x')->div(3), 2)).
  *
- * Several names (abs, sqrt, exp, log, log10, round, floor, str_replace)
- * shadow PHP built-ins in files that import them. Import only the ones you
+ * Several names (abs, sqrt, exp, log, log10, round, floor, str_replace,
+ * str_pad, str_split) shadow PHP built-ins in files that import them. Import only the ones you
  * use, or call the built-ins with a leading backslash.
  */
 
@@ -39,15 +39,6 @@ function str_trim(mixed $x, string $side = 'both'): Vec { return Internal::call(
 
 /** Substring by 1-based positions, as stringr's str_sub(); negative counts from the end. */
 function str_sub(mixed $x, int $start = 1, ?int $end = null): Vec { return Internal::call('str_sub', $end === null ? [$x, $start] : [$x, $start, $end]); }
-
-/** Fixed-string tests. */
-function str_detect(mixed $x, string $pattern, bool $negate = false): Vec { return Internal::call('str_detect', [$x, $pattern], $negate ? ['negate' => true] : []); }
-function str_starts(mixed $x, string $pattern, bool $negate = false): Vec { return Internal::call('str_starts', [$x, $pattern], $negate ? ['negate' => true] : []); }
-function str_ends(mixed $x, string $pattern, bool $negate = false): Vec { return Internal::call('str_ends', [$x, $pattern], $negate ? ['negate' => true] : []); }
-
-/** Replace the first (str_replace) or every (str_replace_all) fixed match. */
-function str_replace(mixed $x, string $pattern, string $replacement): Vec { return Internal::call('str_replace', [$x, $pattern, $replacement]); }
-function str_replace_all(mixed $x, string $pattern, string $replacement): Vec { return Internal::call('str_replace_all', [$x, $pattern, $replacement]); }
 
 /** Paste values together; NA becomes "NA", as in R. Strings after the first are literals. */
 function paste0(mixed ...$xs): Vec { return Internal::call('paste0', array_values($xs)); }
