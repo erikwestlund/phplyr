@@ -7,6 +7,11 @@
     <testsuites>
         <testsuite name="phplyr">
             <directory suffix="Test.php">tests</directory>
+            <exclude>tests/Pipe</exclude>
+        </testsuite>
+        <!-- Tests written with the |> operator, which only parse on PHP 8.5. -->
+        <testsuite name="pipe">
+            <directory suffix="Test.php">tests/Pipe</directory>
         </testsuite>
     </testsuites>
     <source>

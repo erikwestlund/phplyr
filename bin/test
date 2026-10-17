@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Run the test suite under PHP 8.5, loading php_stats from .ext/ when present.
+# Run the test suite, loading php_stats from .ext/ when present. Before PHP
+# 8.5, only the phplyr suite runs: tests/Pipe uses the |> operator.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PHP="${PHP:-php}"
@@ -7,4 +8,8 @@ args=()
 if [[ -f .ext/libphp_stats.dylib && "${NO_EXT:-}" == "" ]]; then
     args+=(-d "extension=$PWD/.ext/libphp_stats.dylib")
 fi
-exec "$PHP" ${args[@]+"${args[@]}"} vendor/bin/pest "$@"
+suite=()
+if [[ "$("$PHP" -r 'echo PHP_VERSION_ID < 80500 ? 1 : 0;')" == 1 ]]; then
+    suite+=(--testsuite=phplyr)
+fi
+exec "$PHP" ${args[@]+"${args[@]}"} vendor/bin/pest ${suite[@]+"${suite[@]}"} "$@"

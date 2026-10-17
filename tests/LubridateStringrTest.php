@@ -7,7 +7,7 @@ use Phibble\Expr\Clock;
 use Phibble\DataFrame;
 use Phibble\Type;
 use Phplyr\Vec;
-use function Phplyr\{ceiling_date, col, day, days, difftime, dmy, fixed, floor_date, force_tz, hour, hours, lit, mdy, minute, minutes, month, months, now, parse_date_time, quarter, regex, round_date, second, str_count, str_detect, str_ends, str_extract, str_extract_all, str_length, str_pad, str_replace, str_replace_all, str_split, str_split_i, str_squish, str_starts, str_to_title, str_to_upper, str_trunc, today, wday, weeks, with_tz, yday, year, years, ymd, ymd_hms, mutate, pull};
+use function Phplyr\{ceiling_date, col, day, days, difftime, dmy, fixed, floor_date, force_tz, hour, hours, lit, mdy, minute, minutes, month, months, mutate, now, parse_date_time, pipe, pull, quarter, regex, round_date, second, str_count, str_detect, str_ends, str_extract, str_extract_all, str_length, str_pad, str_replace, str_replace_all, str_split, str_split_i, str_squish, str_starts, str_to_title, str_to_upper, str_trunc, today, wday, weeks, with_tz, yday, year, years, ymd, ymd_hms};
 
 /*
  * phibble's lubridate and stringr reference cases (lubridate 1.9.5, stringr
@@ -133,7 +133,7 @@ it('matches lubridate and stringr through phplyr', function (string $case, Closu
     expect($expr->expr)->not->toBeNull();
     set_error_handler(fn () => true, E_USER_WARNING);
     try {
-        $out = $frame() |> mutate(out: $expr) |> pull('out');
+        $out = pipe($frame(), mutate(out: $expr), pull('out'));
     } finally {
         restore_error_handler();
     }
@@ -141,11 +141,11 @@ it('matches lubridate and stringr through phplyr', function (string $case, Closu
 })->with('lubridate and stringr');
 
 it('keeps dates as dates and reads the frozen clock', function () {
-    $out = lsFrame() |> mutate(next: col('d')->add(days(1)), m: floor_date('d', 'month'));
+    $out = pipe(lsFrame(), mutate(next: col('d')->add(days(1)), m: floor_date('d', 'month')));
     expect($out->type('next'))->toBe(Type::Date)->and($out->type('m'))->toBe(Type::Date);
     Clock::freeze(new DateTimeImmutable('2024-05-06 23:30:00', new DateTimeZone('UTC')));
     try {
-        $out = DataFrame::fromColumns(['x' => [1]]) |> mutate(d: today(), nz: today(tz: 'Pacific/Auckland'));
+        $out = pipe(DataFrame::fromColumns(['x' => [1]]), mutate(d: today(), nz: today(tz: 'Pacific/Auckland')));
         expect($out->column('d')[0]->format('Y-m-d'))->toBe('2024-05-06')
             ->and($out->column('nz')[0]->format('Y-m-d'))->toBe('2024-05-07');
     } finally {

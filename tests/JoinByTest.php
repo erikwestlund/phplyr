@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phibble\DataFrame;
 
-use function Phplyr\{anti_join, between, closest, col, inner_join, join_by, left_join, overlaps, rename, semi_join, within};
+use function Phplyr\{anti_join, between, closest, col, inner_join, join_by, left_join, overlaps, pipe, rename, semi_join, within};
 
 function joinByReference(string $key): array
 {
@@ -31,30 +31,30 @@ it('compiles join_by() conditions to the contract shapes', function () {
 });
 
 it('matches dplyr for equality join_by()', function () {
-    $out = joinX() |> left_join(joinY(), by: join_by(['id' => 'key']), relationship: 'many-to-many');
+    $out = pipe(joinX(), left_join(joinY(), by: join_by(['id' => 'key']), relationship: 'many-to-many'));
     expectRowsClose($out->toRows(), joinByReference('eq'));
 });
 
 it('refuses keep: false for non-equality joins', function () {
-    expect(fn () => joinX() |> left_join(joinY(), by: join_by(col('id')->ge(col('key'))), keep: false))
+    expect(fn () => pipe(joinX(), left_join(joinY(), by: join_by(col('id')->ge(col('key'))), keep: false)))
         ->toThrow(InvalidArgumentException::class, 'keep = FALSE');
 });
 
 dataset('join_by', function () {
     $ev = fn () => DataFrame::fromCsv(fixturePath('events.csv'));
     $pe = fn () => DataFrame::fromCsv(fixturePath('periods.csv'));
-    $pe2 = fn () => $pe() |> rename(s2: 'start', e2: 'end');
+    $pe2 = fn () => pipe($pe(), rename(s2: 'start', e2: 'end'));
     $cases = [
-        'ineq' => fn () => $ev() |> inner_join($pe(), by: join_by('id', col('t')->ge(col('start')))),
-        'ineq_left' => fn () => $ev() |> left_join($pe(), by: join_by('id', col('t')->ge(col('start')), col('t')->lt(col('end')))),
-        'between' => fn () => $ev() |> left_join($pe(), by: join_by('id', between('t', 'start', 'end'))),
-        'closest' => fn () => $ev() |> left_join($pe(), by: join_by('id', closest(col('t')->ge(col('start'))))),
-        'closest_lt' => fn () => $ev() |> left_join($pe(), by: join_by(closest(col('t')->lt(col('start'))))),
-        'within' => fn () => $pe2() |> inner_join($pe(), by: join_by(within('s2', 'e2', 'start', 'end'))),
-        'overlaps' => fn () => $pe2() |> inner_join($pe(), by: join_by(overlaps('s2', 'e2', 'start', 'end'))),
-        'semi' => fn () => $ev() |> semi_join($pe(), by: join_by('id', between('t', 'start', 'end'))),
-        'anti' => fn () => $ev() |> anti_join($pe(), by: join_by('id', between('t', 'start', 'end'))),
-        'keep_true' => fn () => $ev() |> left_join($pe(), by: join_by('id', closest(col('t')->ge(col('start')))), keep: true),
+        'ineq' => fn () => pipe($ev(), inner_join($pe(), by: join_by('id', col('t')->ge(col('start'))))),
+        'ineq_left' => fn () => pipe($ev(), left_join($pe(), by: join_by('id', col('t')->ge(col('start')), col('t')->lt(col('end'))))),
+        'between' => fn () => pipe($ev(), left_join($pe(), by: join_by('id', between('t', 'start', 'end')))),
+        'closest' => fn () => pipe($ev(), left_join($pe(), by: join_by('id', closest(col('t')->ge(col('start')))))),
+        'closest_lt' => fn () => pipe($ev(), left_join($pe(), by: join_by(closest(col('t')->lt(col('start')))))),
+        'within' => fn () => pipe($pe2(), inner_join($pe(), by: join_by(within('s2', 'e2', 'start', 'end')))),
+        'overlaps' => fn () => pipe($pe2(), inner_join($pe(), by: join_by(overlaps('s2', 'e2', 'start', 'end')))),
+        'semi' => fn () => pipe($ev(), semi_join($pe(), by: join_by('id', between('t', 'start', 'end')))),
+        'anti' => fn () => pipe($ev(), anti_join($pe(), by: join_by('id', between('t', 'start', 'end')))),
+        'keep_true' => fn () => pipe($ev(), left_join($pe(), by: join_by('id', closest(col('t')->ge(col('start')))), keep: true)),
     ];
 
     return array_combine(array_keys($cases), array_map(fn ($k, $c) => [$k, $c], array_keys($cases), $cases));

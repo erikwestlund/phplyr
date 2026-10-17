@@ -1,11 +1,12 @@
 {
     "name": "erikwestlund/phplyr",
-    "description": "A dplyr-style grammar of data manipulation for PHP 8.5 pipes",
+    "description": "A dplyr-style grammar of data manipulation for PHP 8.3+, with method chains or PHP 8.5 pipes",
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": "^8.5",
-        "erikwestlund/phibble": "^0.2"
+        "php": "^8.3",
+        "erikwestlund/phibble": "^0.2 || dev-main",
+        "symfony/polyfill-php84": "^1.31"
     },
     "require-dev": {
         "pestphp/pest": "^4.0"
@@ -19,6 +20,7 @@
         },
         "files": [
             "src/functions/verbs.php",
+            "src/functions/chain.php",
             "src/functions/vectors.php",
             "src/functions/select.php",
             "src/functions/groups.php",
@@ -38,6 +40,9 @@
     },
     "config": {
         "sort-packages": true,
+        "platform": {
+            "php": "8.3.0"
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }

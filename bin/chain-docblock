@@ -1,0 +1,90 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Write the @method lines in src/Chain.php's docblock, one per phplyr verb
+ * (a function in the Phplyr namespace that returns a Closure), so IDEs
+ * autocomplete phplyr($t)->... chains. Run it after adding or changing a
+ * verb. With --check, exit 1 if the docblock is out of date instead.
+ *
+ * Usage: bin/chain-docblock [--check]
+ */
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__);
+require $root.'/vendor/autoload.php';
+
+// Verbs whose result isn't a table, so the chain returns it as it is.
+$returns = [
+    'pull' => 'array',
+    'group_vars' => 'array',
+    'group_size' => 'array',
+    'group_indices' => 'array',
+    'group_rows' => 'array',
+    'group_split' => 'array',
+    'group_map' => 'array',
+    'n_groups' => 'int',
+    'setequal' => 'bool',
+    'show_query' => 'string',
+    'lm' => 'mixed',
+    'glm' => 'mixed',
+    'lmer' => 'mixed',
+    'glmer' => 'mixed',
+];
+
+$type = function (?ReflectionType $t): string {
+    if ($t === null) {
+        return '';
+    }
+    $s = (string) $t;
+
+    return preg_replace_callback('/[A-Za-z_\\\\][\w\\\\]*/', fn ($m) => class_exists($m[0]) || interface_exists($m[0]) ? '\\'.ltrim($m[0], '\\') : $m[0], $s).' ';
+};
+$value = function (mixed $v) use (&$value): string {
+    return match (true) {
+        $v === null => 'null',
+        is_bool($v) => $v ? 'true' : 'false',
+        is_float($v) => var_export($v, true),
+        is_array($v) => '['.implode(', ', array_is_list($v)
+            ? array_map($value, $v)
+            : array_map(fn ($k, $x) => var_export($k, true).' => '.$value($x), array_keys($v), $v)).']',
+        default => var_export($v, true),
+    };
+};
+
+$lines = [];
+foreach (get_defined_functions()['user'] as $name) {
+    if (! str_starts_with($name, 'phplyr\\')) {
+        continue;
+    }
+    $f = new ReflectionFunction($name);
+    if ((string) $f->getReturnType() !== 'Closure') {
+        continue;
+    }
+    $params = array_map(function (ReflectionParameter $p) use ($type, $value) {
+        $s = $type($p->getType()).($p->isVariadic() ? '...' : '').'$'.$p->getName();
+
+        return $p->isDefaultValueAvailable() ? $s.' = '.$value($p->getDefaultValue()) : $s;
+    }, $f->getParameters());
+    $short = $f->getShortName();
+    $lines[$short] = ' * @method '.($returns[$short] ?? 'Chain').' '.$short.'('.implode(', ', $params).')';
+}
+ksort($lines);
+
+$file = $root.'/src/Chain.php';
+$src = file_get_contents($file);
+$new = preg_replace(
+    '/( \* @generated-methods-start\n).*?( \* @generated-methods-end)/s',
+    '${1}'.str_replace(['\\', '$'], ['\\\\', '\\$'], implode("\n", $lines))."\n".'${2}',
+    $src,
+);
+if (in_array('--check', $argv, true)) {
+    if ($new !== $src) {
+        fwrite(STDERR, "src/Chain.php's @method lines are out of date; run bin/chain-docblock\n");
+        exit(1);
+    }
+    exit(0);
+}
+file_put_contents($file, $new);
+echo count($lines)." verbs\n";
