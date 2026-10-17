@@ -2,7 +2,7 @@
 
 All notable changes to phplyr are recorded here. Versions follow semantic versioning; before 1.0, minor versions may change behavior.
 
-## Unreleased
+## 0.2.0 - 2026-10-17
 
 The remaining dplyr 1.1 and tidyr 1.3 exports, and phibble's Polars backend. Requires phibble 0.2.
 
