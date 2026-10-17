@@ -1,6 +1,6 @@
 <?php
 
-$schools = Frame::fromCsv('schools.csv');
+$schools = DataFrame::fromCsv('schools.csv');
 
 echo $schools
     |> filter(fn ($r) => $r->study_hours >= 5)

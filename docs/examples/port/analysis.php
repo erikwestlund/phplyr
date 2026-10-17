@@ -1,6 +1,6 @@
 <?php
 
-$schools = Frame::fromCsv('schools.csv');
+$schools = DataFrame::fromCsv('schools.csv');
 
 // Clean: drop incomplete rows, band study time, compute the gain.
 $clean = $schools

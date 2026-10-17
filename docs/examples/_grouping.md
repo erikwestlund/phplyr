@@ -1,5 +1,5 @@
 ```php
-$schools = Frame::fromCsv('schools.csv') |> group_by('school');
+$schools = DataFrame::fromCsv('schools.csv') |> group_by('school');
 
 echo json_encode([
     'groups' => $schools |> group_vars(),

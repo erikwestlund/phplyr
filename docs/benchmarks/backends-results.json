@@ -6,9 +6,9 @@
         "repeats": 3,
         "timing": "pipeline through collect(); data preloaded and not timed",
         "verification": "rows canonicalised (floats to 9 significant digits, sorted) and hashed, then compared with the reference backend",
-        "reference": "Frame",
+        "reference": "DataFrame",
         "polars_threads": 2,
-        "threads_note": "polars_threads applies to PolarsTable only; Frame and SqlTable(SQLite) run single-threaded",
+        "threads_note": "polars_threads applies to PolarsTable only; DataFrame and SqlTable(SQLite) run single-threaded",
         "machine": {
             "os": "Darwin 27.0.0 arm64",
             "cpu": "Apple M5 Ultra",
@@ -57,7 +57,7 @@
     "results": [
         {
             "pipeline": "A",
-            "backend": "Frame",
+            "backend": "DataFrame",
             "rows_in": 100000,
             "rows_out": 50,
             "seconds": 0.0772,
@@ -102,7 +102,7 @@
         },
         {
             "pipeline": "B",
-            "backend": "Frame",
+            "backend": "DataFrame",
             "rows_in": 100000,
             "rows_out": 100000,
             "seconds": 0.0972,
@@ -147,7 +147,7 @@
         },
         {
             "pipeline": "C",
-            "backend": "Frame",
+            "backend": "DataFrame",
             "rows_in": 100000,
             "rows_out": 50,
             "seconds": 0.1014,
@@ -192,7 +192,7 @@
         },
         {
             "pipeline": "A",
-            "backend": "Frame",
+            "backend": "DataFrame",
             "rows_in": 1000000,
             "rows_out": 50,
             "seconds": 0.6178,
@@ -237,7 +237,7 @@
         },
         {
             "pipeline": "B",
-            "backend": "Frame",
+            "backend": "DataFrame",
             "rows_in": 1000000,
             "rows_out": 1000000,
             "seconds": 1.3197,
@@ -282,7 +282,7 @@
         },
         {
             "pipeline": "C",
-            "backend": "Frame",
+            "backend": "DataFrame",
             "rows_in": 1000000,
             "rows_out": 50,
             "seconds": 1.0912,

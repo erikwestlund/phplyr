@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 /*
  * Every verb on Phibble\Polars\PolarsTable gives the same table as on
- * Frame: the same columns, types, grouping, and rows (floats to 1e-9).
+ * DataFrame: the same columns, types, grouping, and rows (floats to 1e-9).
  * Runs when the php_polars extension is loaded.
  */
 
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 use Phibble\Polars\PolarsTable;
 
 use function Phplyr\{across, build_wider_spec, c_across, chop, cur_group, gather, group_data, order_by, pack, pivot_wider_spec, recode, spread, top_frac, unchop, unpack, with_groups, add_count, add_row, add_tally, anti_join, any_of, arrange, between, bind_cols, bind_rows, case_when, closest, coalesce, col, complete, consecutive_id, count, cross_join, cume_dist, cummax, cummean, cumsum, cur_group_id, dense_rank, desc, distinct, drop_na, ends_with, everything, expand, extract, fill, filter, filter_out, first, full_join, group_by, group_modify, group_nest, head, hoist, if_all, if_any, if_else, inner_join, intersect, join_by, lag, last, lead, left_join, max, mean, median, min, min_rank, mutate, n, n_distinct, na_if, nest, nesting, ntile, nth, percent_rank, pick, pivot_longer, pivot_wider, pull, recode_values, reframe, relocate, rename, rename_with, replace_na, right_join, row_number, rows_update, rows_upsert, rowwise, sd, select, semi_join, separate, separate_longer_delim, separate_rows, separate_wider_delim, setdiff, slice, slice_head, slice_max, slice_min, slice_tail, starts_with, str_detect, str_to_upper, sum, summarise, symdiff, tally, top_n, transmute, uncount, ungroup, union, union_all, unite, unnest, unnest_longer, unnest_wider, variance, where};
@@ -21,8 +21,8 @@ if (! extension_loaded('php_polars') || ! class_exists(PolarsTable::class)) {
 }
 
 /**
- * Run $pipeline on the inputs as Frames and as PolarsTables and compare.
- * Results with list-columns of tables (nest(), group_nest()) stay Frames.
+ * Run $pipeline on the inputs as DataFrames and as PolarsTables and compare.
+ * Results with list-columns of tables (nest(), group_nest()) stay DataFrames.
  */
 function expectSameOnPolars(Closure $pipeline, array $inputs, string $class = PolarsTable::class): void
 {
@@ -48,15 +48,15 @@ function polarsData(): array
 
     return $data ??= [
         'panel' => panel(),
-        'schools' => Frame::fromCsv(fixturePath('schools.csv')),
-        'long' => Frame::fromCsv(fixturePath('long.csv')),
-        'wide' => Frame::fromCsv(fixturePath('wide.csv')),
-        'who' => Frame::fromCsv(fixturePath('who.csv')),
-        'strings' => Frame::fromCsv(fixturePath('strings.csv')),
-        'x' => Frame::fromCsv(fixturePath('join_x.csv')),
-        'y' => Frame::fromCsv(fixturePath('join_y.csv')),
-        'events' => Frame::fromCsv(fixturePath('events.csv')),
-        'periods' => Frame::fromCsv(fixturePath('periods.csv')),
+        'schools' => DataFrame::fromCsv(fixturePath('schools.csv')),
+        'long' => DataFrame::fromCsv(fixturePath('long.csv')),
+        'wide' => DataFrame::fromCsv(fixturePath('wide.csv')),
+        'who' => DataFrame::fromCsv(fixturePath('who.csv')),
+        'strings' => DataFrame::fromCsv(fixturePath('strings.csv')),
+        'x' => DataFrame::fromCsv(fixturePath('join_x.csv')),
+        'y' => DataFrame::fromCsv(fixturePath('join_y.csv')),
+        'events' => DataFrame::fromCsv(fixturePath('events.csv')),
+        'periods' => DataFrame::fromCsv(fixturePath('periods.csv')),
     ];
 }
 
@@ -154,8 +154,8 @@ dataset('one table', fn () => [
     'separate_longer_delim' => ['strings', fn ($t) => $t |> select('id', 'tags') |> separate_longer_delim('tags', ',')],
     'separate_rows' => ['strings', fn ($t) => $t |> select('id', 'tags') |> separate_rows('tags', sep: ',')],
     'extract' => ['strings', fn ($t) => $t |> select('id', 'code') |> extract('code', ['letters', 'digits'], '([A-Z]+)(\d+)', convert: true)],
-    'nest' => ['panel', fn ($t) => $t |> nest(data: ['year', 'value', 'score']) |> mutate(n: fn ($r) => $r->data->nrow()) |> select('g', 'n'), Frame::class],
-    'group_nest sizes' => ['panel', fn ($t) => $t |> group_by('g') |> group_nest() |> mutate(n: fn ($r) => $r->data->nrow()) |> select('g', 'n'), Frame::class],
+    'nest' => ['panel', fn ($t) => $t |> nest(data: ['year', 'value', 'score']) |> mutate(n: fn ($r) => $r->data->nrow()) |> select('g', 'n'), DataFrame::class],
+    'group_nest sizes' => ['panel', fn ($t) => $t |> group_by('g') |> group_nest() |> mutate(n: fn ($r) => $r->data->nrow()) |> select('g', 'n'), DataFrame::class],
     'unnest' => ['panel', fn ($t) => PolarsTable::fromTable($t->collect()->nest(['year', 'value', 'score'], 'data')->mutate(['data' => array_map(fn ($d) => $d->toRows(), $t->collect()->nest(['year', 'value', 'score'], 'data')->column('data'))])) |> unnest('data')],
     // Added after 0.1.0
     'cur_group' => ['panel', fn ($t) => $t |> group_by('g') |> mutate(cg: cur_group()) |> mutate(cg: fn ($r) => $r->cg['g'])],
@@ -179,22 +179,13 @@ dataset('one table', fn () => [
     'hoist' => ['panel', fn ($t) => $t |> select('id', 'g', 'score') |> mutate(m: fn ($r) => ['s' => $r->score, 'g' => $r->g]) |> hoist('m', s: 's')],
 ]);
 
-dataset('ragged lists', fn () => [
-    'unnest_wider named' => [fn ($t) => $t |> unnest_wider('x')],
-    'hoist named' => [fn ($t) => $t |> hoist('x', a: 'a') |> select('id', 'a')],
-]);
-
-// PolarsTable stores named lists as structs, so every element gets every
-// name (missing ones as NA), and unnest_longer() can't tell them apart.
-it('lengthens named lists with different names on PolarsTable', function () {
-    $t = Frame::fromColumns(['id' => [1, 2, 3], 'x' => [['a' => 1, 'b' => 2], ['a' => 3], ['c' => 4]]]);
-    expectSameOnPolars(fn ($t) => $t |> unnest_longer('x'), [$t]);
-})->skip('named lists become Polars structs; reported to phibble');
-
-it('handles named lists with different names on PolarsTable for', function (Closure $pipeline) {
-    $t = Frame::fromColumns(['id' => [1, 2, 3], 'x' => [['a' => 1, 'b' => 2], ['a' => 3], ['c' => 4]]]);
-    expectSameOnPolars($pipeline, [$t]);
-})->with('ragged lists');
+// PolarsTable stores named lists as structs, which would give every element
+// every name. Since phibble 0.2, fromTable() refuses such list-columns, and
+// these pipelines stay on DataFrame.
+it('refuses named lists with different names on PolarsTable', function () {
+    $t = DataFrame::fromColumns(['id' => [1, 2, 3], 'x' => [['a' => 1, 'b' => 2], ['a' => 3], ['c' => 4]]]);
+    expect(fn () => PolarsTable::fromTable($t))->toThrow(InvalidArgumentException::class, 'List-column `x`');
+});
 
 it('gives the same result on PolarsTable for', function (string $input, Closure $pipeline, string $class = PolarsTable::class) {
     expectSameOnPolars($pipeline, [polarsData()[$input]], $class);
@@ -230,7 +221,7 @@ it('runs rolling and overlap joins the same on PolarsTable', function () {
     expectSameOnPolars(fn ($e, $p) => $e |> inner_join($p, by: join_by('id', between('t', 'start', 'end'))), [$d['events'], $d['periods']]);
 });
 
-it('runs native Expr pipelines without falling back to Frame', function () {
+it('runs native Expr pipelines without falling back to DataFrame', function () {
     $before = PolarsTable::$fallbacks;
     $out = PolarsTable::fromTable(polarsData()['schools'])
         |> filter(col('study_hours')->gt(3))

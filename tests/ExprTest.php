@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Phibble\Expr\Call;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phplyr\{abs, col, filter, group_by, lag, lmer, log, mean, mutate, paste0, round, select, str_sub, str_upper, ungroup};
 
@@ -54,7 +54,7 @@ it('matches R for scalar expression helpers', function () {
 });
 
 it('fits mixed models like lme4', function () {
-    $fit = Frame::fromCsv(fixturePath('schools.csv')) |> lmer('score ~ study_hours + prior_score + (1 | school)');
+    $fit = DataFrame::fromCsv(fixturePath('schools.csv')) |> lmer('score ~ study_hours + prior_score + (1 | school)');
     expectCoefficients($fit['coefficients'], exprReference('lmer_fixef'));
     expect($fit['sigma'])->toEqualWithDelta(exprReference('lmer_sigma'), 1e-5);
 })->skip(fn () => ! function_exists('stats_lmer'), 'needs php_stats with stats_lmer');

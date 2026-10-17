@@ -1,6 +1,6 @@
 <?php
 
-$schools = Frame::fromCsv('schools.csv');
+$schools = DataFrame::fromCsv('schools.csv');
 
 // Several conditions are combined with AND; NA counts as false.
 echo $schools

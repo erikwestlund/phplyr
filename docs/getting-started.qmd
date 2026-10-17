@@ -8,7 +8,7 @@ phplyr's verbs and helpers are namespaced functions. Import the ones a file
 uses with `use function`:
 
 ```php
-use Phibble\Frame;
+use Phibble\DataFrame;
 use function Phplyr\{filter, mutate, group_by, summarise, arrange, desc, n, mean};
 ```
 
@@ -22,12 +22,12 @@ phibble reads CSV files, PDO queries, and query builders, and builds frames from
 PHP arrays:
 
 ```php
-$schools = Frame::fromCsv('schools.csv');
-$rows = Frame::fromRows([['id' => 1, 'x' => 2.5], ['id' => 2, 'x' => null]]);
-$cols = Frame::fromColumns(['id' => [1, 2], 'x' => [2.5, null]]);
+$schools = DataFrame::fromCsv('schools.csv');
+$rows = DataFrame::fromRows([['id' => 1, 'x' => 2.5], ['id' => 2, 'x' => null]]);
+$cols = DataFrame::fromColumns(['id' => [1, 2], 'x' => [2.5, null]]);
 ```
 
-`null` is NA. Frames are immutable, and every verb returns a new frame.
+`null` is NA. DataFrames are immutable, and every verb returns a new frame.
 `echo $frame` prints the first rows in tibble's format.
 
 ## Verbs and the pipe

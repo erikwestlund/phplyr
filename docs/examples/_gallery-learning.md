@@ -1,6 +1,6 @@
 ```php
 // Pass rates by study-hour quartile, then a logistic regression.
-$learning = Frame::fromCsv('learning.csv');
+$learning = DataFrame::fromCsv('learning.csv');
 
 echo $learning
     |> mutate(hours_quartile: ntile('study_hours', 4))

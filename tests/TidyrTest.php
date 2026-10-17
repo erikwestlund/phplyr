@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phplyr\{arrange, complete, crossing, desc, drop_na, everything, except, expand, fill, filter, group_by, head, nest, nesting, pivot_longer, pivot_wider, replace_na, select, separate, separate_longer_delim, separate_longer_position, separate_wider_delim, separate_wider_position, separate_wider_regex, starts_with, uncount, ungroup, unite, unnest};
 
-function tidyFixture(string $name): Frame
+function tidyFixture(string $name): DataFrame
 {
-    return Frame::fromCsv(fixturePath($name));
+    return DataFrame::fromCsv(fixturePath($name));
 }
 
 function tidyrReference(string $key): array
@@ -68,7 +68,7 @@ dataset('tidyr', function () {
 
 it('matches tidyr', function (string $key, Closure $pipeline) {
     $out = $pipeline();
-    expectRowsClose(($out instanceof Frame ? $out : $out->collect())->toRows(), tidyrReference($key));
+    expectRowsClose(($out instanceof DataFrame ? $out : $out->collect())->toRows(), tidyrReference($key));
 })->with('tidyr');
 
 it('errors on ambiguous widening and ragged splits', function () {

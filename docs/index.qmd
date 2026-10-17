@@ -11,7 +11,7 @@ PHP 8.5 pipe operator, so a pipeline reads like its R equivalent.
 
 Each verb is a function that returns a closure taking one table. The `|>`
 operator passes the table from one verb to the next. Verbs call the methods of
-phibble's `Table` contract, so the same pipeline runs on the in-memory `Frame`
+phibble's `Table` contract, so the same pipeline runs on the in-memory `DataFrame`
 and on other backends that implement the contract.
 
 Results follow dplyr 1.2 and tidyr 1.3. The test suite runs the same

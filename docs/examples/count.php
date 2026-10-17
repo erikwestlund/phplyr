@@ -1,6 +1,6 @@
 <?php
 
-$schools = Frame::fromCsv('schools.csv')
+$schools = DataFrame::fromCsv('schools.csv')
     |> mutate(band: case_when(
         [fn ($r) => $r->study_hours < 4, 'light'],
         [fn ($r) => $r->study_hours < 8, 'moderate'],

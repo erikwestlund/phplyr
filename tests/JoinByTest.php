@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phplyr\{anti_join, between, closest, col, inner_join, join_by, left_join, overlaps, rename, semi_join, within};
 
@@ -17,7 +17,7 @@ function joinByReference(string $key): array
 /** phibble supports join_by's inequality shapes once join() takes ?bool $keep. */
 function phibbleSupportsInequalityJoins(): bool
 {
-    return (new ReflectionMethod(Frame::class, 'join'))->getParameters()[4]->allowsNull();
+    return (new ReflectionMethod(DataFrame::class, 'join'))->getParameters()[4]->allowsNull();
 }
 
 it('compiles join_by() conditions to the contract shapes', function () {
@@ -41,8 +41,8 @@ it('refuses keep: false for non-equality joins', function () {
 });
 
 dataset('join_by', function () {
-    $ev = fn () => Frame::fromCsv(fixturePath('events.csv'));
-    $pe = fn () => Frame::fromCsv(fixturePath('periods.csv'));
+    $ev = fn () => DataFrame::fromCsv(fixturePath('events.csv'));
+    $pe = fn () => DataFrame::fromCsv(fixturePath('periods.csv'));
     $pe2 = fn () => $pe() |> rename(s2: 'start', e2: 'end');
     $cases = [
         'ineq' => fn () => $ev() |> inner_join($pe(), by: join_by('id', col('t')->ge(col('start')))),

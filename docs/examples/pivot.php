@@ -1,6 +1,6 @@
 <?php
 
-$scores = Frame::fromRows([
+$scores = DataFrame::fromRows([
     ['student' => 'ann', 'wk1' => 10, 'wk2' => null, 'wk3' => 30],
     ['student' => 'bob', 'wk1' => 7, 'wk2' => 8, 'wk3' => 9],
 ]);

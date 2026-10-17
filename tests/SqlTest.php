@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 use Phibble\Sql\SqlTable;
 
 use function Phibble\tbl;
@@ -61,7 +61,7 @@ it('runs grouped windows, counts and joins in SQL', function () {
 
 it('falls back to memory for closures', function () {
     $out = tbl(sqlitePanel(), 'panel') |> filter(fn ($r) => $r->score > 8);
-    expect($out)->toBeInstanceOf(Frame::class);
+    expect($out)->toBeInstanceOf(DataFrame::class);
     expect($out |> Phplyr\pull('id'))->toBe([5, 7]);
 });
 

@@ -23,7 +23,7 @@ in files that import them. The [string and date helpers](strings-dates.qmd)
 are expressions too.
 
 An expression is a `Phibble\Expr` tree. Verbs pass it to the table. The
-in-memory `Frame` evaluates it with dplyr's semantics, and a database table
+in-memory `DataFrame` evaluates it with dplyr's semantics, and a database table
 compiles it to SQL. A helper given a PHP closure still works, but it is
 evaluated in PHP.
 
@@ -34,7 +34,7 @@ because phplyr reads the columns an expression uses from the tree.
 
 `Phibble\tbl($pdo, 'table')` returns a lazy table for a PDO connection. Verbs
 with expression arguments add to a SQL query instead of loading rows.
-`show_query()` returns the SQL, and `collect()` runs it and returns a `Frame`.
+`show_query()` returns the SQL, and `collect()` runs it and returns a `DataFrame`.
 SQLite, PostgreSQL, and MySQL are supported.
 
 {{< include ../examples/_sql.md >}}
@@ -44,7 +44,7 @@ Grouped `mutate()` and `filter()` compile aggregates and window functions to
 first or pass `order_by:`.
 
 A verb given a PHP closure runs the query so far, loads the rows, and continues
-in memory, returning a `Frame`. Expressions with no faithful SQL translation do
+in memory, returning a `DataFrame`. Expressions with no faithful SQL translation do
 the same. They include `round()` (R rounds halves to even), `first()`, `last()`,
 `nth()`, `iqr()`, `cumprod()`, `consecutive_id()`, and `median()` or
 `quantile()` outside PostgreSQL.

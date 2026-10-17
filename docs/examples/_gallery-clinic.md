@@ -1,6 +1,6 @@
 ```php
 // Calls by staffing level and visitor volume, as a cross-tabulation.
-echo Frame::fromCsv('clinic.csv')
+echo DataFrame::fromCsv('clinic.csv')
     |> mutate(
         staffing: case_when([fn ($r) => $r->staff < 4, 'low'], [fn ($r) => $r->staff < 6, 'mid'], default: 'high'),
         volume: if_else(fn ($r) => $r->visitors >= 250, 'busy', 'quiet'),

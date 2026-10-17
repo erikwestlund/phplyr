@@ -7,7 +7,7 @@ namespace Phplyr;
 use Closure;
 use Phibble\Contracts\Table;
 use Phibble\Expr;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /** @internal Helpers shared by the verb functions. */
 final class Internal
@@ -79,7 +79,7 @@ final class Internal
             $lengths = array_unique(array_map(fn ($v) => \is_array($v) && array_is_list($v) ? \count($v) : -1, $raw));
             if (\count($lengths) === 1 && ! \in_array($lengths[array_key_first($lengths)], [-1, 1, $g->nrow()], true)
                 && array_diff($call->columns(), array_keys($raw)) === []) {
-                return Vec::evaluate($call, \Phibble\Frame::fromColumns($raw));
+                return Vec::evaluate($call, \Phibble\DataFrame::fromColumns($raw));
             }
             $temp = array_map(fn ($v) => Vec::recycle($v, $g->nrow(), 'expression'), $raw);
 
@@ -421,13 +421,13 @@ final class Internal
                 $values[$name] = Vec::recycle($v, $len, "reframe() result '{$name}'");
             }
             if ($groups === []) {
-                $parts[] = Frame::fromColumns($values);
+                $parts[] = DataFrame::fromColumns($values);
 
                 continue;
             }
             $keys = $g->nrow() > 0
                 ? Ops::take($g->select($groups), array_fill(0, $len, 0))
-                : Frame::fromColumns(array_map(fn ($v) => array_fill(0, $len, $v), $groupKey), array_intersect_key($t->types(), $groupKey));
+                : DataFrame::fromColumns(array_map(fn ($v) => array_fill(0, $len, $v), $groupKey), array_intersect_key($t->types(), $groupKey));
             $parts[] = $keys->ungroup()->mutate($values);
         }
         if ($parts === []) {
@@ -439,7 +439,7 @@ final class Internal
             return Ops::take($t->ungroup()->select($groups), [])->mutate(array_fill_keys($names, []));
         }
 
-        return Frame::concat($parts)->ungroup();
+        return DataFrame::concat($parts)->ungroup();
     }
 
     /**
@@ -553,14 +553,14 @@ final class Internal
     }
 
     /**
-     * A result built as a Frame, moved back to $like's backend when that
+     * A result built as a DataFrame, moved back to $like's backend when that
      * backend can load tables (PolarsTable::fromTable()). Lazy SQL tables
      * can't, so their results stay in memory, and so do tables with
      * list-columns of tables.
      */
     public static function sameBackend(Table $result, Table $like): Table
     {
-        if (! $result instanceof Frame || $like instanceof Frame || ! method_exists($like, 'fromTable')) {
+        if (! $result instanceof DataFrame || $like instanceof DataFrame || ! method_exists($like, 'fromTable')) {
             return $result;
         }
         foreach ($result->types() as $name => $type) {

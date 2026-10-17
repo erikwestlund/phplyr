@@ -3,10 +3,10 @@
 A port of dplyr for [phibble](https://github.com/erikwestlund/phibble) tables, built for the PHP 8.5 pipe operator.
 
 ```php
-use Phibble\Frame;
+use Phibble\DataFrame;
 use function Phplyr\{filter, mutate, group_by, summarise, arrange, desc, n, mean, min_rank};
 
-$out = Frame::fromCsv('sales.csv')
+$out = DataFrame::fromCsv('sales.csv')
     |> filter(fn ($r) => $r->price > 0)
     |> mutate(log_price: fn ($r) => log($r->price))
     |> group_by('brand')
@@ -15,7 +15,7 @@ $out = Frame::fromCsv('sales.csv')
     |> arrange('rank');
 ```
 
-Each verb returns a closure that takes one `Phibble\Contracts\Table`, and verbs delegate to the table, so the same pipeline runs on phibble's in-memory Frame, on a database table, and on phpolars' PolarsTable. Results follow dplyr 1.2 and tidyr 1.3. The test suite compares phplyr's output with R's; the reference scripts are in `tests/r/`.
+Each verb returns a closure that takes one `Phibble\Contracts\Table`, and verbs delegate to the table, so the same pipeline runs on phibble's in-memory DataFrame, on a database table, and on phpolars' PolarsTable. Results follow dplyr 1.2 and tidyr 1.3. The test suite compares phplyr's output with R's; the reference scripts are in `tests/r/`.
 
 Documentation: <https://erikwestlund.github.io/phplyr/>. Start with [getting started](https://erikwestlund.github.io/phplyr/getting-started.html) or [coming from dplyr](https://erikwestlund.github.io/phplyr/coming-from-dplyr.html).
 
@@ -129,7 +129,7 @@ The tidyr verbs are pipe-able too, with tidyr's argument names. The test suite c
 | `pivot_wider` | `pivot_wider(names_from: 'key', values_from: ['val', 'w'], values_fill: 0, values_fn: fn ($v) => array_sum($v))` |
 | | Also takes `id_cols`, `names_prefix`, `names_sep`, `names_glue: '{key}_{.value}'` and `names_sort`. |
 | `complete` / `expand` | `complete('id', 'key', fill: ['n' => 0])`, `expand(nesting('g', 'label'), year: [2001, 2002])` |
-| `crossing` / `expand_grid` | `crossing(x: [2, 1], y: ['a', 'b'])`. These return a new Frame. |
+| `crossing` / `expand_grid` | `crossing(x: [2, 1], y: ['a', 'b'])`. These return a new DataFrame. |
 | `fill` | `fill('price', _direction: 'downup')`. Works within groups. |
 | `drop_na` / `replace_na` | `drop_na('wk1')`, `replace_na(['wk1' => 0])` |
 | `uncount` | `uncount('n', _id: 'copy')` |
@@ -141,7 +141,7 @@ The tidyr verbs are pipe-able too, with tidyr's argument names. The test suite c
 
 ## Expressions and databases
 
-`col('price')->mul(1.1)->gt(100)` and helpers such as `mean('x')` build inspectable `Phibble\Expr` trees when their arguments are column names, literals, or other helpers. Verbs pass them to the table. The in-memory Frame evaluates them, and `Phibble\tbl($pdo, 'sales')` compiles them to SQL (SQLite, PostgreSQL, MySQL). `show_query()` returns the SQL and `collect()` runs it. A PHP closure makes a database table load its rows and continue in memory. `mutate(_keep: 'used' | 'unused')` works with expression arguments.
+`col('price')->mul(1.1)->gt(100)` and helpers such as `mean('x')` build inspectable `Phibble\Expr` trees when their arguments are column names, literals, or other helpers. Verbs pass them to the table. The in-memory DataFrame evaluates them, and `Phibble\tbl($pdo, 'sales')` compiles them to SQL (SQLite, PostgreSQL, MySQL). `show_query()` returns the SQL and `collect()` runs it. A PHP closure makes a database table load its rows and continue in memory. `mutate(_keep: 'used' | 'unused')` works with expression arguments.
 
 ## Models
 

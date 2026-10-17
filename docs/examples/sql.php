@@ -4,7 +4,7 @@
 $pdo = new PDO('sqlite::memory:');
 $pdo->exec('CREATE TABLE schools (school TEXT, study_hours REAL, prior_score REAL, score REAL)');
 $insert = $pdo->prepare('INSERT INTO schools VALUES (?, ?, ?, ?)');
-foreach (Frame::fromCsv('schools.csv')->toRows() as $row) {
+foreach (DataFrame::fromCsv('schools.csv')->toRows() as $row) {
     $insert->execute(array_values($row));
 }
 

@@ -17,7 +17,7 @@ declare(strict_types=1);
 require dirname(__DIR__).'/vendor/autoload.php';
 
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 use Phibble\Sql\SqlTable;
 
 use function Phplyr\{arrange, col, cumsum, desc, filter, group_by, lag, left_join, mean, mutate, n, row_number, sum, summarise};
@@ -35,12 +35,12 @@ if (! is_file("{$data}/events.csv")) {
 }
 
 $load = match ($backendName) {
-    'frame' => fn (string $path) => Frame::fromCsv($path),
+    'frame' => fn (string $path) => DataFrame::fromCsv($path),
     'sqlite' => (function () {
         $pdo = new PDO('sqlite::memory:');
 
         return function (string $path) use ($pdo) {
-            $frame = Frame::fromCsv($path);
+            $frame = DataFrame::fromCsv($path);
             $table = basename($path, '.csv');
             $columns = $frame->columns();
             // Typed columns: PDO binds strings, so untyped columns would store TEXT
@@ -63,7 +63,7 @@ $load = match ($backendName) {
             return SqlTable::table($pdo, $table);
         };
     })(),
-    'polars' => fn (string $path) => Phibble\Polars\PolarsTable::fromTable(Frame::fromCsv($path)),
+    'polars' => fn (string $path) => Phibble\Polars\PolarsTable::fromTable(DataFrame::fromCsv($path)),
     default => throw new InvalidArgumentException("Unknown backend {$backendName}"),
 };
 

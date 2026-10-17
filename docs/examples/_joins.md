@@ -1,9 +1,9 @@
 ```php
-$schools = Frame::fromCsv('schools.csv')
+$schools = DataFrame::fromCsv('schools.csv')
     |> group_by('school')
     |> summarise(avg_score: mean('score'));
 
-$districts = Frame::fromRows([
+$districts = DataFrame::fromRows([
     ['school_id' => 'school-01', 'district' => 'North'],
     ['school_id' => 'school-02', 'district' => 'North'],
     ['school_id' => 'school-03', 'district' => 'South'],

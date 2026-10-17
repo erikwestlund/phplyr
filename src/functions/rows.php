@@ -12,18 +12,18 @@ namespace Phplyr;
 
 use Closure;
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /** All rows of both tables. */
 function union_all(Table $y): Closure
 {
-    return fn (Table $x) => Internal::sameBackend(Frame::concat([$x, Rows::aligned($x, $y)]), $x);
+    return fn (Table $x) => Internal::sameBackend(DataFrame::concat([$x, Rows::aligned($x, $y)]), $x);
 }
 
 /** Distinct rows of both tables. */
 function union(Table $y): Closure
 {
-    return fn (Table $x) => Internal::sameBackend(Frame::concat([$x, Rows::aligned($x, $y)])->distinct(), $x);
+    return fn (Table $x) => Internal::sameBackend(DataFrame::concat([$x, Rows::aligned($x, $y)])->distinct(), $x);
 }
 
 /** Distinct rows of x that also appear in y. */
@@ -41,7 +41,7 @@ function setdiff(Table $y): Closure
 /** Rows in exactly one of the tables. */
 function symdiff(Table $y): Closure
 {
-    return fn (Table $x) => Internal::sameBackend(Frame::concat([setdiff($y)($x), setdiff($x)(Rows::aligned($x, $y))]), $x);
+    return fn (Table $x) => Internal::sameBackend(DataFrame::concat([setdiff($y)($x), setdiff($x)(Rows::aligned($x, $y))]), $x);
 }
 
 /** True when both tables hold the same distinct rows, in any order. */
@@ -81,14 +81,14 @@ function rows_insert(Table $y, string|array|null $by = null, string $conflict = 
             $new[] = $i;
         }
 
-        return Internal::sameBackend(Frame::concat([$x, Ops::take(Rows::aligned($x, $y, partial: true), $new)]), $x);
+        return Internal::sameBackend(DataFrame::concat([$x, Ops::take(Rows::aligned($x, $y, partial: true), $new)]), $x);
     };
 }
 
 /** Append all rows of y. */
 function rows_append(Table $y): Closure
 {
-    return fn (Table $x) => Internal::sameBackend(Frame::concat([$x, Rows::aligned($x, $y, partial: true)]), $x);
+    return fn (Table $x) => Internal::sameBackend(DataFrame::concat([$x, Rows::aligned($x, $y, partial: true)]), $x);
 }
 
 /**
@@ -156,7 +156,7 @@ function add_row(mixed ...$values): Closure
         }
         $n = \max(array_map(fn ($v) => \is_array($v) && array_is_list($v) ? \count($v) : 1, $values ?: [null]));
         $columns = array_map(fn ($v) => Vec::recycle($v, $n, 'add_row() value'), $values);
-        $new = Frame::fromColumns($columns + array_fill_keys(array_diff($t->columns(), array_keys($values)), array_fill(0, $n, null)));
+        $new = DataFrame::fromColumns($columns + array_fill_keys(array_diff($t->columns(), array_keys($values)), array_fill(0, $n, null)));
         $m = $t->nrow();
         $at = match (true) {
             $o['_before'] !== null => $o['_before'] - 1,

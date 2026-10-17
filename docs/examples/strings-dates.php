@@ -2,7 +2,7 @@
 
 use function Phplyr\{floor_date, str_detect, str_extract, str_replace_all, str_to_title, ymd};
 
-$notes = Frame::fromRows([
+$notes = DataFrame::fromRows([
     ['when' => '2024-01-31', 'note' => 'paid INV-1042 late'],
     ['when' => '2024-02-29', 'note' => 'refund inv-77'],
     ['when' => '2024-03-15', 'note' => 'no invoice'],

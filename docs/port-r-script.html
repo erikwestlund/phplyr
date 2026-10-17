@@ -364,7 +364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div><div class="column" style="width:49%;">
 <section id="php" class="level3">
 <h3 class="anchored" data-anchor-id="php">PHP</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">$schools</span> <span class="op">=</span> Frame::fromCsv(<span class="st">'schools.csv'</span>)<span class="ot">;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode php code-with-copy"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">$schools</span> <span class="op">=</span> DataFrame::fromCsv(<span class="st">'schools.csv'</span>)<span class="ot">;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Clean: drop incomplete rows, band study time, compute the gain.</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="va">$clean</span> <span class="op">=</span> <span class="va">$schools</span></span>
@@ -430,14 +430,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="what-changed-in-translation" class="level2">
 <h2 class="anchored" data-anchor-id="what-changed-in-translation">What changed in translation</h2>
 <ul>
-<li><strong>Loading.</strong> <code>read.csv()</code> becomes <code>Frame::fromCsv()</code>. phibble infers column types like readr.</li>
+<li><strong>Loading.</strong> <code>read.csv()</code> becomes <code>DataFrame::fromCsv()</code>. phibble infers column types like readr.</li>
 <li><strong>Pipes.</strong> R’s <code>|&gt;</code> stays <code>|&gt;</code>. Each verb returns a closure that the pipe applies.</li>
 <li><strong>Column references.</strong> Bare names become strings, or <code>col('x')</code> inside expressions. <code>score - prior_score</code> becomes <code>col('score')-&gt;sub(col('prior_score'))</code>. A row closure, <code>fn ($r) =&gt; $r-&gt;score - $r-&gt;prior_score</code>, also works.</li>
 <li><strong>Conditions.</strong> <code>case_when(x &lt; 4 ~ "low", .default = "high")</code> becomes <code>case_when([col('x')-&gt;lt(4), 'low'], default: 'high')</code>.</li>
 <li><strong>Renaming in select.</strong> <code>select(prior = prior_score)</code> becomes <code>select(['prior' =&gt; 'prior_score'])</code>.</li>
 <li><strong>Column sets.</strong> <code>c(prior, final)</code> becomes <code>['prior', 'final']</code>.</li>
 <li><strong>Models.</strong> <code>lm()</code>, <code>glm()</code>, and <code>lmer()</code> take the same formulas. They return arrays with <code>columns</code> (R’s coefficient names), <code>coefficients</code>, standard errors, and fit statistics instead of model objects, so <code>coef()</code> and <code>fixef()</code> become array reads.</li>
-<li><strong>Printing.</strong> Frames print in tibble’s format. R rounds printed numbers to significant digits; phibble does the same.</li>
+<li><strong>Printing.</strong> DataFrames print in tibble’s format. R rounds printed numbers to significant digits; phibble does the same.</li>
 </ul>
 <p>Because the PHP pipeline uses <code>col()</code> expressions instead of closures, it also runs unchanged on a database table from <code>Phibble\tbl()</code>. See <a href="./reference/databases.html">Databases and expressions</a>.</p>
 

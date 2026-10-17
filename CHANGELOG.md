@@ -4,7 +4,7 @@ All notable changes to phplyr are recorded here. Versions follow semantic versio
 
 ## Unreleased
 
-The remaining dplyr 1.1 and tidyr 1.3 exports, and phibble's Polars backend. Requires phibble's main branch until phibble 0.2.0 is tagged.
+The remaining dplyr 1.1 and tidyr 1.3 exports, and phibble's Polars backend. Requires phibble 0.2.
 
 ### Added
 
@@ -13,18 +13,19 @@ The remaining dplyr 1.1 and tidyr 1.3 exports, and phibble's Polars backend. Req
 - tidyr pivoting: `names_transform`, `values_transform`, and `cols_vary` for `pivot_longer()`; `names_vary`, `names_expand`, `id_expand`, and `unused_fn` for `pivot_wider()`; `build_longer_spec()`, `build_wider_spec()`, `pivot_longer_spec()`, and `pivot_wider_spec()`; the superseded `gather()` and `spread()`.
 - tidyr: `full_seq()` and the superseded `extract()` and `separate_rows()`.
 - `transmute()` keeps a column given by bare name, as in dplyr.
-- A parity suite (`tests/PolarsTest.php`) runs about 120 pipelines on Frame and on phibble's `Phibble\Polars\PolarsTable` and checks that columns, types, groups, and rows match. CI runs it with the phpolars release binary.
+- A parity suite (`tests/PolarsTest.php`) runs about 120 pipelines on DataFrame and on phibble's `Phibble\Polars\PolarsTable` and checks that columns, types, groups, and rows match. CI runs it with the phpolars release binary.
 
 ### Changed
 
-- Verbs that build their result in memory (`reframe()`, `complete()`, `expand()`, `bind_rows()`, `bind_cols()`, the set operations, `rows_insert()`, `rows_append()`, `group_modify()`, `unnest()`, `add_row()`, and `pivot_wider()` with `values_fn`, `id_expand`, or `unused_fn`) return a table on the input's backend when that backend can load tables, as PolarsTable can. Results with list-columns of tables, such as `nest()`, stay Frames.
+- Requires phibble 0.2, which renames `Phibble\Frame` to `Phibble\DataFrame` with no alias. Code that imports `Phibble\Frame` must import `Phibble\DataFrame`, and the Laravel macro `toFrame()` is now `toDataFrame()`.
+- Verbs that build their result in memory (`reframe()`, `complete()`, `expand()`, `bind_rows()`, `bind_cols()`, the set operations, `rows_insert()`, `rows_append()`, `group_modify()`, `unnest()`, `add_row()`, and `pivot_wider()` with `values_fn`, `id_expand`, or `unused_fn`) return a table on the input's backend when that backend can load tables, as PolarsTable can. Results with list-columns of tables, such as `nest()`, stay DataFrames.
 - A closure in `across()` may return a helper's result, as in `fn ($v) => mean($v, na_rm: true)`; it is evaluated on the group.
 - Helper arguments that evaluate to some other length than the group, such as `c_across()` in a rowwise table, are evaluated on their own.
 - The benchmarks use phibble's `Phibble\Polars\PolarsTable`; `PHPOLARS_DIR` is now optional.
 
 ### Known issues
 
-- PolarsTable stores named lists as structs, so every element gets every name. `unnest_longer()` on named lists with different names then returns extra rows on PolarsTable.
+- PolarsTable stores named lists as structs, which would give every element every name. `PolarsTable::fromTable()` throws for a list-column of named lists with different names, or of tables, so pipelines that need one stay on DataFrame.
 
 ## 0.1.0 - 2026-10-16
 

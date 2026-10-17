@@ -1,6 +1,6 @@
 <?php
 
-$housing = Frame::fromCsv('housing.csv');
+$housing = DataFrame::fromCsv('housing.csv');
 
 echo $housing |> distinct('bedrooms') |> arrange('bedrooms');
 echo "\n", json_encode($housing |> arrange('area_m2') |> pull('monthly_rent')), "\n";

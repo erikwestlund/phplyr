@@ -1,7 +1,7 @@
 ```php
 // Which schools do better than their students' prior scores predict?
 // Fit one regression on all students, then average each school's residuals.
-$schools = Frame::fromCsv('schools.csv');
+$schools = DataFrame::fromCsv('schools.csv');
 $fit = $schools |> lm('score ~ prior_score + study_hours');
 [$b0, $b_prior, $b_hours] = $fit['coefficients'];
 

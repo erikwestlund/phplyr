@@ -1,6 +1,6 @@
 <?php
 
-$schools = Frame::fromCsv('schools.csv') |> group_by('school');
+$schools = DataFrame::fromCsv('schools.csv') |> group_by('school');
 
 // Phplyr helpers can be passed by name; each gets the column name.
 echo $schools

@@ -61,12 +61,12 @@ function referenceColumn(string $key, string $column): array
 /** True when the installed phibble orders groups like dplyr (sorted keys). */
 function phibbleSortsGroups(): bool
 {
-    $t = Phibble\Frame::fromRows([['g' => 'b'], ['g' => 'a']])->groupBy(['g']);
+    $t = Phibble\DataFrame::fromRows([['g' => 'b'], ['g' => 'a']])->groupBy(['g']);
 
     return $t->summarise([])->column('g') === ['a', 'b'];
 }
 
-function panel(): Phibble\Frame
+function panel(): Phibble\DataFrame
 {
-    return Phibble\Frame::fromCsv(fixturePath('panel.csv'));
+    return Phibble\DataFrame::fromCsv(fixturePath('panel.csv'));
 }

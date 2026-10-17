@@ -2,7 +2,7 @@
 
 // A random-intercept model: students nested in schools. The fixed effects
 // are shared; each school gets its own intercept shift.
-$schools = Frame::fromCsv('schools.csv');
+$schools = DataFrame::fromCsv('schools.csv');
 $fit = $schools |> lmer('score ~ study_hours + prior_score + (1 | school)');
 
 foreach ($fit['columns'] as $i => $term) {

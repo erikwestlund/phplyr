@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 use Phplyr\Stats;
 use Phplyr\Vec;
 
 use function Phplyr\{anti_join, cross_join, full_join, head, inner_join, left_join, mutate, rename, right_join, rowwise, select, semi_join, summarise, ungroup};
 
-function joinX(): Frame
+function joinX(): DataFrame
 {
-    return Frame::fromCsv(fixturePath('join_x.csv'));
+    return DataFrame::fromCsv(fixturePath('join_x.csv'));
 }
 
-function joinY(): Frame
+function joinY(): DataFrame
 {
-    return Frame::fromCsv(fixturePath('join_y.csv'));
+    return DataFrame::fromCsv(fixturePath('join_y.csv'));
 }
 
 function joinReference(string $key): array
@@ -78,7 +78,7 @@ it('keeps grouping and errors like dplyr', function () {
         ->toThrow(InvalidArgumentException::class);
     expect(fn () => joinX() |> left_join(joinY(), by: ['id' => 'key'], relationship: 'one-to-one'))
         ->toThrow(InvalidArgumentException::class);
-    expect(fn () => joinX() |> inner_join(Frame::fromRows([['zzz' => 1]])))
+    expect(fn () => joinX() |> inner_join(DataFrame::fromRows([['zzz' => 1]])))
         ->toThrow(InvalidArgumentException::class, 'cross_join');
 });
 

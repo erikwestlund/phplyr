@@ -1,7 +1,7 @@
 ```php
 use function Phplyr\chop;
 
-$people = Frame::fromColumns([
+$people = DataFrame::fromColumns([
     'id' => [1, 2, 3],
     'info' => [
         ['name' => 'ann', 'langs' => ['php', 'r'], 'city' => ['name' => 'Oslo']],
@@ -14,7 +14,7 @@ echo $people |> hoist('info', town: ['city', 'name']), "\n";
 
 echo $people |> unnest_wider('info') |> select('id', 'langs') |> unnest_longer('langs', indices_include: true), "\n";
 
-echo Frame::fromColumns(['g' => ['a', 'a', 'b'], 'x' => [1, 2, 3]]) |> chop('x');
+echo DataFrame::fromColumns(['g' => ['a', 'a', 'b'], 'x' => [1, 2, 3]]) |> chop('x');
 ```
 
 ```{.text .output}

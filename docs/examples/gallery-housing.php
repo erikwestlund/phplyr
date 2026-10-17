@@ -2,7 +2,7 @@
 
 // Price per square meter by number of bedrooms, with each flat's
 // position relative to its bedroom group.
-$housing = Frame::fromCsv('housing.csv')
+$housing = DataFrame::fromCsv('housing.csv')
     |> mutate(per_m2: fn ($r) => round($r->monthly_rent / $r->area_m2, 2));
 
 echo $housing

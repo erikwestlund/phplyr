@@ -1,5 +1,5 @@
 ```php
-$schools = Frame::fromCsv('schools.csv') |> group_by('school');
+$schools = DataFrame::fromCsv('schools.csv') |> group_by('school');
 
 // The two best students in each of the first three schools.
 echo $schools

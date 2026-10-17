@@ -11,7 +11,7 @@ namespace Phplyr;
 
 use Closure;
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /**
  * Lengthen: turn columns into name/value rows.
@@ -46,7 +46,7 @@ function pivot_wider(mixed $names_from = 'name', mixed $values_from = 'value', m
  */
 function build_longer_spec(mixed $cols, string|array $names_to = 'name', string $values_to = 'value', ?string $names_prefix = null, ?string $names_sep = null, ?string $names_pattern = null, Closure|array|null $names_transform = null): Closure
 {
-    return fn (Table $t) => Frame::fromRows(Tidyr::longerSpec($t, $cols, $names_to, $values_to, $names_prefix, $names_sep, $names_pattern, $names_transform));
+    return fn (Table $t) => DataFrame::fromRows(Tidyr::longerSpec($t, $cols, $names_to, $values_to, $names_prefix, $names_sep, $names_pattern, $names_transform));
 }
 
 /** Lengthen with a spec from build_longer_spec() (a table or a list of rows). */
@@ -61,7 +61,7 @@ function pivot_longer_spec(Table|array $spec, bool $values_drop_na = false, Clos
  */
 function build_wider_spec(mixed $names_from = 'name', mixed $values_from = 'value', string $names_prefix = '', string $names_sep = '_', ?string $names_glue = null, bool $names_sort = false, string $names_vary = 'fastest', bool $names_expand = false): Closure
 {
-    return fn (Table $t) => Frame::fromRows(Tidyr::widerSpec($t, Selector::select([$names_from], $t), Selector::select([$values_from], $t), $names_prefix, $names_sep, $names_glue, $names_sort, $names_vary, $names_expand));
+    return fn (Table $t) => DataFrame::fromRows(Tidyr::widerSpec($t, Selector::select([$names_from], $t), Selector::select([$values_from], $t), $names_prefix, $names_sep, $names_glue, $names_sort, $names_vary, $names_expand));
 }
 
 /**
@@ -148,13 +148,13 @@ function complete(mixed ...$items): Closure
 }
 
 /** Every combination of unique values (sorted), as a new table: crossing(x: [1, 2], y: ['a', 'b']). */
-function crossing(array ...$columns): Frame
+function crossing(array ...$columns): DataFrame
 {
     return expand_grid(...array_map(Tidyr::sortedUnique(...), $columns));
 }
 
 /** Every combination of the values as given, first column varying slowest. */
-function expand_grid(array ...$columns): Frame
+function expand_grid(array ...$columns): DataFrame
 {
     $rows = [[]];
     foreach ($columns as $name => $values) {
@@ -171,7 +171,7 @@ function expand_grid(array ...$columns): Frame
         $out[$name] = array_column($rows, $name);
     }
 
-    return Frame::fromColumns($out);
+    return DataFrame::fromColumns($out);
 }
 
 /**

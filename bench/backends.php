@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Time three phplyr pipelines on Frame, PolarsTable and SqlTable (SQLite),
+ * Time three phplyr pipelines on DataFrame, PolarsTable and SqlTable (SQLite),
  * check that every backend returns the same rows, and write the results with
  * their method metadata to docs/benchmarks/backends-results.json.
  *
@@ -22,7 +22,7 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 use Composer\InstalledVersions;
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 use Phibble\Sql\SqlTable;
 use Phibble\Polars\PolarsTable;
 
@@ -98,8 +98,8 @@ foreach ($sizes as $rows) {
         $sales['price'][] = \round(mt_rand(100, 10000) / 100, 2);
     }
     $stores = ['store' => range(1, 100), 'region' => array_map(fn ($s) => 'region-'.(($s - 1) % 5 + 1), range(1, 100))];
-    $frameSales = Frame::fromColumns($sales);
-    $frameStores = Frame::fromColumns($stores);
+    $frameSales = DataFrame::fromColumns($sales);
+    $frameStores = DataFrame::fromColumns($stores);
 
     $pdo = new PDO('sqlite::memory:');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -117,7 +117,7 @@ foreach ($sizes as $rows) {
     $pdo->commit();
     unset($sales);
 
-    $tables = ['Frame' => [$frameSales, $frameStores]];
+    $tables = ['DataFrame' => [$frameSales, $frameStores]];
     if ($polars) {
         $tables['PolarsTable'] = [PolarsTable::fromTable($frameSales), PolarsTable::fromTable($frameStores)];
     }
@@ -168,9 +168,9 @@ $report = [
         'repeats' => $repeats,
         'timing' => 'pipeline through collect(); data preloaded and not timed',
         'verification' => 'rows canonicalised (floats to 9 significant digits, sorted) and hashed, then compared with the reference backend',
-        'reference' => 'Frame',
+        'reference' => 'DataFrame',
         'polars_threads' => $polars ? Phpolars\thread_pool_size() : null,
-        'threads_note' => 'polars_threads applies to PolarsTable only; Frame and SqlTable(SQLite) run single-threaded',
+        'threads_note' => 'polars_threads applies to PolarsTable only; DataFrame and SqlTable(SQLite) run single-threaded',
         'machine' => [
             'os' => php_uname('s').' '.php_uname('r').' '.php_uname('m'),
             'cpu' => $sysctl('machdep.cpu.brand_string'),

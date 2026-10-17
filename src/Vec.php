@@ -12,7 +12,7 @@ use Phibble\Expr\Evaluator;
 use Phibble\Expr\Expr;
 use Phibble\Expr\Lit;
 use Phibble\Expr\Scalar;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /**
  * A vectorised expression: evaluated once per group, it returns a list with

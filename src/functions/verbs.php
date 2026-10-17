@@ -6,7 +6,7 @@ declare(strict_types=1);
  * phplyr's verbs. Each verb returns a Closure that takes one table, so verbs
  * chain with the PHP 8.5 pipe operator:
  *
- *     $out = Frame::fromCsv('sales.csv')
+ *     $out = DataFrame::fromCsv('sales.csv')
  *         |> filter(fn ($r) => $r->price > 0)
  *         |> group_by('brand')
  *         |> summarise(n: n(), avg: mean('price'))
@@ -26,7 +26,7 @@ namespace Phplyr;
 
 use Closure;
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /**
  * Keep rows where every condition is true; NA counts as false.

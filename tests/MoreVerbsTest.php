@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phplyr\{bind_cols, bind_rows, glimpse, group_by, group_map, group_modify, group_split, group_vars, group_walk, lag, mutate, n, pick, slice_sample, summarise, ungroup, vec};
 
-function small(): Frame
+function small(): DataFrame
 {
-    return Frame::fromRows([
+    return DataFrame::fromRows([
         ['g' => 'a', 'x' => 1],
         ['g' => 'b', 'x' => 2],
         ['g' => 'a', 'x' => 3],
@@ -16,17 +16,17 @@ function small(): Frame
 }
 
 it('binds rows, filling missing columns with NA and tagging sources', function () {
-    $out = small() |> bind_rows(Frame::fromRows([['x' => 9, 'y' => true]]), _id: 'src');
+    $out = small() |> bind_rows(DataFrame::fromRows([['x' => 9, 'y' => true]]), _id: 'src');
     expect($out->columns())->toBe(['src', 'g', 'x', 'y']);
     expect($out->column('src'))->toBe(['1', '1', '1', '2']);
     expect($out->column('g'))->toBe(['a', 'b', 'a', null]);
 });
 
 it('binds columns and repairs duplicate names', function () {
-    $out = small() |> bind_cols(Frame::fromRows([['x' => 'p'], ['x' => 'q'], ['x' => 'r']]));
+    $out = small() |> bind_cols(DataFrame::fromRows([['x' => 'p'], ['x' => 'q'], ['x' => 'r']]));
     expect($out->columns())->toBe(['g', 'x...2', 'x...3']);
     expect($out->column('x...3'))->toBe(['p', 'q', 'r']);
-    expect(fn () => small() |> bind_cols(Frame::fromRows([['z' => 1]])))->toThrow(LengthException::class);
+    expect(fn () => small() |> bind_cols(DataFrame::fromRows([['z' => 1]])))->toThrow(LengthException::class);
 });
 
 it('splits, maps, modifies and walks groups', function () {
@@ -40,7 +40,7 @@ it('splits, maps, modifies and walks groups', function () {
     $sums = $grouped |> group_map(fn ($t, $key) => $key['g'].'='.array_sum($t->column('x')));
     expect($sums)->toContain('a=4', 'b=2');
 
-    $out = $grouped |> group_modify(fn ($t) => Frame::fromRows([['total' => array_sum($t->column('x')), 'rows' => $t->nrow()]]));
+    $out = $grouped |> group_modify(fn ($t) => DataFrame::fromRows([['total' => array_sum($t->column('x')), 'rows' => $t->nrow()]]));
     expect($out->groups())->toBe(['g']);
     expect($out->columns())->toBe(['g', 'total', 'rows']);
 
@@ -107,9 +107,9 @@ it('matches dplyr cur_group_id() and cur_group_rows()', function () {
 
 it('keeps empty factor-level groups with _drop: false', function () {
     $ref = json_decode(file_get_contents(fixturePath('drop-reference.json')), true);
-    $d = Frame::fromColumns(['f' => ['a', 'a', 'c'], 's' => ['x', 'y', 'x'], 'v' => [1.0, 2.0, 3.0]])->asFactor('f', ['a', 'b', 'c']);
+    $d = DataFrame::fromColumns(['f' => ['a', 'a', 'c'], 's' => ['x', 'y', 'x'], 'v' => [1.0, 2.0, 3.0]])->asFactor('f', ['a', 'b', 'c']);
     expectRowsClose(($d |> group_by('f', _drop: false) |> summarise(n: n(), total: Phplyr\sum('v')))->toRows(), $ref['drop']);
     expectRowsClose(($d |> group_by('f', _drop: false) |> Phplyr\count())->ungroup()->toRows(), $ref['count']);
     expectRowsClose(($d |> group_by('f', 's', _drop: false) |> summarise(n: n(), _groups: 'drop'))->toRows(), $ref['two']);
     expect(($d |> group_by('f', _drop: false))->dropsEmptyGroups())->toBeFalse();
-})->skip(fn () => ! method_exists(Frame::class, 'dropsEmptyGroups'), 'phibble lacks groupBy drop: false');
+})->skip(fn () => ! method_exists(DataFrame::class, 'dropsEmptyGroups'), 'phibble lacks groupBy drop: false');

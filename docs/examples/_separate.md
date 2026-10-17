@@ -1,5 +1,5 @@
 ```php
-$t = Frame::fromRows([
+$t = DataFrame::fromRows([
     ['id' => 1, 'name' => 'Ada Lovelace', 'tags' => 'math,code'],
     ['id' => 2, 'name' => 'Grace Hopper', 'tags' => 'navy'],
 ]);

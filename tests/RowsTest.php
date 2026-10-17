@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phplyr\{case_match, group_by, group_cols, intersect, mutate, rows_append, rows_delete, rows_insert, rows_patch, rows_update, rows_upsert, select, setdiff, setequal, symdiff, ungroup, union, union_all};
 
@@ -14,24 +14,24 @@ function rowsReference(string $key): mixed
     return $json[$key];
 }
 
-function setA(): Frame
+function setA(): DataFrame
 {
-    return Frame::fromColumns(['id' => [1.0, 2.0, 3.0, 3.0, null], 'v' => ['a', 'b', 'c', 'c', 'n']]);
+    return DataFrame::fromColumns(['id' => [1.0, 2.0, 3.0, 3.0, null], 'v' => ['a', 'b', 'c', 'c', 'n']]);
 }
 
-function setB(): Frame
+function setB(): DataFrame
 {
-    return Frame::fromColumns(['id' => [3.0, 4.0, null], 'v' => ['c', 'd', 'n']]);
+    return DataFrame::fromColumns(['id' => [3.0, 4.0, null], 'v' => ['c', 'd', 'n']]);
 }
 
-function rowsX(): Frame
+function rowsX(): DataFrame
 {
-    return Frame::fromColumns(['id' => [1.0, 2.0, 3.0], 'v' => ['a', null, 'c'], 'w' => [10.0, 20.0, 30.0]]);
+    return DataFrame::fromColumns(['id' => [1.0, 2.0, 3.0], 'v' => ['a', null, 'c'], 'w' => [10.0, 20.0, 30.0]]);
 }
 
-function rowsY(): Frame
+function rowsY(): DataFrame
 {
-    return Frame::fromColumns(['id' => [2.0, 4.0], 'v' => ['B', 'D']]);
+    return DataFrame::fromColumns(['id' => [2.0, 4.0], 'v' => ['B', 'D']]);
 }
 
 it('matches dplyr set operations', function () {

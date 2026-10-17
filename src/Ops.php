@@ -6,7 +6,7 @@ namespace Phplyr;
 
 use Closure;
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /**
  * @internal Group-vector primitives. Uses the table's native method when the
@@ -75,13 +75,13 @@ final class Ops
         $hasNull = \in_array(null, $indices, true);
         if ($hasNull) {
             // Append one all-NA row and point null indices at it.
-            $na = Frame::fromColumns(array_fill_keys($frame->columns(), [null]));
+            $na = DataFrame::fromColumns(array_fill_keys($frame->columns(), [null]));
             $n = $frame->nrow();
-            $frame = Frame::concat([$frame, $na])->groupBy($frame->groups());
+            $frame = DataFrame::concat([$frame, $na])->groupBy($frame->groups());
             $indices = array_map(fn ($i) => $i ?? $n, $indices);
         }
 
-        // Frame::take() is private in contract v0; call it in scope.
+        // DataFrame::take() is private in contract v0; call it in scope.
         return (fn (array $idx) => $this->take($idx, $this->groups))->call($frame, $indices);
     }
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phplyr\{arrange, count, desc, filter, first, group_by, head, last, mean, mutate, n, n_distinct, pull, rename, select, slice, slice_head, sum, summarise, summarize, ungroup};
 
-function sales(): Frame
+function sales(): DataFrame
 {
-    return Frame::fromRows([
+    return DataFrame::fromRows([
         ['brand' => 'a', 'store' => 'x', 'price' => 10.0, 'qty' => 1],
         ['brand' => 'b', 'store' => 'x', 'price' => 0.0, 'qty' => 3],
         ['brand' => 'a', 'store' => 'y', 'price' => 30.0, 'qty' => 2],

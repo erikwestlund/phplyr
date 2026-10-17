@@ -32,7 +32,7 @@ The output under each script is what it printed.
 
 ## What changed in translation
 
-- **Loading.** `read.csv()` becomes `Frame::fromCsv()`. phibble infers column
+- **Loading.** `read.csv()` becomes `DataFrame::fromCsv()`. phibble infers column
   types like readr.
 - **Pipes.** R's `|>` stays `|>`. Each verb returns a closure that the pipe
   applies.
@@ -48,7 +48,7 @@ The output under each script is what it printed.
   arrays with `columns` (R's coefficient names), `coefficients`, standard
   errors, and fit statistics instead of model objects, so `coef()` and
   `fixef()` become array reads.
-- **Printing.** Frames print in tibble's format. R rounds printed numbers to
+- **Printing.** DataFrames print in tibble's format. R rounds printed numbers to
   significant digits; phibble does the same.
 
 Because the PHP pipeline uses `col()` expressions instead of closures, it also

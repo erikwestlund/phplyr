@@ -1,5 +1,5 @@
 ```php
-$schools = Frame::fromCsv('schools.csv');
+$schools = DataFrame::fromCsv('schools.csv');
 
 echo implode(', ', ($schools |> select('school', ends_with('score')))->columns()), "\n";
 echo implode(', ', ($schools |> select(except('school')))->columns()), "\n";

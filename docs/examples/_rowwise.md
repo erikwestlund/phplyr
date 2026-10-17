@@ -1,5 +1,5 @@
 ```php
-echo Frame::fromRows([
+echo DataFrame::fromRows([
     ['id' => 'a', 'q1' => 3, 'q2' => 5, 'q3' => null],
     ['id' => 'b', 'q1' => 4, 'q2' => 1, 'q3' => 2],
 ])

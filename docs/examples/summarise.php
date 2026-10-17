@@ -1,6 +1,6 @@
 <?php
 
-echo Frame::fromCsv('schools.csv')
+echo DataFrame::fromCsv('schools.csv')
     |> summarise(
         students: n(),
         schools: n_distinct('school'),

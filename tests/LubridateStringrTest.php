@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phibble\CalendarDate;
 use Phibble\Expr\Clock;
-use Phibble\Frame;
+use Phibble\DataFrame;
 use Phibble\Type;
 use Phplyr\Vec;
 use function Phplyr\{ceiling_date, col, day, days, difftime, dmy, fixed, floor_date, force_tz, hour, hours, lit, mdy, minute, minutes, month, months, now, parse_date_time, quarter, regex, round_date, second, str_count, str_detect, str_ends, str_extract, str_extract_all, str_length, str_pad, str_replace, str_replace_all, str_split, str_split_i, str_squish, str_starts, str_to_title, str_to_upper, str_trunc, today, wday, weeks, with_tz, yday, year, years, ymd, ymd_hms, mutate, pull};
@@ -22,9 +22,9 @@ function lsExpected(string $case): array
     return $all[$case];
 }
 
-function lsFrame(): Frame
+function lsFrame(): DataFrame
 {
-    return Frame::fromCsvString(implode("\n", [
+    return DataFrame::fromCsvString(implode("\n", [
         'd,t,s',
         '2024-01-31,2024-01-31 23:59:59,Apple pie',
         '2024-02-29,2024-03-10 02:30:00,banana split',
@@ -48,9 +48,9 @@ function lsFormat(mixed $v): mixed
     };
 }
 
-function lsWith(array $values): Frame
+function lsWith(array $values): DataFrame
 {
-    return Frame::fromColumns(['v' => $values]);
+    return DataFrame::fromColumns(['v' => $values]);
 }
 
 dataset('lubridate and stringr', function () {
@@ -145,7 +145,7 @@ it('keeps dates as dates and reads the frozen clock', function () {
     expect($out->type('next'))->toBe(Type::Date)->and($out->type('m'))->toBe(Type::Date);
     Clock::freeze(new DateTimeImmutable('2024-05-06 23:30:00', new DateTimeZone('UTC')));
     try {
-        $out = Frame::fromColumns(['x' => [1]]) |> mutate(d: today(), nz: today(tz: 'Pacific/Auckland'));
+        $out = DataFrame::fromColumns(['x' => [1]]) |> mutate(d: today(), nz: today(tz: 'Pacific/Auckland'));
         expect($out->column('d')[0]->format('Y-m-d'))->toBe('2024-05-06')
             ->and($out->column('nz')[0]->format('Y-m-d'))->toBe('2024-05-07');
     } finally {

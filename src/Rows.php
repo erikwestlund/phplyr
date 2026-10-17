@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phplyr;
 
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /** @internal Helpers for set operations and rows_*(). */
 final class Rows

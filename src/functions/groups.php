@@ -10,7 +10,7 @@ namespace Phplyr;
 
 use Closure;
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 /** The grouping column names. */
 function group_vars(): Closure
@@ -195,7 +195,7 @@ function group_modify(Closure $fn): Closure
             $parts[] = bind_cols($result)($keys);
         }
 
-        return $parts === [] ? $t : Internal::sameBackend(Frame::concat($parts)->groupBy($groups), $t);
+        return $parts === [] ? $t : Internal::sameBackend(DataFrame::concat($parts)->groupBy($groups), $t);
     };
 }
 
@@ -228,7 +228,7 @@ function bind_rows(mixed ...$tables): Closure
             );
         }
 
-        return Internal::sameBackend(Frame::concat($all), $x);
+        return Internal::sameBackend(DataFrame::concat($all), $x);
     };
 }
 
@@ -257,8 +257,8 @@ function bind_cols(Table ...$tables): Closure
             }
             $frames[] = $map === [] ? $t->collect() : $t->collect()->rename($map);
         }
-        if (method_exists(Frame::class, 'bindCols')) {
-            return Internal::sameBackend(Ops::regroupLike(Frame::bindCols($frames), $x), $x);
+        if (method_exists(DataFrame::class, 'bindCols')) {
+            return Internal::sameBackend(Ops::regroupLike(DataFrame::bindCols($frames), $x), $x);
         }
         $out = array_shift($frames);
         foreach ($frames as $f) {
@@ -322,7 +322,7 @@ function show_query(): Closure
     };
 }
 
-/** Run a lazy table's query and return an in-memory Phibble\Frame. */
+/** Run a lazy table's query and return an in-memory Phibble\DataFrame. */
 function collect(): Closure
 {
     return fn (Table $t) => $t->collect();

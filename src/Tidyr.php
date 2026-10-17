@@ -6,7 +6,7 @@ namespace Phplyr;
 
 use Closure;
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 use Phibble\Type;
 
 /** @internal The tidyr verbs' implementations, built on the Table contract. */
@@ -308,10 +308,10 @@ final class Tidyr
     /** id_expand: a row for every combination of the id columns, sorted. */
     private static function expandIds(Table $t, Table $out, array $idCols, array $spec, array $fill): Table
     {
-        $ids = Frame::fromColumns(array_map(fn ($c) => [], array_combine($idCols, $idCols)));
+        $ids = DataFrame::fromColumns(array_map(fn ($c) => [], array_combine($idCols, $idCols)));
         $combos = self::expansion($t, $idCols);
         if ($combos !== [] && $idCols !== []) {
-            $ids = Frame::fromRows($combos);
+            $ids = DataFrame::fromRows($combos);
         }
         foreach ($idCols as $c) {
             if (($t->types()[$c] ?? null) === Type::Factor) {
@@ -417,16 +417,16 @@ final class Tidyr
         foreach (Ops::groupRows($t) as ['table' => $g]) {
             $exp = self::expandOne($g, $items);
             $keys = Ops::take($g->select($groups), array_fill(0, $exp->nrow(), 0));
-            $parts[] = Frame::bindCols([$keys, $exp]);
+            $parts[] = DataFrame::bindCols([$keys, $exp]);
         }
         if ($parts === []) {
             // No groups: the key columns and the expanded columns, with no rows.
             $exp = self::expandOne($t->ungroup(), $items);
 
-            return Frame::bindCols([Ops::take($t->ungroup()->select($groups), []), Ops::take($exp, [])])->groupBy($groups);
+            return DataFrame::bindCols([Ops::take($t->ungroup()->select($groups), []), Ops::take($exp, [])])->groupBy($groups);
         }
 
-        return Frame::concat($parts)->groupBy($groups);
+        return DataFrame::concat($parts)->groupBy($groups);
     }
 
     /**
@@ -450,7 +450,7 @@ final class Tidyr
         if ($parts === []) {
             return $t;
         }
-        $out = \count($parts) === 1 ? $parts[0] : Frame::concat($parts);
+        $out = \count($parts) === 1 ? $parts[0] : DataFrame::concat($parts);
 
         $present = $out->column(self::PRESENT);
         $replace = [];
@@ -507,7 +507,7 @@ final class Tidyr
             }
         }
 
-        return Frame::fromColumns($columns, $types);
+        return DataFrame::fromColumns($columns, $types);
     }
 
     /** Unique combinations of columns, sorted. @return list<array<string, mixed>> */

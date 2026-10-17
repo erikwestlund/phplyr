@@ -1,6 +1,6 @@
 <?php
 
-echo Frame::fromCsv('schools.csv')
+echo DataFrame::fromCsv('schools.csv')
     |> filter(fn ($r) => $r->school === 'school-01')
     |> arrange('study_hours')
     |> mutate(

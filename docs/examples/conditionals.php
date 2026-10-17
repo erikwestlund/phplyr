@@ -1,6 +1,6 @@
 <?php
 
-echo Frame::fromRows([
+echo DataFrame::fromRows([
     ['state' => 'NC', 'visits' => 3],
     ['state' => 'NYC', 'visits' => null],
     ['state' => 'CA', 'visits' => 12],

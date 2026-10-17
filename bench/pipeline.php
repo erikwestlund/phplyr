@@ -13,7 +13,7 @@ declare(strict_types=1);
 require __DIR__.'/../vendor/autoload.php';
 
 use Phibble\Contracts\Table;
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phibble\Expr\{col as ecol, desc as edesc, mean as emean, min_rank as emin_rank, n as en, sum as esum, lag as elag, cumsum as ecumsum};
 use function Phplyr\{arrange, col, cumsum, desc, filter, group_by, lag, left_join, mean, min_rank, mutate, n, sum, summarise};
@@ -32,8 +32,8 @@ for ($i = 0; $i < $rows; $i++) {
     $columns['units'][] = $u <= 2 ? null : ($u <= 7 ? 0 : mt_rand(1, 20));
     $columns['price'][] = mt_rand(100, 10000) / 100;
 }
-$sales = Frame::fromColumns($columns);
-$stores = Frame::fromColumns([
+$sales = DataFrame::fromColumns($columns);
+$stores = DataFrame::fromColumns([
     'store' => array_map(fn ($i) => 's'.$i, range(1, 100)),
     'region' => array_map(fn ($i) => 'r'.($i % 5), range(1, 100)),
 ]);

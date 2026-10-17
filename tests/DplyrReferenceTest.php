@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Phibble\Frame;
+use Phibble\DataFrame;
 
 use function Phplyr\{arrange, count, desc, distinct, filter, group_by, max, mean, median, min, mutate, n, quantile, rename, sd, select, summarise, ungroup, variance};
 
 it('matches dplyr for a grouped summary', function () {
     bothBackends(function () {
-        $out = Frame::fromCsv(fixturePath('schools.csv'))
+        $out = DataFrame::fromCsv(fixturePath('schools.csv'))
             |> filter(fn ($r) => $r->study_hours > 5)
             |> mutate(gain: fn ($r) => $r->score - $r->prior_score)
             |> group_by('school')
@@ -29,7 +29,7 @@ it('matches dplyr for a grouped summary', function () {
 });
 
 it('matches dplyr count with sort', function () {
-    $out = Frame::fromCsv(fixturePath('schools.csv'))
+    $out = DataFrame::fromCsv(fixturePath('schools.csv'))
         |> mutate(band: fn ($r) => $r->study_hours >= 8 ? 'high' : 'low')
         |> count('band', sort: true);
 
@@ -38,7 +38,7 @@ it('matches dplyr count with sort', function () {
 });
 
 it('matches dplyr for a grouped mutate', function () {
-    $out = Frame::fromCsv(fixturePath('schools.csv'))
+    $out = DataFrame::fromCsv(fixturePath('schools.csv'))
         |> group_by('school')
         |> mutate(centered: fn ($r, $g) => $r->score - (mean('score'))($g))
         |> ungroup()
@@ -50,7 +50,7 @@ it('matches dplyr for a grouped mutate', function () {
 });
 
 it('matches dplyr for mutate, rename, select and arrange', function () {
-    $out = Frame::fromCsv(fixturePath('housing.csv'))
+    $out = DataFrame::fromCsv(fixturePath('housing.csv'))
         |> mutate(rent_per_m2: fn ($r) => $r->monthly_rent / $r->area_m2)
         |> rename(rooms: 'bedrooms')
         |> select('rooms', 'area_m2', 'rent_per_m2')
@@ -60,7 +60,7 @@ it('matches dplyr for mutate, rename, select and arrange', function () {
 });
 
 it('matches dplyr distinct', function () {
-    $out = Frame::fromCsv(fixturePath('housing.csv'))
+    $out = DataFrame::fromCsv(fixturePath('housing.csv'))
         |> distinct('bedrooms')
         |> arrange('bedrooms');
 

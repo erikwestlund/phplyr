@@ -1,6 +1,6 @@
 <?php
 
-$housing = Frame::fromCsv('housing.csv');
+$housing = DataFrame::fromCsv('housing.csv');
 
 // _keep: 'none' keeps only new columns (and grouping columns).
 echo $housing |> mutate(rent_k: fn ($r) => $r->monthly_rent / 1000, _keep: 'none') |> head(3);
