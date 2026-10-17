@@ -1,3 +1,19 @@
+::: {.panel-tabset group="syntax"}
+
+## Method chain (PHP 8.3+)
+
+```php
+echo phplyr(DataFrame::fromCsv('schools.csv'))
+    ->filter(fn ($r) => $r->school <= 'school-02')
+    ->group_by('school')
+    ->reframe(
+        p: [0.25, 0.5, 0.75],
+        score: fn ($g) => array_map(fn ($p) => Stats::quantile($g->column('score'), $p), [0.25, 0.5, 0.75]),
+    );
+```
+
+## Pipe (PHP 8.5)
+
 ```php
 echo DataFrame::fromCsv('schools.csv')
     |> filter(fn ($r) => $r->school <= 'school-02')
@@ -7,6 +23,8 @@ echo DataFrame::fromCsv('schools.csv')
         score: fn ($g) => array_map(fn ($p) => Stats::quantile($g->column('score'), $p), [0.25, 0.5, 0.75]),
     );
 ```
+
+:::
 
 ```{.text .output}
 # A tibble: 6 × 3

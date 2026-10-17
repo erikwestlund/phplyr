@@ -1,3 +1,19 @@
+::: {.panel-tabset group="syntax"}
+
+## Method chain (PHP 8.3+)
+
+```php
+echo phplyr(DataFrame::fromRows([
+    ['quarter' => 'Q1', 'year' => 2024, 'sales' => 10],
+    ['quarter' => 'Q2', 'year' => null, 'sales' => null],
+    ['quarter' => 'Q3', 'year' => null, 'sales' => 14],
+]))
+    ->fill('year')
+    ->replace_na(['sales' => 0]);
+```
+
+## Pipe (PHP 8.5)
+
 ```php
 echo DataFrame::fromRows([
     ['quarter' => 'Q1', 'year' => 2024, 'sales' => 10],
@@ -7,6 +23,8 @@ echo DataFrame::fromRows([
     |> fill('year')
     |> replace_na(['sales' => 0]);
 ```
+
+:::
 
 ```{.text .output}
 # A tibble: 3 × 3

@@ -1,7 +1,20 @@
+::: {.panel-tabset group="syntax"}
+
+## Method chain (PHP 8.3+)
+
+```php
+echo phplyr(DataFrame::fromCsv('housing.csv'))
+    ->arrange('bedrooms', desc(fn ($r) => $r->monthly_rent / $r->area_m2));
+```
+
+## Pipe (PHP 8.5)
+
 ```php
 echo DataFrame::fromCsv('housing.csv')
     |> arrange('bedrooms', desc(fn ($r) => $r->monthly_rent / $r->area_m2));
 ```
+
+:::
 
 ```{.text .output}
 # A tibble: 8 × 3

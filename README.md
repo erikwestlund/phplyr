@@ -1,6 +1,24 @@
 # phplyr
 
-A port of dplyr for [phibble](https://github.com/erikwestlund/phibble) tables, built for the PHP 8.5 pipe operator.
+A port of dplyr for [phibble](https://github.com/erikwestlund/phibble) tables. It runs on PHP 8.3 and later with method chains, and on PHP 8.5 with the pipe operator.
+
+**Method chain (PHP 8.3+)**
+
+```php
+use Phibble\DataFrame;
+use function Phplyr\{phplyr, desc, n, mean, min_rank};
+
+$out = phplyr(DataFrame::fromCsv('sales.csv'))
+    ->filter(fn ($r) => $r->price > 0)
+    ->mutate(log_price: fn ($r) => log($r->price))
+    ->group_by('brand')
+    ->summarise(n: n(), avg: mean('price'))
+    ->mutate(rank: min_rank(desc('avg')))
+    ->arrange('rank')
+    ->get();
+```
+
+**Pipe (PHP 8.5)**
 
 ```php
 use Phibble\DataFrame;
@@ -15,13 +33,15 @@ $out = DataFrame::fromCsv('sales.csv')
     |> arrange('rank');
 ```
 
+The two give the same table. `phplyr($t)` starts a chain, each method runs the verb of that name with the same arguments, and `get()` returns the table. Verbs that return something other than a table, such as `pull()` or `lm()`, end the chain and return their result. `pipe($t, filter(...), group_by('brand'))` applies verbs in order and also works on every version.
+
 Each verb returns a closure that takes one `Phibble\Contracts\Table`, and verbs delegate to the table, so the same pipeline runs on phibble's in-memory DataFrame, on a database table, and on phpolars' PolarsTable. Results follow dplyr 1.2 and tidyr 1.3. The test suite compares phplyr's output with R's; the reference scripts are in `tests/r/`.
 
 Documentation: <https://erikwestlund.github.io/phplyr/>. Start with [getting started](https://erikwestlund.github.io/phplyr/getting-started.html) or [coming from dplyr](https://erikwestlund.github.io/phplyr/coming-from-dplyr.html).
 
 ## Installation
 
-phplyr needs PHP 8.5. It isn't on Packagist yet, so add the GitHub repositories for phplyr and phibble to your `composer.json`:
+phplyr needs PHP 8.3 or later; the pipe operator needs PHP 8.5. It isn't on Packagist yet, so add the GitHub repositories for phplyr and phibble to your `composer.json`:
 
 ```json
 "repositories": [
@@ -33,7 +53,7 @@ phplyr needs PHP 8.5. It isn't on Packagist yet, so add the GitHub repositories 
 Then:
 
 ```bash
-composer require erikwestlund/phplyr:^0.1
+composer require erikwestlund/phplyr:^0.3
 ```
 
 Two extensions are optional:
@@ -77,9 +97,9 @@ See [CHANGELOG.md](CHANGELOG.md) for what each release contains.
 | `slice_sample` | `slice_sample(n: 10, replace: true, weight_by: 'w')`. Seed with `mt_srand()`. |
 | `head` | `head(6)`. Ignores groups. |
 | `pull` | `pull('x')`, `pull()` (the last column), `pull('x', name: 'id')` |
-| `bind_rows` / `bind_cols` | `$a \|> bind_rows($b, _id: 'src')`, `$a \|> bind_cols($b)` |
-| `glimpse` | `$t \|> glimpse()`. Prints a summary and passes the table on. |
-| Joins | `$x \|> left_join($y, by: ['id' => 'key'], suffix: ['.x', '.y'], keep:, na_matches:, multiple:, unmatched:, relationship:)`. Also `inner_join`, `right_join`, `full_join`, `semi_join`, `anti_join` and `cross_join`. |
+| `bind_rows` / `bind_cols` | `bind_rows($b, _id: 'src')`, `bind_cols($b)` |
+| `glimpse` | `glimpse()`. Prints a summary and passes the table on. |
+| Joins | `left_join($y, by: ['id' => 'key'], suffix: ['.x', '.y'], keep:, na_matches:, multiple:, unmatched:, relationship:)`. Also `inner_join`, `right_join`, `full_join`, `semi_join`, `anti_join` and `cross_join`. |
 | `rowwise` | `rowwise('id')`. Each row becomes its own group. |
 
 | `filter_out` | `filter_out(fn ($r) => $r->status === 'test')`. Drops rows where every condition is true, keeping NA rows (dplyr 1.2). |
@@ -104,10 +124,13 @@ See [CHANGELOG.md](CHANGELOG.md) for what each release contains.
 - **Where they work:** `select`, `relocate`, `rename_with`, `arrange`, `distinct`, `group_by`, `count` and `across`.
 
 ```php
+phplyr($t)->group_by('g')->summarise(across(starts_with('x'), ['avg' => mean(...), 'sd' => sd(...)]));
+phplyr($t)->mutate(across(where('numeric'), fn ($v) => $v * 2));  // applied to each value
+phplyr($t)->mutate(across(['a', 'b'], lag(...)));                 // phplyr helpers by name
+phplyr($t)->filter(if_any(['a', 'b'], fn ($v) => $v > 8));
+
+// On PHP 8.5, the same with |>:
 $t |> group_by('g') |> summarise(across(starts_with('x'), ['avg' => mean(...), 'sd' => sd(...)]));
-$t |> mutate(across(where('numeric'), fn ($v) => $v * 2));      // applied to each value
-$t |> mutate(across(['a', 'b'], lag(...)));                     // phplyr helpers by name
-$t |> filter(if_any(['a', 'b'], fn ($v) => $v > 8));
 ```
 
 What an `across()` function receives:
@@ -137,7 +160,7 @@ The tidyr verbs are pipe-able too, with tidyr's argument names. The test suite c
 | `separate` | `separate('s', ['a', 'b'], sep: '-', extra: 'merge', fill: 'left', convert: true)` |
 | `separate_wider_*` | `separate_wider_delim('s', '-', names: [...])`, `separate_wider_position('code', ['state' => 2, 1, 'n' => 2])`, `separate_wider_regex('code', ['l' => '[A-Z]+', 'd' => '\d+'])` |
 | `separate_longer_*` | `separate_longer_delim('tags', ',')`, `separate_longer_position('code', 2)` |
-| `nest` / `unnest` | `group_by('g') \|> nest()`, `nest(data: ['x', 'y'])`, `unnest('data')` |
+| `nest` / `unnest` | `nest()` after `group_by('g')`, `nest(data: ['x', 'y'])`, `unnest('data')` |
 
 ## Expressions and databases
 
@@ -153,10 +176,10 @@ The tidyr verbs are pipe-able too, with tidyr's argument names. The test suite c
 composer install
 bin/test                        # uses .ext/libphp_stats.dylib when present
 NO_EXT=1 bin/test               # pure-PHP fallback
-PHP=/path/to/php85 bin/test
+PHP=/path/to/php83 bin/test      # before PHP 8.5, leaves out tests/Pipe (|>)
 Rscript tests/r/reference.R     # regenerate the dplyr reference outputs
 ```
 
-phibble (`^0.1`) is installed from GitHub through a VCS repository in composer.json.
+phibble is installed from GitHub through a VCS repository in composer.json. The lock file is resolved for PHP 8.3 (`config.platform`), so it installs on every supported version. After adding or changing a verb, run `bin/chain-docblock` to update the method chain's `@method` list.
 
 The documentation site is in `docs/` (Quarto). `bin/render-docs` refreshes the example output and renders it; see `docs/development.qmd`.

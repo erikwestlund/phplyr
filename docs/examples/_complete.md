@@ -1,3 +1,18 @@
+::: {.panel-tabset group="syntax"}
+
+## Method chain (PHP 8.3+)
+
+```php
+echo phplyr(DataFrame::fromRows([
+    ['shop' => 'north', 'month' => 1, 'sales' => 10],
+    ['shop' => 'north', 'month' => 3, 'sales' => 12],
+    ['shop' => 'south', 'month' => 2, 'sales' => 7],
+]))
+    ->complete('shop', month: [1, 2, 3], fill: ['sales' => 0]);
+```
+
+## Pipe (PHP 8.5)
+
 ```php
 echo DataFrame::fromRows([
     ['shop' => 'north', 'month' => 1, 'sales' => 10],
@@ -6,6 +21,8 @@ echo DataFrame::fromRows([
 ])
     |> complete('shop', month: [1, 2, 3], fill: ['sales' => 0]);
 ```
+
+:::
 
 ```{.text .output}
 # A tibble: 6 × 3

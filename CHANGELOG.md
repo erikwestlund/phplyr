@@ -2,6 +2,21 @@
 
 All notable changes to phplyr are recorded here. Versions follow semantic versioning; before 1.0, minor versions may change behavior.
 
+## Unreleased
+
+phplyr runs on PHP 8.3 and later. On 8.3 and 8.4, pipelines are method chains; on 8.5, the pipe operator works as before.
+
+### Added
+
+- `phplyr($t)` starts a method chain: `phplyr($t)->filter(...)->group_by('g')->summarise(...)->get()`. Each method runs the phplyr verb of that name with the same arguments. A verb that returns a table continues the chain, and any other result, such as `pull()`'s values or `lm()`'s model, is returned as it is. `get()` returns the table, `->pipe($closure)` applies a closure of your own, and `echo` prints the table. Generated `@method` lines give IDEs the verbs and their parameters.
+- `pipe($t, filter(...), head(5))` applies callables in order, the same as `$t |> filter(...) |> head(5)`.
+
+### Changed
+
+- Composer allows PHP `^8.3` and requires symfony/polyfill-php84. CI tests PHP 8.3, 8.4, and 8.5.
+- The test suite calls verbs through `pipe()` so it runs on every version. Tests that use `|>` are in `tests/Pipe/`, which runs on PHP 8.5 only.
+- Every documentation example shows a method chain and the pipe version in tabs. `bin/docs-examples` checks that both print the same output.
+
 ## 0.2.0 - 2026-10-17
 
 The remaining dplyr 1.1 and tidyr 1.3 exports, and phibble's Polars backend. Requires phibble 0.2.

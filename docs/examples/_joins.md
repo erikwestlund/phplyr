@@ -1,3 +1,27 @@
+::: {.panel-tabset group="syntax"}
+
+## Method chain (PHP 8.3+)
+
+```php
+$schools = phplyr(DataFrame::fromCsv('schools.csv'))
+    ->group_by('school')
+    ->summarise(avg_score: mean('score'))
+    ->get();
+
+$districts = DataFrame::fromRows([
+    ['school_id' => 'school-01', 'district' => 'North'],
+    ['school_id' => 'school-02', 'district' => 'North'],
+    ['school_id' => 'school-03', 'district' => 'South'],
+    ['school_id' => 'school-99', 'district' => 'East'],
+]);
+
+echo phplyr($schools)->inner_join($districts, by: ['school' => 'school_id']);
+echo "\n", phplyr($schools)->left_join($districts, by: ['school' => 'school_id'])->head(5);
+echo "\n", phplyr($districts)->anti_join($schools, by: ['school_id' => 'school']);
+```
+
+## Pipe (PHP 8.5)
+
 ```php
 $schools = DataFrame::fromCsv('schools.csv')
     |> group_by('school')
@@ -14,6 +38,8 @@ echo $schools |> inner_join($districts, by: ['school' => 'school_id']);
 echo "\n", $schools |> left_join($districts, by: ['school' => 'school_id']) |> head(5);
 echo "\n", $districts |> anti_join($schools, by: ['school_id' => 'school']);
 ```
+
+:::
 
 ```{.text .output}
 # A tibble: 3 × 3

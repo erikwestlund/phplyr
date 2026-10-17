@@ -4,7 +4,7 @@ title: "Two-table verbs"
 
 ## Joins
 
-The join verbs take the right-hand table as their first argument. The piped
+The join verbs take the right-hand table as their first argument. The input
 table is the left-hand table `x`.
 
 | Function | Rows kept |
@@ -64,7 +64,7 @@ run them in SQL, except right and full rolling joins, which load the rows.
 
 ## Binding
 
-`bind_rows()` stacks tables under the piped one, matching columns by name and
+`bind_rows()` stacks tables under the input one, matching columns by name and
 filling missing columns with NA. `_id:` adds a column with each row's source.
 `bind_cols()` puts tables side by side and renames duplicate names as
 `name...position`.
@@ -77,7 +77,7 @@ filling missing columns with NA. `_id:` adds a column with each row's source.
 whole rows. `setequal()` returns true when both tables hold the same distinct
 rows.
 
-The `rows_*()` functions modify the piped table using another table's rows,
+The `rows_*()` functions modify the input table using another table's rows,
 matched on `by:` (y's first column by default):
 
 - `rows_insert()` adds rows with new keys; `conflict: 'ignore'` skips existing

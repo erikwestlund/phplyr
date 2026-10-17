@@ -1,3 +1,28 @@
+::: {.panel-tabset group="syntax"}
+
+## Method chain (PHP 8.3+)
+
+```php
+use function Phplyr\chop;
+
+$people = DataFrame::fromColumns([
+    'id' => [1, 2, 3],
+    'info' => [
+        ['name' => 'ann', 'langs' => ['php', 'r'], 'city' => ['name' => 'Oslo']],
+        ['name' => 'bob', 'langs' => ['sql']],
+        null,
+    ],
+]);
+
+echo phplyr($people)->hoist('info', town: ['city', 'name']), "\n";
+
+echo phplyr($people)->unnest_wider('info')->select('id', 'langs')->unnest_longer('langs', indices_include: true), "\n";
+
+echo phplyr(DataFrame::fromColumns(['g' => ['a', 'a', 'b'], 'x' => [1, 2, 3]]))->chop('x');
+```
+
+## Pipe (PHP 8.5)
+
 ```php
 use function Phplyr\chop;
 
@@ -16,6 +41,8 @@ echo $people |> unnest_wider('info') |> select('id', 'langs') |> unnest_longer('
 
 echo DataFrame::fromColumns(['g' => ['a', 'a', 'b'], 'x' => [1, 2, 3]]) |> chop('x');
 ```
+
+:::
 
 ```{.text .output}
 # A tibble: 3 × 3

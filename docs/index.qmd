@@ -1,16 +1,18 @@
 ---
 title: "phplyr"
-subtitle: "dplyr and tidyr for PHP 8.5"
+subtitle: "dplyr and tidyr for PHP 8.3+"
 ---
 
 phplyr is a port of R's dplyr and tidyr to PHP. It works on
-[phibble](https://github.com/erikwestlund/phibble) tables and is written for the
-PHP 8.5 pipe operator, so a pipeline reads like its R equivalent.
+[phibble](https://github.com/erikwestlund/phibble) tables. A pipeline is a method chain on PHP 8.3 and
+later, or uses the pipe operator on PHP 8.5, and reads like its R equivalent.
 
 {{< include examples/_first-pipeline.md >}}
 
-Each verb is a function that returns a closure taking one table. The `|>`
-operator passes the table from one verb to the next. Verbs call the methods of
+Each verb is a function that returns a closure taking one table. In a method
+chain, `phplyr($t)->filter(...)` runs `filter()` on the table, and `get()`
+returns the result. On PHP 8.5, the `|>` operator passes the table from one
+verb to the next. Verbs call the methods of
 phibble's `Table` contract, so the same pipeline runs on the in-memory `DataFrame`
 and on other backends that implement the contract.
 
@@ -20,7 +22,7 @@ pipelines in R and PHP and compares the output. The reference scripts are in
 
 ## Install
 
-phplyr needs PHP 8.5.
+phplyr needs PHP 8.3 or later. The pipe operator needs PHP 8.5.
 
 ```bash
 composer require erikwestlund/phplyr

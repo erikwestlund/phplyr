@@ -4,14 +4,20 @@ title: "Development"
 
 ## Tests
 
-The tests use Pest and run under PHP 8.5:
+The tests use Pest and run under PHP 8.3, 8.4, and 8.5. They call verbs through
+`pipe()`, so they parse on every version. `tests/Pipe/` holds the tests written
+with `|>`; `bin/test` leaves them out before PHP 8.5.
 
 ```bash
 composer install
 bin/test                 # loads .ext/libphp_stats.dylib when present
 NO_EXT=1 bin/test        # pure-PHP descriptive statistics
-PHP=/path/to/php85 bin/test
+PHP=/path/to/php83 bin/test
 ```
+
+The method chain's `@method` list in `src/Chain.php` is generated. After
+adding or changing a verb, run `bin/chain-docblock`; a test fails while the
+list is out of date.
 
 Most tests compare phplyr with R. The scripts in `tests/r/` run the same
 pipelines with dplyr and tidyr and write JSON fixtures to `tests/Fixtures/`:
@@ -31,6 +37,10 @@ The site is a Quarto project in `docs/`. Code examples live in
 working directory and writes `docs/examples/_<name>.md` with the code and its
 output, which the pages include. Rendering never executes PHP.
 
+An example uses `|>`, and `docs/examples/<name>.chain.php` beside it is the
+same example as a method chain. `bin/docs-examples` runs both and fails if
+their output differs. The page shows the two in tabs, with the output once.
+
 ```bash
 PHP=/path/to/php85 bin/docs-examples   # refresh example output
 PHP=/path/to/php85 bin/render-docs     # examples, quarto render, publish to docs/
@@ -43,6 +53,7 @@ GitHub Pages serves the rendered site from `main:/docs`.
 | Path | Contents |
 | --- | --- |
 | `src/functions/verbs.php` | Single-table verbs |
+| `src/functions/chain.php`, `src/Chain.php` | `phplyr()` method chains and `pipe()` |
 | `src/functions/vectors.php` | Summary, window, and conditional helpers |
 | `src/functions/select.php` | tidyselect helpers and `across()` |
 | `src/functions/joins.php`, `rows.php` | Joins, set operations, and `rows_*()` |

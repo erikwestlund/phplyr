@@ -2,10 +2,23 @@
 title: "Models"
 ---
 
-`lm()`, `glm()`, `lmer()`, and `glmer()` pass the piped table to the php-stats
+`lm()`, `glm()`, `lmer()`, and `glmer()` pass the input table to the php-stats
 extension's `stats_lm()`, `stats_glm()`, `stats_lmer()`, and `stats_glmer()`. The extension reads factor levels from the
 table, builds the model matrix, and returns coefficients, standard errors, and
 fit statistics in the same order as R.
+
+::: {.panel-tabset group="syntax"}
+
+## Method chain (PHP 8.3+)
+
+```php
+phplyr($table)->lm('y ~ x + group');
+phplyr($table)->glm('passed ~ hours', family: 'binomial');   // also 'poisson', link:
+phplyr($table)->lmer('score ~ hours + (1 | school)');        // REML; reml: false for ML
+phplyr($table)->glmer('passed ~ hours + (1 | school)', family: 'binomial');
+```
+
+## Pipe (PHP 8.5)
 
 ```php
 $table |> lm('y ~ x + group');
@@ -13,6 +26,8 @@ $table |> glm('passed ~ hours', family: 'binomial');   // also 'poisson', link:
 $table |> lmer('score ~ hours + (1 | school)');        // REML; reml: false for ML
 $table |> glmer('passed ~ hours + (1 | school)', family: 'binomial');
 ```
+
+:::
 
 `lmer()` and `glmer()` take lme4's random-effect bars. The result includes
 `columns` with R's coefficient names. All four need php-stats with the formula

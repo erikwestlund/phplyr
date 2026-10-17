@@ -7,8 +7,9 @@ differences come from PHP syntax.
 
 ## Syntax translation
 
-In R, verbs are chained with `%>%` or `|>`; in PHP 8.5, with `|>`. The table
-below shows single calls.
+In R, verbs are chained with `%>%` or `|>`. In PHP, they are chained as
+methods, `phplyr($t)->filter(...)->arrange(...)`, or on PHP 8.5 with `|>`. The
+table below shows single calls.
 
 | dplyr | phplyr |
 | --- | --- |

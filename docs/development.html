@@ -293,11 +293,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="tests" class="level2">
 <h2 class="anchored" data-anchor-id="tests">Tests</h2>
-<p>The tests use Pest and run under PHP 8.5:</p>
+<p>The tests use Pest and run under PHP 8.3, 8.4, and 8.5. They call verbs through <code>pipe()</code>, so they parse on every version. <code>tests/Pipe/</code> holds the tests written with <code>|&gt;</code>; <code>bin/test</code> leaves them out before PHP 8.5.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">composer</span> install</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bin/test</span>                 <span class="co"># loads .ext/libphp_stats.dylib when present</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">NO_EXT</span><span class="op">=</span>1 <span class="ex">bin/test</span>        <span class="co"># pure-PHP descriptive statistics</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">PHP</span><span class="op">=</span>/path/to/php85 <span class="ex">bin/test</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">PHP</span><span class="op">=</span>/path/to/php83 <span class="ex">bin/test</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The method chain’s <code>@method</code> list in <code>src/Chain.php</code> is generated. After adding or changing a verb, run <code>bin/chain-docblock</code>; a test fails while the list is out of date.</p>
 <p>Most tests compare phplyr with R. The scripts in <code>tests/r/</code> run the same pipelines with dplyr and tidyr and write JSON fixtures to <code>tests/Fixtures/</code>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> tests/r/reference.R   <span class="co"># single-table verbs, windows, across, tidyselect</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> tests/r/joins.R       <span class="co"># joins and rowwise</span></span>
@@ -308,6 +309,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="documentation" class="level2">
 <h2 class="anchored" data-anchor-id="documentation">Documentation</h2>
 <p>The site is a Quarto project in <code>docs/</code>. Code examples live in <code>docs/examples/*.php</code>. <code>bin/docs-examples</code> runs each one with <code>docs/data</code> as the working directory and writes <code>docs/examples/_&lt;name&gt;.md</code> with the code and its output, which the pages include. Rendering never executes PHP.</p>
+<p>An example uses <code>|&gt;</code>, and <code>docs/examples/&lt;name&gt;.chain.php</code> beside it is the same example as a method chain. <code>bin/docs-examples</code> runs both and fails if their output differs. The page shows the two in tabs, with the output once.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="va">PHP</span><span class="op">=</span>/path/to/php85 <span class="ex">bin/docs-examples</span>   <span class="co"># refresh example output</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="va">PHP</span><span class="op">=</span>/path/to/php85 <span class="ex">bin/render-docs</span>     <span class="co"># examples, quarto render, publish to docs/</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>GitHub Pages serves the rendered site from <code>main:/docs</code>.</p>
@@ -331,30 +333,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Single-table verbs</td>
 </tr>
 <tr class="even">
+<td><code>src/functions/chain.php</code>, <code>src/Chain.php</code></td>
+<td><code>phplyr()</code> method chains and <code>pipe()</code></td>
+</tr>
+<tr class="odd">
 <td><code>src/functions/vectors.php</code></td>
 <td>Summary, window, and conditional helpers</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>src/functions/select.php</code></td>
 <td>tidyselect helpers and <code>across()</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>src/functions/joins.php</code>, <code>rows.php</code></td>
 <td>Joins, set operations, and <code>rows_*()</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>src/functions/groups.php</code></td>
 <td>Group utilities, binding, and model adapters</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>src/functions/tidyr.php</code></td>
 <td>tidyr verbs</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>src/Vec.php</code></td>
 <td>The per-group vector expression behind the helpers</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>src/Ops.php</code></td>
 <td>Group-vector primitives over the Table contract</td>
 </tr>

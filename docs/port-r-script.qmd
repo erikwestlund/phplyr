@@ -34,8 +34,9 @@ The output under each script is what it printed.
 
 - **Loading.** `read.csv()` becomes `DataFrame::fromCsv()`. phibble infers column
   types like readr.
-- **Pipes.** R's `|>` stays `|>`. Each verb returns a closure that the pipe
-  applies.
+- **Pipes.** On PHP 8.5, R's `|>` stays `|>`. Each verb returns a closure
+  that the pipe applies. On PHP 8.3 and 8.4, the pipeline becomes a method
+  chain: `phplyr($t)->verb(...)`, ending with `->get()`.
 - **Column references.** Bare names become strings, or `col('x')` inside
   expressions. `score - prior_score` becomes `col('score')->sub(col('prior_score'))`.
   A row closure, `fn ($r) => $r->score - $r->prior_score`, also works.

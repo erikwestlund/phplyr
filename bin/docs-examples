@@ -9,6 +9,9 @@
  * that would shadow a PHP built-in other than count, min and max (examples
  * import round(), abs() and the like themselves).
  *
+ * A <name>.chain.php beside an example is its method-chain version. Both
+ * must print the same output, and the page shows them in tabs.
+ *
  * R examples (.R files in docs/examples and its subdirectories) run with Rscript the same way and write
  * _<name>-r.md, for side-by-side comparisons. Examples in a subdirectory are
  * named <dir>-<file>.
@@ -62,11 +65,8 @@ foreach ([...glob($root.'/docs/examples/*.R'), ...glob($root.'/docs/examples/*/*
     file_put_contents($outDir($file)."/_".basename($file, '.R').'-r.md', "```r\n{$code}\n```\n\n```{.text .output}\n".rtrim($out)."\n```\n");
     echo "{$name} (R): ok\n";
 }
-foreach ([...glob($root.'/docs/examples/*.php'), ...glob($root.'/docs/examples/*/*.php')] as $file) {
-    $name = $nameOf($file, '.php');
-    if ($only !== [] && ! in_array($name, $only, true)) {
-        continue;
-    }
+// Run one PHP example; return its code and output, or null if it failed.
+$run = function (string $file, string $name) use ($root, $php, $args, $preludeFor): ?array {
     $code = trim((string) preg_replace('/^<\?php\s*(declare\(strict_types=1\);\s*)?/', '', file_get_contents($file)));
     $script = tempnam(sys_get_temp_dir(), 'phplyr-doc').'.php';
     file_put_contents($script, "<?php\n\ndeclare(strict_types=1);\n\nrequire ".var_export($root.'/vendor/autoload.php', true).";\n\n".$preludeFor($code)."\n".$code."\n");
@@ -78,11 +78,42 @@ foreach ([...glob($root.'/docs/examples/*.php'), ...glob($root.'/docs/examples/*
     unlink($script);
     if ($status !== 0) {
         fwrite(STDERR, "{$name}: failed\n{$out}{$err}\n");
+
+        return null;
+    }
+
+    return [$code, $out];
+};
+// An example <name>.php uses |>. Its method-chain version, <name>.chain.php,
+// must print the same output; the page shows both in tabs and the output once.
+foreach ([...glob($root.'/docs/examples/*.php'), ...glob($root.'/docs/examples/*/*.php')] as $file) {
+    if (str_ends_with($file, '.chain.php')) {
+        continue;
+    }
+    $name = $nameOf($file, '.php');
+    if ($only !== [] && ! in_array($name, $only, true)) {
+        continue;
+    }
+    $pipe = $run($file, $name);
+    $chainFile = substr($file, 0, -4).'.chain.php';
+    $chain = is_file($chainFile) ? $run($chainFile, "{$name} (chain)") : null;
+    if ($pipe === null || (is_file($chainFile) && $chain === null)) {
         $failed++;
 
         continue;
     }
-    $md = "```php\n{$code}\n```\n\n";
+    [$code, $out] = $pipe;
+    if ($chain === null) {
+        $md = "```php\n{$code}\n```\n\n";
+    } else {
+        if ($chain[1] !== $out) {
+            fwrite(STDERR, "{$name}: the method chain prints different output from the pipe version\n");
+            $failed++;
+
+            continue;
+        }
+        $md = "::: {.panel-tabset group=\"syntax\"}\n\n## Method chain (PHP 8.3+)\n\n```php\n{$chain[0]}\n```\n\n## Pipe (PHP 8.5)\n\n```php\n{$code}\n```\n\n:::\n\n";
+    }
     if (trim($out) !== '') {
         $md .= "```{.text .output}\n".rtrim($out)."\n```\n";
     }
